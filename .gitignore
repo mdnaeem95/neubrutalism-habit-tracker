@@ -32,9 +32,27 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env
+.env.development
+.env.production
 
 # typescript
 *.tsbuildinfo
+
+# testing
+coverage/
+.jest/
+
+# editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# logs
+logs/
+*.log
 
 # generated native folders
 /ios
