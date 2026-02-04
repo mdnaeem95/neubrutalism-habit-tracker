@@ -26,7 +26,7 @@ export const Input: React.FC<InputProps> = ({
   return (
     <View className="w-full">
       {label && (
-        <Text className="font-extrabold text-base text-neu-black mb-2">{label}</Text>
+        <Text style={{ fontWeight: '800', fontSize: 16, color: '#000000', marginBottom: 8 }}>{label}</Text>
       )}
       <TextInput
         className={`
@@ -40,10 +40,10 @@ export const Input: React.FC<InputProps> = ({
         {...props}
       />
       {error && (
-        <Text className="font-semibold text-sm text-neu-error mt-1">{error}</Text>
+        <Text style={{ fontWeight: '600', fontSize: 14, color: '#FF0000', marginTop: 4 }}>{error}</Text>
       )}
       {helperText && !error && (
-        <Text className="font-medium text-sm text-gray-600 mt-1">{helperText}</Text>
+        <Text style={{ fontWeight: '500', fontSize: 14, color: '#666666', marginTop: 4 }}>{helperText}</Text>
       )}
     </View>
   );

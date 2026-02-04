@@ -9,16 +9,16 @@ export default function App() {
       <StatusBar style="dark" />
       <ScrollView className="flex-1 p-6">
         <View className="mt-12">
-          <Text className="font-black text-5xl text-neu-black mb-2">
+          <Text style={{ fontWeight: '900', fontSize: 48, color: '#000000', marginBottom: 8 }}>
             HabitBrutal
           </Text>
-          <Text className="font-extrabold text-xl text-neu-black mb-8">
+          <Text style={{ fontWeight: '800', fontSize: 20, color: '#000000', marginBottom: 32 }}>
             Neubrutalism UI Demo
           </Text>
 
           {/* Buttons Section */}
           <Card className="mb-6">
-            <Text className="font-extrabold text-2xl text-neu-black mb-4">
+            <Text style={{ fontWeight: '800', fontSize: 24, color: '#000000', marginBottom: 16 }}>
               Buttons
             </Text>
             <View className="gap-3">
@@ -37,7 +37,7 @@ export default function App() {
 
           {/* Cards Section */}
           <View className="mb-6">
-            <Text className="font-extrabold text-2xl text-neu-black mb-4">
+            <Text style={{ fontWeight: '800', fontSize: 24, color: '#000000', marginBottom: 16 }}>
               Cards
             </Text>
             <View className="gap-3">
@@ -71,7 +71,7 @@ export default function App() {
 
           {/* Inputs Section */}
           <Card className="mb-6">
-            <Text className="font-extrabold text-2xl text-neu-black mb-4">
+            <Text style={{ fontWeight: '800', fontSize: 24, color: '#000000', marginBottom: 16 }}>
               Inputs
             </Text>
             <View className="gap-4">
@@ -96,7 +96,7 @@ export default function App() {
 
           {/* Badges Section */}
           <Card className="mb-12">
-            <Text className="font-extrabold text-2xl text-neu-black mb-4">
+            <Text style={{ fontWeight: '800', fontSize: 24, color: '#000000', marginBottom: 16 }}>
               Badges
             </Text>
             <View className="flex-row flex-wrap gap-2">
