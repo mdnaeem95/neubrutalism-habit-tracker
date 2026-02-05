@@ -17,35 +17,30 @@ export const Input: React.FC<InputProps> = ({ label, error, helperText, style, .
   };
 
   return (
-    <View className="w-full">
+    <View style={{ width: '100%' }}>
       {label && (
-        <Text style={{ fontWeight: "800", fontSize: 16, color: "#000", marginBottom: 8 }}>
+        <Text style={{ fontWeight: '800', fontSize: 16, color: '#000000', marginBottom: 8 }}>
           {label}
         </Text>
       )}
-
-      {/* shadow belongs here */}
-      <View style={shadowStyle}>
-        <TextInput
-          className={`
-            border-3 border-neu-black rounded-none
-            bg-white px-4 py-3
-            font-semibold text-base text-neu-black
-            ${error ? "border-neu-error" : ""}
-          `}
-          style={[style]} // <- no shadowStyle here
-          placeholderTextColor={colors.black}
-          {...props}
-        />
-      </View>
-
+      <TextInput
+        className={`
+          border-3 border-neu-black rounded-none
+          bg-white px-4 py-3
+          font-semibold text-base text-neu-black
+          ${error ? 'border-neu-error' : ''}
+        `}
+        style={[shadowStyle, style]}
+        placeholderTextColor={colors.black}
+        {...props}
+      />
       {error && (
-        <Text style={{ fontWeight: "600", fontSize: 14, color: "#FF0000", marginTop: 4 }}>
+        <Text style={{ fontWeight: '600', fontSize: 14, color: '#FF0000', marginTop: 4 }}>
           {error}
         </Text>
       )}
-      {helperText && error && (
-        <Text style={{ fontWeight: "500", fontSize: 14, color: "#666", marginTop: 4 }}>
+      {helperText && !error && (
+        <Text style={{ fontWeight: '500', fontSize: 14, color: '#666666', marginTop: 4 }}>
           {helperText}
         </Text>
       )}
