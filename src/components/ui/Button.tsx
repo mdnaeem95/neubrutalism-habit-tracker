@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   TouchableOpacityProps,
   ViewStyle,
+  TextStyle,
 } from 'react-native';
 import { colors } from '@constants/colors';
 
@@ -24,66 +25,71 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   ...props
 }) => {
-  const getVariantClasses = () => {
+  const getBackgroundColor = () => {
     switch (variant) {
       case 'primary':
-        return 'bg-neu-yellow';
+        return '#FFD700'; // yellow
       case 'secondary':
-        return 'bg-neu-cyan';
+        return '#00FFFF'; // cyan
       case 'danger':
-        return 'bg-neu-error';
+        return '#FF0000'; // red
       case 'success':
-        return 'bg-neu-lime';
+        return '#00FF00'; // lime
       default:
-        return 'bg-neu-yellow';
+        return '#FFD700';
     }
   };
 
-  const getSizeClasses = () => {
+  const getPadding = () => {
     switch (size) {
       case 'sm':
-        return 'px-4 py-2';
+        return { paddingHorizontal: 16, paddingVertical: 8 };
       case 'md':
-        return 'px-6 py-3';
+        return { paddingHorizontal: 24, paddingVertical: 12 };
       case 'lg':
-        return 'px-8 py-4';
+        return { paddingHorizontal: 32, paddingVertical: 16 };
       default:
-        return 'px-6 py-3';
+        return { paddingHorizontal: 24, paddingVertical: 12 };
     }
   };
 
-  const getTextSizeClasses = () => {
+  const getTextSize = () => {
     switch (size) {
       case 'sm':
-        return 'text-sm';
+        return 14;
       case 'md':
-        return 'text-base';
+        return 16;
       case 'lg':
-        return 'text-lg';
+        return 18;
       default:
-        return 'text-base';
+        return 16;
     }
   };
 
-  const shadowStyle: ViewStyle = {
-    shadowColor: colors.black,
+  const buttonStyle: ViewStyle = {
+    borderWidth: 3,
+    borderColor: '#000000',
+    borderRadius: 0,
+    backgroundColor: getBackgroundColor(),
+    ...getPadding(),
+    shadowColor: '#000000',
     shadowOffset: { width: 4, height: 4 },
     shadowOpacity: 1,
     shadowRadius: 0,
     elevation: 0,
+    opacity: disabled || isLoading ? 0.5 : 1,
   };
 
-  const baseClasses = `
-    border-3 border-neu-black rounded-none
-    ${getVariantClasses()}
-    ${getSizeClasses()}
-    ${disabled || isLoading ? 'opacity-50' : 'active:translate-y-1 active:translate-x-1'}
-  `;
+  const textStyle: TextStyle = {
+    fontWeight: '800',
+    fontSize: getTextSize(),
+    color: '#000000',
+    textAlign: 'center',
+  };
 
   return (
     <TouchableOpacity
-      className={baseClasses}
-      style={[shadowStyle, style]}
+      style={[buttonStyle, style]}
       disabled={disabled || isLoading}
       activeOpacity={0.8}
       {...props}
@@ -91,7 +97,7 @@ export const Button: React.FC<ButtonProps> = ({
       {isLoading ? (
         <ActivityIndicator color={colors.black} size="small" />
       ) : (
-        <Text className={`font-extrabold text-neu-black text-center ${getTextSizeClasses()}`}>
+        <Text style={textStyle}>
           {children}
         </Text>
       )}

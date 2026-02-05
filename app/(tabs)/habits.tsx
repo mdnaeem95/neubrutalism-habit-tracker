@@ -1,16 +1,14 @@
 import { useEffect, useState } from 'react';
-import { View, Text, FlatList, Alert, RefreshControl } from 'react-native';
+import { View, Text, FlatList, Alert, RefreshControl, TextStyle, ViewStyle } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { Button } from '@components/ui';
-import { NotificationPermissionBanner } from '@components/ui/NotificationPermissionBanner';
 import { HabitCard } from '@components/habits/HabitCard';
 import { useAuthStore } from '@store/useAuthStore';
 import { useHabitsStore } from '@store/useHabitsStore';
 import { trackScreenView } from '@services/firebase/analytics';
-import { format } from 'date-fns';
 
-export default function HomeScreen() {
+export default function HabitsScreen() {
   const router = useRouter();
   const { user } = useAuthStore();
   const { habits, loading, fetchHabits, toggleCheckIn } = useHabitsStore();
@@ -24,7 +22,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
     // Track screen view
-    trackScreenView('Today');
+    trackScreenView('All Habits');
   }, []);
 
   const loadHabits = async () => {
@@ -59,28 +57,44 @@ export default function HomeScreen() {
     router.push(`/habit/${habitId}`);
   };
 
-  const todayDate = format(new Date(), 'EEEE, MMMM d');
+  const headerStyle: ViewStyle = {
+    paddingHorizontal: 24,
+    paddingTop: 48,
+    paddingBottom: 16,
+  };
+
+  const titleStyle: TextStyle = {
+    fontWeight: '900',
+    fontSize: 48,
+    color: '#000000',
+    marginBottom: 8,
+  };
+
+  const subtitleStyle: TextStyle = {
+    fontWeight: '600',
+    fontSize: 16,
+    color: '#000000',
+    marginBottom: 16,
+  };
+
+  const completedHabits = habits.filter((h) => h.todayCheckedIn).length;
+  const totalHabits = habits.length;
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F5F5F5' }}>
       <StatusBar style="dark" />
 
       {/* Header */}
-      <View style={{ paddingHorizontal: 24, paddingTop: 48, paddingBottom: 16 }}>
-        <Text style={{ fontWeight: '900', fontSize: 48, color: '#000000', marginBottom: 4 }}>
-          Today
-        </Text>
-        <Text style={{ fontWeight: '600', fontSize: 16, color: '#000000', marginBottom: 16 }}>
-          {todayDate}
+      <View style={headerStyle}>
+        <Text style={titleStyle}>All Habits</Text>
+        <Text style={subtitleStyle}>
+          {completedHabits} of {totalHabits} completed today
         </Text>
 
         <Button variant="primary" onPress={handleCreateHabit}>
           + Add Habit
         </Button>
       </View>
-
-      {/* Notification Permission Banner */}
-      <NotificationPermissionBanner />
 
       {/* Habits List */}
       {loading && habits.length === 0 ? (

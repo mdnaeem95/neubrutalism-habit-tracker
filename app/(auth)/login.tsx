@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
-import { Link, router } from 'expo-router';
+import { Link } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Button, Input, Card } from '@components/ui';
 import { useAuthStore } from '@store/useAuthStore';
@@ -8,12 +8,12 @@ import { useAuthStore } from '@store/useAuthStore';
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { login, loading, error } = useAuthStore();
+  const { login, loading } = useAuthStore();
 
   const handleLogin = async () => {
     try {
       await login({ email, password });
-      router.replace('/(tabs)');
+      // No manual navigation - let index.tsx handle redirect based on auth state
     } catch (err: any) {
       Alert.alert('Login Failed', err.message || 'Please check your credentials');
     }
@@ -22,15 +22,15 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-neu-gray"
+      style={{ flex: 1, backgroundColor: '#F5F5F5' }}
     >
       <StatusBar style="dark" />
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="flex-1 justify-center px-6 py-12">
-          <View className="mb-8">
+        <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 48 }}>
+          <View style={{ marginBottom: 32 }}>
             <Text style={{ fontWeight: '900', fontSize: 48, color: '#000000', marginBottom: 8 }}>
               Welcome Back
             </Text>
@@ -39,8 +39,8 @@ export default function LoginScreen() {
             </Text>
           </View>
 
-          <Card className="mb-6">
-            <View className="gap-4">
+          <Card style={{ marginBottom: 24 }}>
+            <View style={{ gap: 16 }}>
               <Input
                 label="Email"
                 placeholder="your@email.com"
@@ -60,7 +60,7 @@ export default function LoginScreen() {
               />
             </View>
 
-            <View className="mt-6">
+            <View style={{ marginTop: 24 }}>
               <Button
                 variant="primary"
                 onPress={handleLogin}
@@ -80,7 +80,7 @@ export default function LoginScreen() {
             </View>
           </Card>
 
-          <View className="gap-3 mb-6">
+          <View style={{ gap: 12, marginBottom: 24 }}>
             <Button variant="secondary" onPress={() => console.log('Google Sign-In')}>
               Continue with Google
             </Button>
@@ -89,7 +89,7 @@ export default function LoginScreen() {
             </Button>
           </View>
 
-          <View className="flex-row justify-center items-center">
+          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
             <Text style={{ fontWeight: '600', fontSize: 16, color: '#000000' }}>
               Don't have an account?{' '}
             </Text>

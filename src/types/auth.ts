@@ -5,6 +5,10 @@ export interface User {
   photoURL: string | null;
   emailVerified: boolean;
   createdAt: Date;
+  subscription?: {
+    plan: 'free' | 'premium' | 'trial';
+    expiresAt?: Date;
+  };
 }
 
 export interface AuthState {

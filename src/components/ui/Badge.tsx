@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ViewProps, ViewStyle } from 'react-native';
+import { View, Text, ViewProps, ViewStyle, TextStyle } from 'react-native';
 import { colors } from '@constants/colors';
 
 interface BadgeProps extends ViewProps {
@@ -13,40 +13,47 @@ export const Badge: React.FC<BadgeProps> = ({
   style,
   ...props
 }) => {
-  const getVariantClasses = () => {
+  const getBackgroundColor = () => {
     switch (variant) {
       case 'success':
-        return 'bg-neu-success';
+        return '#00FF00'; // lime
       case 'error':
-        return 'bg-neu-error';
+        return '#FF0000'; // red
       case 'warning':
-        return 'bg-neu-warning';
+        return '#FF6B35'; // orange
       case 'info':
-        return 'bg-neu-cyan';
+        return '#00FFFF'; // cyan
       default:
-        return 'bg-neu-yellow';
+        return '#FFD700'; // yellow
     }
   };
 
-  const shadowStyle: ViewStyle = {
-    shadowColor: colors.black,
+  const badgeStyle: ViewStyle = {
+    borderWidth: 2,
+    borderColor: '#000000',
+    borderRadius: 0,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    backgroundColor: getBackgroundColor(),
+    shadowColor: '#000000',
     shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 1,
     shadowRadius: 0,
     elevation: 0,
   };
 
+  const textStyle: TextStyle = {
+    fontWeight: '800',
+    fontSize: 12,
+    color: '#000000',
+  };
+
   return (
     <View
-      className={`
-        border-2 border-neu-black rounded-none
-        px-3 py-1
-        ${getVariantClasses()}
-      `}
-      style={[shadowStyle, style]}
+      style={[badgeStyle, style]}
       {...props}
     >
-      <Text className="font-extrabold text-xs text-neu-black">{children}</Text>
+      <Text style={textStyle}>{children}</Text>
     </View>
   );
 };

@@ -22,15 +22,15 @@ export default function ForgotPasswordScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-neu-gray"
+      style={{ flex: 1, backgroundColor: '#F5F5F5' }}
     >
       <StatusBar style="dark" />
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="flex-1 justify-center px-6 py-12">
-          <View className="mb-8">
+        <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 48 }}>
+          <View style={{ marginBottom: 32 }}>
             <Text style={{ fontWeight: '900', fontSize: 48, color: '#000000', marginBottom: 8 }}>
               Reset Password
             </Text>
@@ -42,7 +42,7 @@ export default function ForgotPasswordScreen() {
           </View>
 
           {!sent ? (
-            <Card className="mb-6">
+            <Card style={{ marginBottom: 24 }}>
               <Input
                 label="Email"
                 placeholder="your@email.com"
@@ -68,7 +68,7 @@ export default function ForgotPasswordScreen() {
               </View>
             </Card>
           ) : (
-            <Card className="mb-6">
+            <Card style={{ marginBottom: 24 }}>
               <Text style={{ fontWeight: '600', fontSize: 16, color: '#000000', marginBottom: 16 }}>
                 We've sent password reset instructions to {email}
               </Text>

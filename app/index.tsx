@@ -1,7 +1,5 @@
-import { Redirect } from 'expo-router';
-
+// This file exists to satisfy Expo Router's requirement for an index route
+// Actual routing logic is handled in _layout.tsx based on auth state
 export default function Index() {
-  // TODO: Check auth state and redirect accordingly
-  // For now, redirect to login
-  return <Redirect href="/(auth)/login" />;
+  return null;
 }

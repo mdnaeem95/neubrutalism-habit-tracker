@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
-import { Link, router } from 'expo-router';
+import { Link } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Button, Input, Card } from '@components/ui';
 import { useAuthStore } from '@store/useAuthStore';
@@ -9,12 +9,12 @@ export default function SignupScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { signup, loading, error } = useAuthStore();
+  const { signup, loading } = useAuthStore();
 
   const handleSignup = async () => {
     try {
       await signup({ name, email, password });
-      router.replace('/(tabs)');
+      // No manual navigation - let index.tsx handle redirect based on auth state
     } catch (err: any) {
       Alert.alert('Signup Failed', err.message || 'Please try again');
     }
@@ -23,15 +23,15 @@ export default function SignupScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-neu-gray"
+      style={{ flex: 1, backgroundColor: '#F5F5F5' }}
     >
       <StatusBar style="dark" />
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="flex-1 justify-center px-6 py-12">
-          <View className="mb-8">
+        <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 48 }}>
+          <View style={{ marginBottom: 32 }}>
             <Text style={{ fontWeight: '900', fontSize: 48, color: '#000000', marginBottom: 8 }}>
               Get Started
             </Text>
@@ -40,8 +40,8 @@ export default function SignupScreen() {
             </Text>
           </View>
 
-          <Card className="mb-6">
-            <View className="gap-4">
+          <Card style={{ marginBottom: 24 }}>
+            <View style={{ gap: 16 }}>
               <Input
                 label="Name"
                 placeholder="Your name"
@@ -70,7 +70,7 @@ export default function SignupScreen() {
               />
             </View>
 
-            <View className="mt-6">
+            <View style={{ marginTop: 24 }}>
               <Button
                 variant="primary"
                 onPress={handleSignup}
@@ -82,7 +82,7 @@ export default function SignupScreen() {
             </View>
           </Card>
 
-          <View className="gap-3 mb-6">
+          <View style={{ gap: 12, marginBottom: 24 }}>
             <Button variant="secondary" onPress={() => console.log('Google Sign-In')}>
               Continue with Google
             </Button>
