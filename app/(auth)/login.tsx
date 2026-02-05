@@ -71,11 +71,13 @@ export default function LoginScreen() {
               </Button>
             </View>
 
-            <Link href="/(auth)/forgot-password" className="text-center mt-4">
-              <Text style={{ fontWeight: '700', fontSize: 14, color: '#000000' }}>
-                Forgot Password?
-              </Text>
-            </Link>
+            <View style={{ marginTop: 16, alignItems: 'center' }}>
+              <Link href="/(auth)/forgot-password">
+                <Text style={{ fontWeight: '700', fontSize: 14, color: '#000000' }}>
+                  Forgot Password?
+                </Text>
+              </Link>
+            </View>
           </Card>
 
           <View className="gap-3 mb-6">

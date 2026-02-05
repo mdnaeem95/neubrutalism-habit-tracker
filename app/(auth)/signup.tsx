@@ -91,7 +91,7 @@ export default function SignupScreen() {
             </Button>
           </View>
 
-          <View className="flex-row justify-center items-center">
+          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
             <Text style={{ fontWeight: '600', fontSize: 16, color: '#000000' }}>
               Already have an account?{' '}
             </Text>
