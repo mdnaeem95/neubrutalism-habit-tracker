@@ -15,37 +15,40 @@ export const Card: React.FC<CardProps> = ({
   style,
   ...props
 }) => {
-  const getVariantClasses = () => {
+  const getBackgroundColor = () => {
     switch (variant) {
       case 'yellow':
-        return 'bg-neu-yellow';
+        return '#FFD700';
       case 'pink':
-        return 'bg-neu-pink';
+        return '#FF69B4';
       case 'cyan':
-        return 'bg-neu-cyan';
+        return '#00FFFF';
       case 'lime':
-        return 'bg-neu-lime';
+        return '#00FF00';
       default:
-        return 'bg-white';
+        return '#FFFFFF';
     }
   };
 
-  const shadowStyle: ViewStyle = {
-    shadowColor: colors.black,
-    shadowOffset: { width: 4, height: 4 },
-    shadowOpacity: 1,
-    shadowRadius: 0,
-    elevation: 0,
-  };
-
-  const baseClasses = `
-    border-3 border-neu-black rounded-none
-    ${getVariantClasses()}
-    ${noPadding ? '' : 'p-4'}
-  `;
-
   return (
-    <View className={baseClasses} style={[shadowStyle, style]} {...props}>
+    <View
+      style={[
+        {
+          borderWidth: 3,
+          borderColor: '#000000',
+          borderRadius: 0,
+          backgroundColor: getBackgroundColor(),
+          padding: noPadding ? 0 : 16,
+          shadowColor: '#000000',
+          shadowOffset: { width: 4, height: 4 },
+          shadowOpacity: 1,
+          shadowRadius: 0,
+          elevation: 0,
+        },
+        style,
+      ]}
+      {...props}
+    >
       {children}
     </View>
   );
