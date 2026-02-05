@@ -8,7 +8,7 @@ import {
   onAuthStateChanged,
 } from 'firebase/auth';
 import { auth } from './config';
-import type { LoginCredentials, SignupCredentials, User, AuthError } from '@types/auth';
+import type { LoginCredentials, SignupCredentials, User, AuthError } from '@/types/auth';
 
 /**
  * Convert Firebase User to our User type

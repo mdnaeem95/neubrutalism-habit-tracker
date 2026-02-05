@@ -15,6 +15,9 @@
       "@/*": [
         "src/*"
       ],
+      "@components": [
+        "src/components"
+      ],
       "@components/*": [
         "src/components/*"
       ],
@@ -35,9 +38,6 @@
       ],
       "@constants/*": [
         "src/constants/*"
-      ],
-      "@types/*": [
-        "src/types/*"
       ]
     }
   },

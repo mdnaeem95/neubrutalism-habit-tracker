@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { User, AuthState, LoginCredentials, SignupCredentials } from '@types/auth';
+import type { User, AuthState, LoginCredentials, SignupCredentials } from '@/types/auth';
 import {
   signInWithEmail,
   signUpWithEmail,
@@ -7,6 +7,8 @@ import {
   resetPassword,
   onAuthStateChange,
 } from '@services/firebase/auth';
+import { captureError, addBreadcrumb } from '@services/sentry/config';
+import { trackLogin, trackSignup, setAnalyticsUserId } from '@services/firebase/analytics';
 
 interface AuthStore extends AuthState {
   // Actions
@@ -38,10 +40,17 @@ export const useAuthStore = create<AuthStore>((set) => ({
   login: async (credentials) => {
     try {
       set({ loading: true, error: null });
+      addBreadcrumb('User attempting login', 'auth');
       const user = await signInWithEmail(credentials);
       set({ user, loading: false });
+      addBreadcrumb('User logged in successfully', 'auth', { userId: user.id });
+
+      // Track login event
+      trackLogin('email');
+      setAnalyticsUserId(user.id);
     } catch (error: any) {
       set({ error: error.message, loading: false });
+      captureError(error, { action: 'login', email: credentials.email });
       throw error;
     }
   },
@@ -50,10 +59,17 @@ export const useAuthStore = create<AuthStore>((set) => ({
   signup: async (credentials) => {
     try {
       set({ loading: true, error: null });
+      addBreadcrumb('User attempting signup', 'auth');
       const user = await signUpWithEmail(credentials);
       set({ user, loading: false });
+      addBreadcrumb('User signed up successfully', 'auth', { userId: user.id });
+
+      // Track signup event
+      trackSignup('email');
+      setAnalyticsUserId(user.id);
     } catch (error: any) {
       set({ error: error.message, loading: false });
+      captureError(error, { action: 'signup', email: credentials.email });
       throw error;
     }
   },
@@ -64,6 +80,9 @@ export const useAuthStore = create<AuthStore>((set) => ({
       set({ loading: true, error: null });
       await signOut();
       set({ user: null, loading: false });
+
+      // Clear analytics user ID on logout
+      setAnalyticsUserId(null);
     } catch (error: any) {
       set({ error: error.message, loading: false });
       throw error;
