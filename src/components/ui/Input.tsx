@@ -9,13 +9,6 @@ interface InputProps extends TextInputProps {
 }
 
 export const Input: React.FC<InputProps> = ({ label, error, helperText, style, ...props }) => {
-  const shadowStyle: ViewStyle = {
-    shadowColor: colors.black,
-    shadowOffset: { width: 2, height: 2 },
-    shadowOpacity: 1,
-    shadowRadius: 0,
-  };
-
   return (
     <View style={{ width: '100%' }}>
       {label && (
@@ -24,13 +17,25 @@ export const Input: React.FC<InputProps> = ({ label, error, helperText, style, .
         </Text>
       )}
       <TextInput
-        className={`
-          border-3 border-neu-black rounded-none
-          bg-white px-4 py-3
-          font-semibold text-base text-neu-black
-          ${error ? 'border-neu-error' : ''}
-        `}
-        style={[shadowStyle, style]}
+        style={[
+          {
+            borderWidth: 3,
+            borderColor: error ? '#FF0000' : '#000000',
+            borderRadius: 0,
+            backgroundColor: '#FFFFFF',
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            fontWeight: '600',
+            fontSize: 16,
+            color: '#000000',
+            shadowColor: '#000000',
+            shadowOffset: { width: 2, height: 2 },
+            shadowOpacity: 1,
+            shadowRadius: 0,
+            elevation: 0,
+          },
+          style,
+        ]}
         placeholderTextColor={colors.black}
         {...props}
       />
