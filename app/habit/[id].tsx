@@ -7,6 +7,7 @@ import { Button, Card, Badge } from '@components/ui';
 import { HabitCalendar } from '@components';
 import { NoteInputModal } from '@components/habits/NoteInputModal';
 import { NoteCard } from '@components/habits/NoteCard';
+import { ShareCardModal, StreakShareCard } from '@components/share';
 import { useAuthStore } from '@store/useAuthStore';
 import { useHabitsStore } from '@store/useHabitsStore';
 import { useDialog } from '@/contexts/DialogContext';
@@ -23,6 +24,10 @@ export default function HabitDetailScreen() {
   const [noteModalVisible, setNoteModalVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [currentNote, setCurrentNote] = useState<string>('');
+  const [showShareModal, setShowShareModal] = useState(false);
+
+  // Check if user has premium (for watermark removal)
+  const isPremium = user?.subscription?.plan === 'premium' || user?.subscription?.plan === 'trial';
 
   const habit = id ? getHabitById(id) : null;
   const habitCheckIns = id && checkIns[id] ? checkIns[id] : [];
@@ -247,10 +252,22 @@ export default function HabitDetailScreen() {
         {/* Stats Grid */}
         <View style={{ flexDirection: 'row', gap: 12, marginBottom: 24 }}>
           <View style={{ flex: 1 }}>
-            <View style={statCardStyle}>
+            <TouchableOpacity
+              style={statCardStyle}
+              onPress={() => habit.currentStreak > 0 && setShowShareModal(true)}
+              activeOpacity={habit.currentStreak > 0 ? 0.7 : 1}
+            >
               <Text style={statValueStyle}>{habit.currentStreak}</Text>
               <Text style={statLabelStyle}>Current Streak</Text>
-            </View>
+              {habit.currentStreak > 0 && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
+                  <Ionicons name="share-outline" size={14} color="#666666" />
+                  <Text style={{ fontSize: 10, fontWeight: '700', color: '#666666', marginLeft: 4 }}>
+                    Tap to share
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
           </View>
           <View style={{ flex: 1 }}>
             <View style={statCardStyle}>
@@ -373,6 +390,22 @@ export default function HabitDetailScreen() {
         onSave={handleSaveNote}
         onCancel={handleCancelNote}
       />
+
+      {/* Share Streak Modal */}
+      {habit && (
+        <ShareCardModal
+          visible={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          title="Share Your Streak"
+        >
+          <StreakShareCard
+            habitName={habit.name}
+            streakDays={habit.currentStreak}
+            showWatermark={!isPremium}
+            themeColor={getColorValue(habit.color)}
+          />
+        </ShareCardModal>
+      )}
     </ScrollView>
   );
 }

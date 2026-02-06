@@ -7,6 +7,7 @@ import { AnimatedSplash } from '@components';
 import { hasCompletedOnboardingSync, initializeStorage } from '@utils/storage';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { DialogProvider } from '@/contexts/DialogContext';
+import { useNotifications } from '@/hooks/useNotifications';
 
 // Initialize Sentry
 initSentry();
@@ -18,6 +19,9 @@ export default function RootLayout() {
   const loading = useAuthStore((state) => state.loading);
   const segments = useSegments();
   const router = useRouter();
+
+  // Initialize notification listeners
+  useNotifications();
 
   const handleSplashComplete = () => {
     setShowSplash(false);

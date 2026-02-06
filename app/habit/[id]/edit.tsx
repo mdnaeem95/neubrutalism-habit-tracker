@@ -3,8 +3,9 @@ import { View, Text, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacit
 import { StatusBar } from 'expo-status-bar';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, Input, Card } from '@components/ui';
+import { Button, Input, Card, TimePicker } from '@components/ui';
 import { useHabitsStore } from '@store/useHabitsStore';
+import { useAuthStore } from '@store/useAuthStore';
 import { useDialog } from '@/contexts/DialogContext';
 import type { HabitCategory, HabitColor, FrequencyType } from '@/types/habit';
 
@@ -29,6 +30,7 @@ export default function EditHabitScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { getHabitById, updateHabit, loading } = useHabitsStore();
+  const { user } = useAuthStore();
   const dialog = useDialog();
 
   const habit = id ? getHabitById(id) : null;
@@ -39,6 +41,10 @@ export default function EditHabitScreen() {
   const [selectedColor, setSelectedColor] = useState<HabitColor>('yellow');
   const [selectedCategory, setSelectedCategory] = useState<HabitCategory>('health');
   const [frequencyType, setFrequencyType] = useState<FrequencyType>('daily');
+  const [reminderTime, setReminderTime] = useState<string | null>(null);
+
+  // Check if user has premium for per-habit reminders
+  const isPremium = user?.subscription?.plan === 'premium' || user?.subscription?.plan === 'trial';
 
   // Load habit data on mount
   useEffect(() => {
@@ -49,8 +55,20 @@ export default function EditHabitScreen() {
       setSelectedColor(habit.color);
       setSelectedCategory(habit.category);
       setFrequencyType(habit.frequency.type);
+      setReminderTime(habit.reminderTime || null);
     }
   }, [habit]);
+
+  const handleReminderTimeChange = (time: string | null) => {
+    setReminderTime(time);
+  };
+
+  const handlePremiumLockPress = () => {
+    dialog.alert('Premium Feature', 'Per-habit reminders are available with Premium. Set custom reminder times for each habit!', [
+      { text: 'Maybe Later', style: 'cancel' },
+      { text: 'Upgrade', onPress: () => router.push('/paywall') },
+    ]);
+  };
 
   const handleUpdate = async () => {
     if (!id) return;
@@ -70,7 +88,7 @@ export default function EditHabitScreen() {
         frequency: {
           type: frequencyType,
         },
-        reminderTime: habit?.reminderTime || null,
+        reminderTime: isPremium ? reminderTime : null,
       });
 
       dialog.alert('Success', 'Habit updated successfully!', [
@@ -273,6 +291,16 @@ export default function EditHabitScreen() {
                 </TouchableOpacity>
               ))}
             </View>
+
+            {/* Reminder Time (Premium Feature) */}
+            <Text style={sectionTitleStyle}>Daily Reminder</Text>
+            <TimePicker
+              value={isPremium ? reminderTime : null}
+              onChange={handleReminderTimeChange}
+              placeholder="No reminder set"
+              showLock={!isPremium}
+              onLockPress={handlePremiumLockPress}
+            />
 
             {/* Action Buttons */}
             <View style={{ gap: 12, marginTop: 8 }}>

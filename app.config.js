@@ -34,7 +34,12 @@ module.exports = {
     web: {
       favicon: './assets/favicon.png',
     },
-    plugins: ['expo-font', 'expo-router', 'expo-web-browser'],
+    plugins: [
+      'expo-font',
+      'expo-router',
+      'expo-web-browser',
+      '@react-native-community/datetimepicker',
+    ],
     extra: {
       router: {},
       eas: {

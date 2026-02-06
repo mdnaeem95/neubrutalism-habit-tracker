@@ -3,12 +3,14 @@ import { View, Text, ScrollView, TouchableOpacity, Switch, ViewStyle, TextStyle,
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Card, Button } from '@components/ui';
+import { Card, Button, TimePicker } from '@components/ui';
 import { useAuthStore } from '@store/useAuthStore';
 import { useHabitsStore } from '@store/useHabitsStore';
 import { getUserPreferences, saveUserPreferences, clearStorage, resetOnboarding } from '@utils/storage';
 import { exportData } from '@utils/export';
 import { useDialog } from '@/contexts/DialogContext';
+import { scheduleDailyNotification, cancelAllNotifications } from '@services/notifications';
+import { useNotifications } from '@/hooks/useNotifications';
 import Constants from 'expo-constants';
 
 export default function SettingsScreen() {
@@ -16,11 +18,13 @@ export default function SettingsScreen() {
   const { user, logout } = useAuthStore();
   const { habits, checkIns } = useHabitsStore();
   const dialog = useDialog();
+  const { hasPermission, requestPermission } = useNotifications();
 
   // Load preferences
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [notificationTime, setNotificationTime] = useState('09:00');
+  const [notificationTime, setNotificationTime] = useState<string | null>('09:00');
   const [preferences, setPreferences] = useState<Record<string, any>>({});
+  const [globalNotificationId, setGlobalNotificationId] = useState<string | null>(null);
 
   useEffect(() => {
     // Load preferences on mount
@@ -29,13 +33,84 @@ export default function SettingsScreen() {
       setPreferences(prefs);
       setNotificationsEnabled(prefs.notificationsEnabled ?? true);
       setNotificationTime(prefs.notificationTime ?? '09:00');
+      setGlobalNotificationId(prefs.globalNotificationId ?? null);
     };
     loadPreferences();
   }, []);
 
   const handleToggleNotifications = async (value: boolean) => {
+    // Request permission if enabling and don't have permission
+    if (value && !hasPermission) {
+      const granted = await requestPermission();
+      if (!granted) {
+        dialog.alert('Permission Required', 'Please enable notifications in your device settings to receive reminders.');
+        return;
+      }
+    }
+
     setNotificationsEnabled(value);
     await saveUserPreferences({ ...preferences, notificationsEnabled: value });
+
+    if (value && notificationTime) {
+      // Schedule the daily reminder
+      await scheduleGlobalReminder(notificationTime);
+    } else {
+      // Cancel all notifications
+      await cancelAllNotifications();
+      setGlobalNotificationId(null);
+      await saveUserPreferences({ ...preferences, notificationsEnabled: value, globalNotificationId: null });
+    }
+  };
+
+  const handleNotificationTimeChange = async (time: string | null) => {
+    setNotificationTime(time);
+    await saveUserPreferences({ ...preferences, notificationTime: time });
+
+    if (notificationsEnabled && time) {
+      await scheduleGlobalReminder(time);
+    } else if (!time) {
+      // Clear the notification if time is removed
+      await cancelAllNotifications();
+      setGlobalNotificationId(null);
+      await saveUserPreferences({ ...preferences, notificationTime: null, globalNotificationId: null });
+    }
+  };
+
+  const scheduleGlobalReminder = async (time: string) => {
+    try {
+      // Request permission if not granted
+      if (!hasPermission) {
+        const granted = await requestPermission();
+        if (!granted) {
+          dialog.alert('Permission Required', 'Please enable notifications in your device settings to receive reminders.');
+          return;
+        }
+      }
+
+      // Cancel existing notification
+      await cancelAllNotifications();
+
+      // Parse time string "HH:MM"
+      const [hours, minutes] = time.split(':').map(Number);
+
+      // Schedule new notification
+      const notificationId = await scheduleDailyNotification(
+        'Time to check your habits!',
+        'Stay consistent and keep your streaks going!',
+        hours,
+        minutes
+      );
+
+      setGlobalNotificationId(notificationId);
+      await saveUserPreferences({
+        ...preferences,
+        notificationTime: time,
+        globalNotificationId: notificationId,
+      });
+    } catch (error) {
+      console.error('Failed to schedule notification:', error);
+      dialog.alert('Error', 'Failed to schedule reminder. Please try again.');
+    }
   };
 
   const handleSignOut = async () => {
@@ -345,10 +420,14 @@ export default function SettingsScreen() {
               ios_backgroundColor="#E0E0E0"
             />
           </View>
-          <View style={settingItemStyle}>
-            <Text style={settingLabelStyle}>Reminder Time</Text>
-            <Text style={settingValueStyle}>{notificationTime}</Text>
-            <Ionicons name="chevron-forward" size={20} color="#000000" />
+          <View style={{ paddingTop: 8 }}>
+            <TimePicker
+              value={notificationTime}
+              onChange={handleNotificationTimeChange}
+              label="Daily Reminder Time"
+              disabled={!notificationsEnabled}
+              placeholder="Set reminder time"
+            />
           </View>
         </Card>
       </View>

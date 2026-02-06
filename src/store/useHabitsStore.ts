@@ -26,6 +26,10 @@ import {
   trackHabitArchived,
   trackStreakMilestone,
 } from '@services/firebase/analytics';
+import {
+  scheduleHabitReminder,
+  cancelNotification,
+} from '@services/notifications';
 
 interface HabitsState {
   habits: HabitWithStats[];
@@ -132,6 +136,27 @@ export const useHabitsStore = create<HabitsStore>((set, get) => ({
       }
 
       const newHabit = await createHabitApi(userId, input);
+
+      // Schedule notification if reminder time is set
+      let notificationId: string | undefined;
+      if (input.reminderTime) {
+        try {
+          const [hours, minutes] = input.reminderTime.split(':').map(Number);
+          notificationId = await scheduleHabitReminder(
+            newHabit.id,
+            input.name,
+            hours,
+            minutes
+          );
+          // Update the habit with the notification ID
+          await updateHabitApi(newHabit.id, { notificationId } as any);
+          newHabit.notificationId = notificationId;
+        } catch (notifError) {
+          console.warn('Failed to schedule notification:', notifError);
+          // Don't fail habit creation if notification fails
+        }
+      }
+
       const enrichedHabit = get().enrichHabitWithStats(newHabit, []);
 
       set((state) => ({
@@ -155,11 +180,49 @@ export const useHabitsStore = create<HabitsStore>((set, get) => ({
     try {
       set({ loading: true, error: null });
 
-      await updateHabitApi(habitId, input);
+      const existingHabit = get().habits.find((h) => h.id === habitId);
+      let notificationId = existingHabit?.notificationId;
+
+      // Handle reminder time changes
+      if (input.reminderTime !== undefined) {
+        // Cancel existing notification if there is one
+        if (existingHabit?.notificationId) {
+          try {
+            await cancelNotification(existingHabit.notificationId);
+            notificationId = undefined;
+          } catch (notifError) {
+            console.warn('Failed to cancel notification:', notifError);
+          }
+        }
+
+        // Schedule new notification if reminder time is set
+        if (input.reminderTime) {
+          try {
+            const [hours, minutes] = input.reminderTime.split(':').map(Number);
+            const habitName = input.name || existingHabit?.name || 'Habit';
+            notificationId = await scheduleHabitReminder(
+              habitId,
+              habitName,
+              hours,
+              minutes
+            );
+          } catch (notifError) {
+            console.warn('Failed to schedule notification:', notifError);
+          }
+        }
+      }
+
+      // Include notificationId in the update
+      const updateData = {
+        ...input,
+        notificationId: notificationId || undefined,
+      };
+
+      await updateHabitApi(habitId, updateData as any);
 
       set((state) => ({
         habits: state.habits.map((h) =>
-          h.id === habitId ? { ...h, ...input } : h
+          h.id === habitId ? { ...h, ...updateData } as HabitWithStats : h
         ),
         loading: false,
       }));
@@ -177,6 +240,15 @@ export const useHabitsStore = create<HabitsStore>((set, get) => ({
       // Get habit stats before deleting
       const habit = get().habits.find((h) => h.id === habitId);
       const totalCompletions = habit?.totalCompletions || 0;
+
+      // Cancel notification if one exists
+      if (habit?.notificationId) {
+        try {
+          await cancelNotification(habit.notificationId);
+        } catch (notifError) {
+          console.warn('Failed to cancel notification:', notifError);
+        }
+      }
 
       await deleteHabitApi(habitId);
 
@@ -205,6 +277,16 @@ export const useHabitsStore = create<HabitsStore>((set, get) => ({
   archiveHabit: async (habitId: string) => {
     try {
       set({ loading: true, error: null });
+
+      // Cancel notification if one exists
+      const habit = get().habits.find((h) => h.id === habitId);
+      if (habit?.notificationId) {
+        try {
+          await cancelNotification(habit.notificationId);
+        } catch (notifError) {
+          console.warn('Failed to cancel notification:', notifError);
+        }
+      }
 
       await archiveHabitApi(habitId);
 

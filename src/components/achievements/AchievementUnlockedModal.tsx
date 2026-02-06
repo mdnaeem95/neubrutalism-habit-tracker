@@ -3,7 +3,7 @@
  * Celebration modal shown when user unlocks a new achievement
  */
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Modal,
   View,
@@ -16,6 +16,8 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { theme } from '@constants/theme';
 import type { Achievement } from '@/types/achievement';
+import { ShareCardModal, AchievementShareCard } from '@components/share';
+import { useAuthStore } from '@store/useAuthStore';
 
 interface AchievementUnlockedModalProps {
   visible: boolean;
@@ -28,8 +30,13 @@ export const AchievementUnlockedModal: React.FC<AchievementUnlockedModalProps> =
   achievement,
   onClose,
 }) => {
+  const [showShareModal, setShowShareModal] = useState(false);
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
+  const { user } = useAuthStore();
+
+  // Check if user has premium (for watermark removal)
+  const isPremium = user?.subscription?.plan === 'premium' || user?.subscription?.plan === 'trial';
 
   useEffect(() => {
     if (visible && achievement) {
@@ -133,11 +140,35 @@ export const AchievementUnlockedModal: React.FC<AchievementUnlockedModalProps> =
             </Text>
           </View>
 
-          {/* Close Button */}
-          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-            <Text style={styles.closeButtonText}>Awesome!</Text>
-          </TouchableOpacity>
+          {/* Action Buttons */}
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.shareButton}
+              onPress={() => setShowShareModal(true)}
+            >
+              <Ionicons name="share-outline" size={20} color="#000000" />
+              <Text style={styles.shareButtonText}>Share</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+              <Text style={styles.closeButtonText}>Awesome!</Text>
+            </TouchableOpacity>
+          </View>
         </Animated.View>
+
+        {/* Share Modal */}
+        {achievement && (
+          <ShareCardModal
+            visible={showShareModal}
+            onClose={() => setShowShareModal(false)}
+            title="Share Achievement"
+          >
+            <AchievementShareCard
+              achievement={achievement}
+              showWatermark={!isPremium}
+            />
+          </ShareCardModal>
+        )}
       </View>
     </Modal>
   );
@@ -220,6 +251,29 @@ const styles = StyleSheet.create({
   },
   rarityText: {
     fontSize: 12,
+    fontWeight: '800',
+    color: theme.colors.black,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  shareButton: {
+    backgroundColor: theme.colors.cyan,
+    borderWidth: 3,
+    borderColor: theme.colors.black,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    shadowColor: theme.colors.black,
+    shadowOffset: { width: 4, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+  },
+  shareButtonText: {
+    fontSize: 16,
     fontWeight: '800',
     color: theme.colors.black,
   },

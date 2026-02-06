@@ -3,7 +3,7 @@ import { View, Text, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacit
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, Input, Card } from '@components/ui';
+import { Button, Input, Card, TimePicker } from '@components/ui';
 import { useAuthStore } from '@store/useAuthStore';
 import { useHabitsStore } from '@store/useHabitsStore';
 import { useAchievementsStore } from '@store/useAchievementsStore';
@@ -41,6 +41,21 @@ export default function CreateHabitScreen() {
   const [selectedColor, setSelectedColor] = useState<HabitColor>('yellow');
   const [selectedCategory, setSelectedCategory] = useState<HabitCategory>('health');
   const [frequencyType,] = useState<FrequencyType>('daily');
+  const [reminderTime, setReminderTime] = useState<string | null>(null);
+
+  // Check if user has premium for per-habit reminders
+  const isPremium = user?.subscription?.plan === 'premium' || user?.subscription?.plan === 'trial';
+
+  const handleReminderTimeChange = (time: string | null) => {
+    setReminderTime(time);
+  };
+
+  const handlePremiumLockPress = () => {
+    dialog.alert('Premium Feature', 'Per-habit reminders are available with Premium. Set custom reminder times for each habit!', [
+      { text: 'Maybe Later', style: 'cancel' },
+      { text: 'Upgrade', onPress: () => router.push('/paywall') },
+    ]);
+  };
 
   const checkForAchievements = async (updatedHabitsCount: number) => {
     if (!user) return;
@@ -98,7 +113,7 @@ export default function CreateHabitScreen() {
           frequency: {
             type: frequencyType,
           },
-          reminderTime: null,
+          reminderTime: isPremium ? reminderTime : null,
         },
         userPlan
       );
@@ -294,6 +309,16 @@ export default function CreateHabitScreen() {
                 </TouchableOpacity>
               ))}
             </View>
+
+            {/* Reminder Time (Premium Feature) */}
+            <Text style={sectionTitleStyle}>Daily Reminder</Text>
+            <TimePicker
+              value={isPremium ? reminderTime : null}
+              onChange={handleReminderTimeChange}
+              placeholder="No reminder set"
+              showLock={!isPremium}
+              onLockPress={handlePremiumLockPress}
+            />
 
             {/* Action Buttons */}
             <View style={{ gap: 12, marginTop: 8 }}>
