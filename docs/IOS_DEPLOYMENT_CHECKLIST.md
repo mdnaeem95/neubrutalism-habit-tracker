@@ -8,38 +8,38 @@ Status: Starting RevenueCat Setup
 ## Phase 1: Apple Developer Account & App Store Connect
 
 ### 1.1 Apple Developer Account
-- [ ] Have active Apple Developer Program membership ($99/year)
-- [ ] Access to [developer.apple.com](https://developer.apple.com)
+- [Y] Have active Apple Developer Program membership ($99/year)
+- [Y] Access to [developer.apple.com](https://developer.apple.com)
 
 ### 1.2 Create App in App Store Connect
-- [ ] Go to [App Store Connect](https://appstoreconnect.apple.com)
-- [ ] Navigate to "My Apps" → "+" → "New App"
-- [ ] Fill in app details:
+- [Y] Go to [App Store Connect](https://appstoreconnect.apple.com)
+- [Y] Navigate to "My Apps" → "+" → "New App"
+- [Y] Fill in app details:
   - Platform: **iOS**
   - Name: **Block - Habit Tracker**
   - Primary Language: **English**
   - Bundle ID: **com.blockapp.habits** _(already configured in app.json)_
   - SKU: **block-habit-tracker**
-- [ ] Save and note your **App Store Connect App ID** (numerical ID)
+- [Y] Save and note your **App Store Connect App ID** (numerical ID)
 
 ---
 
 ## Phase 2: In-App Purchase Setup
 
 ### 2.1 Create Subscription Group
-- [ ] In App Store Connect, go to your app → "Monetization" → "Subscriptions"
-- [ ] Click "+" to create **Auto-Renewable Subscription Group**
+- [Y] In App Store Connect, go to your app → "Monetization" → "Subscriptions"
+- [Y] Click "+" to create **Auto-Renewable Subscription Group**
   - Reference Name: **Block Premium**
   - Group ID: **block_premium**
 
 ### 2.2 Create Monthly Subscription
-- [ ] Click "+" in the subscription group to add a subscription
-- [ ] Configure:
+- [Y] Click "+" in the subscription group to add a subscription
+- [Y] Configure:
   - **Product ID**: `block_premium_monthly`
   - **Reference Name**: Block Premium Monthly
   - **Subscription Duration**: 1 month
   - **Price**: $4.99 USD
-- [ ] Add **Free Trial**: 7 days
+- [Y] Add **Free Trial**: 7 days
 - [ ] Localized Information (at least English):
   - **Display Name**: Premium Monthly
   - **Description**: Unlimited habits, advanced stats, data export, custom themes, and priority support
@@ -47,89 +47,89 @@ Status: Starting RevenueCat Setup
 - [ ] Submit for review (can submit before app)
 
 ### 2.3 Create Annual Subscription
-- [ ] Click "+" in the subscription group to add another subscription
-- [ ] Configure:
+- [Y] Click "+" in the subscription group to add another subscription
+- [Y] Configure:
   - **Product ID**: `block_premium_annual`
   - **Reference Name**: Block Premium Annual
   - **Subscription Duration**: 1 year
   - **Price**: $29.99 USD (save 50%)
-- [ ] Add **Free Trial**: 7 days
-- [ ] Localized Information:
+- [Y] Add **Free Trial**: 7 days
+- [Y] Localized Information:
   - **Display Name**: Premium Yearly - Best Value!
   - **Description**: Unlimited habits, advanced stats, data export, custom themes, and priority support. Save 50% compared to monthly!
-- [ ] Submit for review
+- [Y] Submit for review
 
 ### 2.4 Get App Store Connect API Key
-- [ ] In App Store Connect, go to "Users and Access" → "Integrations" → "App Store Connect API"
-- [ ] Click "+" to generate a new key
-- [ ] Configure:
+- [Y] In App Store Connect, go to "Users and Access" → "Integrations" → "App Store Connect API"
+- [Y] Click "+" to generate a new key
+- [Y] Configure:
   - **Name**: RevenueCat
   - **Access**: Admin (or App Manager)
-- [ ] Click "Generate"
-- [ ] **Download the .p8 file** (you can only download once!)
-- [ ] Note down:
+- [Y] Click "Generate"
+- [Y] **Download the .p8 file** (you can only download once!)
+- [Y] Note down:
   - **Key ID**: (e.g., `2X9R4HXF34`)
   - **Issuer ID**: (e.g., `57246542-96fe-1a63-e053-0824d011072a`)
-- [ ] Store .p8 file securely (e.g., in 1Password, not in git)
+- [Y] Store .p8 file securely (e.g., in 1Password, not in git)
 
 ---
 
 ## Phase 3: RevenueCat Setup
 
 ### 3.1 Create RevenueCat Account
-- [ ] Go to [revenuecat.com](https://www.revenuecat.com)
-- [ ] Sign up (free tier available)
-- [ ] Create new project named **"Block"**
-- [ ] Note your **Project ID**
+- [Y] Go to [revenuecat.com](https://www.revenuecat.com)
+- [Y] Sign up (free tier available)
+- [Y] Create new project named **"Block"**
+- [Y] Note your **Project ID**
 
 ### 3.2 Add iOS App to RevenueCat
-- [ ] In RevenueCat dashboard, click "Projects" → Select "Block"
-- [ ] Go to "Apps" → "Add App"
-- [ ] Select **iOS / App Store**
-- [ ] Enter details:
+- [Y] In RevenueCat dashboard, click "Projects" → Select "Block"
+- [Y] Go to "Apps" → "Add App"
+- [Y] Select **iOS / App Store**
+- [Y] Enter details:
   - **App name**: Block
   - **Bundle ID**: `com.blockapp.habits`
-- [ ] Upload **App Store Connect API Key**:
+- [Y] Upload **App Store Connect API Key**:
   - Upload the .p8 file you downloaded
   - Enter **Issuer ID**
   - Enter **Key ID**
-- [ ] Click "Save"
-- [ ] RevenueCat will validate the connection (may take a few minutes)
+- [Y] Click "Save"
+- [Y] RevenueCat will validate the connection (may take a few minutes)
 
 ### 3.3 Create Entitlement in RevenueCat
-- [ ] In RevenueCat, go to "Entitlements"
-- [ ] Click "+ New"
-- [ ] Enter identifier: **`premium`** _(must match code in app)_
-- [ ] Save
+- [Y] In RevenueCat, go to "Entitlements"
+- [Y] Click "+ New"
+- [Y] Enter identifier: **`premium`** _(must match code in app)_
+- [Y] Save
 
 ### 3.4 Configure Products in RevenueCat
-- [ ] Go to "Products"
-- [ ] RevenueCat should auto-detect your subscriptions from App Store Connect
-- [ ] If not, manually add:
-  - [ ] `block_premium_monthly` (iOS)
-  - [ ] `block_premium_annual` (iOS)
-- [ ] Ensure products show "Active" status
+- [Y] Go to "Products"
+- [Y] RevenueCat should auto-detect your subscriptions from App Store Connect
+- [Y] If not, manually add:
+  - [Y] `block_premium_monthly` (iOS)
+  - [Y] `block_premium_annual` (iOS)
+- [Y] Ensure products show "Active" status
 
 ### 3.5 Create Offerings
-- [ ] Go to "Offerings"
-- [ ] Create new offering:
+- [Y] Go to "Offerings"
+- [Y] Create new offering:
   - **Identifier**: `default`
   - **Description**: Default subscription offerings
-- [ ] Add packages to the offering:
-  - [ ] **Monthly Package**:
+- [Y] Add packages to the offering:
+  - [Y] **Monthly Package**:
     - Identifier: `monthly`
     - iOS Product: `block_premium_monthly`
-  - [ ] **Annual Package**:
+  - [Y] **Annual Package**:
     - Identifier: `annual`
     - iOS Product: `block_premium_annual`
-- [ ] Set as **Current Offering**
-- [ ] Save
+- [Y] Set as **Current Offering**
+- [Y] Save
 
 ### 3.6 Get RevenueCat API Key
-- [ ] In RevenueCat, go to "API Keys"
-- [ ] Under "Public app-specific API keys", find **Apple App Store**
-- [ ] Copy the key (starts with `appl_`)
-- [ ] Store securely (will add to .env file next)
+- [Y] In RevenueCat, go to "API Keys"
+- [Y] Under "Public app-specific API keys", find **Apple App Store**
+- [Y] Copy the key (starts with `appl_`)
+- [Y] Store securely (will add to .env file next)
 
 ---
 
@@ -141,18 +141,18 @@ Status: Starting RevenueCat Setup
 touch .env
 ```
 
-- [ ] Add RevenueCat keys to `.env`:
+- [Y] Add RevenueCat keys to `.env`:
 ```env
 # RevenueCat API Keys
 EXPO_PUBLIC_REVENUECAT_APPLE_API_KEY=appl_xxxxxxxxxxxxxxxxx
 ```
 
-- [ ] Verify `.env` is in `.gitignore` (should already be)
-- [ ] Test the app locally to ensure RevenueCat initializes
+- [Y] Verify `.env` is in `.gitignore` (should already be)
+- [Y] Test the app locally to ensure RevenueCat initializes
 
 ### 4.2 Update EAS Configuration
-- [ ] Open `eas.json`
-- [ ] Update the `submit.production.ios` section:
+- [Y] Open `eas.json`
+- [Y] Update the `submit.production.ios` section:
 ```json
 {
   "submit": {
