@@ -5,9 +5,12 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Card, Badge } from '@components/ui';
 import { HabitCalendar } from '@components';
+import { NoteInputModal } from '@components/habits/NoteInputModal';
+import { NoteCard } from '@components/habits/NoteCard';
 import { useAuthStore } from '@store/useAuthStore';
 import { useHabitsStore } from '@store/useHabitsStore';
 import { getLast7DaysCheckIns } from '@utils/habitCalculations';
+import type { CheckIn } from '@/types/habit';
 
 export default function HabitDetailScreen() {
   const router = useRouter();
@@ -15,6 +18,9 @@ export default function HabitDetailScreen() {
   const { user } = useAuthStore();
   const { getHabitById, checkIns, deleteHabit, archiveHabit, toggleCheckIn } = useHabitsStore();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
+  const [noteModalVisible, setNoteModalVisible] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string>('');
+  const [currentNote, setCurrentNote] = useState<string>('');
 
   const habit = id ? getHabitById(id) : null;
   const habitCheckIns = id && checkIns[id] ? checkIns[id] : [];
@@ -57,11 +63,44 @@ export default function HabitDetailScreen() {
 
   const handleCheckIn = async (date: string) => {
     if (!user || !id) return;
-    try {
-      await toggleCheckIn(user.id, id, date);
-    } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to update check-in');
+
+    // Check if user is premium and if we're checking in (not unchecking)
+    const isPremium = user.subscription?.plan === 'premium' || user.subscription?.plan === 'trial';
+    const existingCheckIn = habitCheckIns.find((c) => c.date === date);
+    const isCheckingIn = !existingCheckIn?.completed;
+
+    if (isPremium && isCheckingIn) {
+      // Show note modal for premium users
+      setSelectedDate(date);
+      setCurrentNote(existingCheckIn?.note || '');
+      setNoteModalVisible(true);
+    } else {
+      // Regular check-in without note
+      try {
+        await toggleCheckIn(user.id, id, date);
+      } catch (error: any) {
+        Alert.alert('Error', error.message || 'Failed to update check-in');
+      }
     }
+  };
+
+  const handleSaveNote = async (note: string) => {
+    if (!user || !id) return;
+
+    try {
+      await toggleCheckIn(user.id, id, selectedDate, note);
+      setNoteModalVisible(false);
+      setSelectedDate('');
+      setCurrentNote('');
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to save check-in with note');
+    }
+  };
+
+  const handleCancelNote = () => {
+    setNoteModalVisible(false);
+    setSelectedDate('');
+    setCurrentNote('');
   };
 
   if (!habit) {
@@ -239,15 +278,24 @@ export default function HabitDetailScreen() {
             {last7Days.map((day, _) => {
               const date = new Date(day.date);
               const dayName = date.toLocaleDateString('en-US', { weekday: 'narrow' });
+              const checkIn = habitCheckIns.find((c) => c.date === day.date);
+              const hasNote = checkIn?.note && checkIn.note.trim().length > 0;
+
               return (
-                <TouchableOpacity
-                  key={day.date}
-                  style={dayBoxStyle(day.completed)}
-                  onPress={() => handleCheckIn(day.date)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={dayTextStyle}>{dayName}</Text>
-                </TouchableOpacity>
+                <View key={day.date} style={{ alignItems: 'center' }}>
+                  <TouchableOpacity
+                    style={dayBoxStyle(day.completed)}
+                    onPress={() => handleCheckIn(day.date)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={dayTextStyle}>{dayName}</Text>
+                  </TouchableOpacity>
+                  {hasNote && (
+                    <View style={{ marginTop: 4 }}>
+                      <Ionicons name="document-text" size={12} color="#000000" />
+                    </View>
+                  )}
+                </View>
               );
             })}
           </View>
@@ -263,6 +311,38 @@ export default function HabitDetailScreen() {
             onMonthChange={setSelectedMonth}
           />
         </Card>
+
+        {/* Recent Notes (Premium Feature) */}
+        {(() => {
+          const notesWithCheckIns = habitCheckIns
+            .filter((c) => c.note && c.note.trim().length > 0)
+            .slice(0, 5); // Show last 5 notes
+
+          if (notesWithCheckIns.length > 0) {
+            return (
+              <Card style={{ marginBottom: 24 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                  <Text style={sectionTitleStyle}>Recent Notes</Text>
+                  <View style={{ marginLeft: 8, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 2, backgroundColor: '#FFD700', borderWidth: 2, borderColor: '#000000' }}>
+                    <Ionicons name="star" size={10} color="#000000" />
+                    <Text style={{ fontSize: 10, fontWeight: '800', color: '#000000', marginLeft: 4 }}>PREMIUM</Text>
+                  </View>
+                </View>
+                <View style={{ gap: 12 }}>
+                  {notesWithCheckIns.map((checkIn: CheckIn) => (
+                    <NoteCard
+                      key={checkIn.id}
+                      note={checkIn.note || ''}
+                      date={checkIn.date}
+                      compact={true}
+                    />
+                  ))}
+                </View>
+              </Card>
+            );
+          }
+          return null;
+        })()}
 
         {/* Actions */}
         <View style={{ gap: 12, marginBottom: 24 }}>
@@ -280,6 +360,15 @@ export default function HabitDetailScreen() {
           </Button>
         </View>
       </View>
+
+      {/* Note Input Modal */}
+      <NoteInputModal
+        visible={noteModalVisible}
+        habitName={habit?.name || ''}
+        initialNote={currentNote}
+        onSave={handleSaveNote}
+        onCancel={handleCancelNote}
+      />
     </ScrollView>
   );
 }

@@ -45,7 +45,7 @@ interface HabitsActions {
 
   // Check-ins
   fetchCheckIns: (habitId: string) => Promise<void>;
-  toggleCheckIn: (userId: string, habitId: string, date?: string) => Promise<void>;
+  toggleCheckIn: (userId: string, habitId: string, date?: string, note?: string) => Promise<void>;
   updateCheckInNote: (checkInId: string, note: string) => Promise<void>;
 
   // Computed data
@@ -239,17 +239,17 @@ export const useHabitsStore = create<HabitsStore>((set, get) => ({
   },
 
   // Toggle check-in for a habit
-  toggleCheckIn: async (userId: string, habitId: string, date?: string) => {
+  toggleCheckIn: async (userId: string, habitId: string, date?: string, note?: string) => {
     try {
       const checkInDate = date || getTodayDate();
       const existingCheckIn = await getCheckInForDateApi(habitId, checkInDate);
 
       if (existingCheckIn) {
-        // Toggle the completion status
+        // Toggle the completion status (and update note if provided)
         await updateCheckInApi(
           existingCheckIn.id,
           !existingCheckIn.completed,
-          existingCheckIn.note
+          note !== undefined ? note : existingCheckIn.note
         );
 
         // Update local state
@@ -274,12 +274,13 @@ export const useHabitsStore = create<HabitsStore>((set, get) => ({
           };
         });
       } else {
-        // Create new check-in
+        // Create new check-in (with optional note)
         const newCheckIn = await createCheckInApi(
           userId,
           habitId,
           checkInDate,
-          true
+          true,
+          note
         );
 
         // Update local state
