@@ -179,6 +179,13 @@ export default function ProfileScreen() {
           <View style={{ gap: 12 }}>
             <Button
               variant="secondary"
+              onPress={() => router.push('/theme-settings')}
+            >
+              🎨 Custom Themes
+            </Button>
+
+            <Button
+              variant="secondary"
               onPress={() => router.push('/settings')}
             >
               App Settings
@@ -192,7 +199,6 @@ export default function ProfileScreen() {
             </Button>
           </View>
         </Card>
-
         {/* Info Card */}
         <Card style={{ marginBottom: 24 }}>
           <Text style={sectionTitleStyle}>About</Text>

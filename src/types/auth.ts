@@ -9,6 +9,10 @@ export interface User {
     plan: 'free' | 'premium' | 'trial';
     expiresAt?: Date;
   };
+  preferences?: {
+    theme?: string; // Theme ID (premium feature)
+    notificationTime?: string;
+  };
 }
 
 export interface AuthState {
