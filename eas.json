@@ -13,7 +13,17 @@
       "android": {
         "buildType": "apk"
       },
-      "channel": "development"
+      "channel": "development",
+      "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyBUhexE7Q-2e7FTOEicJkP5bmKb-fMWK9U",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "neubrut-habit-tracker.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "neubrut-habit-tracker",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "neubrut-habit-tracker.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "516091757249",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:516091757249:web:652e133fe93b25d31f4a40",
+        "EXPO_PUBLIC_SENTRY_DSN": "https://a26856ea8ef37fd9626f74fcd85c951c@o4507860915257344.ingest.us.sentry.io/4510831523725312",
+        "EXPO_PUBLIC_REVENUECAT_APPLE_API_KEY": "appl_UwBxIcKOdnyymAeJrGiFEJXwrtD"
+      }
     },
     "preview": {
       "distribution": "internal",
@@ -24,7 +34,17 @@
       "android": {
         "buildType": "apk"
       },
-      "channel": "preview"
+      "channel": "preview",
+      "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyBUhexE7Q-2e7FTOEicJkP5bmKb-fMWK9U",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "neubrut-habit-tracker.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "neubrut-habit-tracker",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "neubrut-habit-tracker.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "516091757249",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:516091757249:web:652e133fe93b25d31f4a40",
+        "EXPO_PUBLIC_SENTRY_DSN": "https://a26856ea8ef37fd9626f74fcd85c951c@o4507860915257344.ingest.us.sentry.io/4510831523725312",
+        "EXPO_PUBLIC_REVENUECAT_APPLE_API_KEY": "appl_UwBxIcKOdnyymAeJrGiFEJXwrtD"
+      }
     },
     "production": {
       "ios": {
@@ -33,7 +53,17 @@
       "android": {
         "buildType": "app-bundle"
       },
-      "channel": "production"
+      "channel": "production",
+      "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyBUhexE7Q-2e7FTOEicJkP5bmKb-fMWK9U",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "neubrut-habit-tracker.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "neubrut-habit-tracker",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "neubrut-habit-tracker.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "516091757249",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:516091757249:web:652e133fe93b25d31f4a40",
+        "EXPO_PUBLIC_SENTRY_DSN": "https://a26856ea8ef37fd9626f74fcd85c951c@o4507860915257344.ingest.us.sentry.io/4510831523725312",
+        "EXPO_PUBLIC_REVENUECAT_APPLE_API_KEY": "appl_UwBxIcKOdnyymAeJrGiFEJXwrtD"
+      }
     }
   },
   "submit": {

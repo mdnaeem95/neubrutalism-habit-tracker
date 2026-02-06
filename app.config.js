@@ -7,6 +7,7 @@ module.exports = {
     icon: './assets/icon.png',
     userInterfaceStyle: 'light',
     newArchEnabled: true,
+    scheme: 'blockhabittracker',
     description: 'Bold habit tracking with a neubrutalism design',
     splash: {
       image: './assets/splash-icon.png',
