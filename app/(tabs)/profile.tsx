@@ -179,6 +179,13 @@ export default function ProfileScreen() {
           <View style={{ gap: 12 }}>
             <Button
               variant="secondary"
+              onPress={() => router.push('/achievements')}
+            >
+              🏆 Achievements
+            </Button>
+
+            <Button
+              variant="secondary"
               onPress={() => router.push('/theme-settings')}
             >
               🎨 Custom Themes
@@ -188,14 +195,14 @@ export default function ProfileScreen() {
               variant="secondary"
               onPress={() => router.push('/settings')}
             >
-              App Settings
+              ⚙️ App Settings
             </Button>
 
             <Button
               variant="secondary"
               onPress={() => router.push('/paywall')}
             >
-              Subscription
+              💎 Subscription
             </Button>
           </View>
         </Card>

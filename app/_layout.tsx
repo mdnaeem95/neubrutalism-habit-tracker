@@ -5,7 +5,7 @@ import { useAuthStore } from '@store/useAuthStore';
 import { initSentry, setUserContext, clearUserContext } from '@services/sentry/config';
 import { AnimatedSplash } from '@components';
 import { hasCompletedOnboardingSync, initializeStorage } from '@utils/storage';
-import { ThemeProvider } from '@contexts/ThemeContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 
 // Initialize Sentry
 initSentry();

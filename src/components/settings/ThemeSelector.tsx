@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme as defaultTheme } from '@constants/theme';
-import { useTheme } from '@contexts/ThemeContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useAuthStore } from '@store/useAuthStore';
 import { useRouter } from 'expo-router';
 

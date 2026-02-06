@@ -6,16 +6,26 @@ import { Button } from '@components/ui';
 import { NotificationPermissionBanner } from '@components/ui/NotificationPermissionBanner';
 import { HabitCard } from '@components/habits/HabitCard';
 import { NoteInputModal } from '@components/habits/NoteInputModal';
+import { AchievementUnlockedModal } from '@components/achievements';
 import { useAuthStore } from '@store/useAuthStore';
 import { useHabitsStore } from '@store/useHabitsStore';
+import { useAchievementsStore } from '@store/useAchievementsStore';
 import { trackScreenView } from '@services/firebase/analytics';
+import { checkAchievements } from '@utils/achievementChecker';
 import { format } from 'date-fns';
-import type { HabitWithStats } from '@/types/habit';
+import type { HabitWithStats, CheckIn } from '@/types/habit';
 
 export default function HomeScreen() {
   const router = useRouter();
   const { user } = useAuthStore();
-  const { habits, loading, fetchHabits, toggleCheckIn } = useHabitsStore();
+  const { habits, loading, fetchHabits, toggleCheckIn, checkIns } = useHabitsStore();
+  const {
+    fetchUserAchievements,
+    unlockMultipleAchievements,
+    getPendingUnlock,
+    clearPendingUnlock,
+    unlockedIds,
+  } = useAchievementsStore();
   const [refreshing, setRefreshing] = useState(false);
   const [noteModalVisible, setNoteModalVisible] = useState(false);
   const [selectedHabit, setSelectedHabit] = useState<HabitWithStats | null>(null);
@@ -23,6 +33,7 @@ export default function HomeScreen() {
   useEffect(() => {
     if (user) {
       loadHabits();
+      loadAchievements();
     }
   }, [user]);
 
@@ -30,6 +41,15 @@ export default function HomeScreen() {
     // Track screen view
     trackScreenView('Today');
   }, []);
+
+  const loadAchievements = async () => {
+    if (!user) return;
+    try {
+      await fetchUserAchievements(user.id);
+    } catch (error) {
+      console.error('Failed to load achievements:', error);
+    }
+  };
 
   const loadHabits = async () => {
     if (!user) return;
@@ -44,6 +64,39 @@ export default function HomeScreen() {
     setRefreshing(true);
     await loadHabits();
     setRefreshing(false);
+  };
+
+  const checkForAchievements = async () => {
+    if (!user) return;
+
+    try {
+      // Gather all check-ins across all habits
+      const allCheckIns: CheckIn[] = Object.values(checkIns).flat();
+
+      // Calculate total stats
+      const totalHabits = habits.filter((h) => !h.archived).length;
+      const totalCompletions = allCheckIns.filter((c) => c.completed).length;
+      const longestStreak = Math.max(...habits.map((h) => h.longestStreak), 0);
+      const isPremium = user.subscription?.plan === 'premium' || user.subscription?.plan === 'trial';
+
+      // Check which achievements should be unlocked
+      const newAchievements = checkAchievements({
+        habits,
+        allCheckIns,
+        totalHabits,
+        totalCompletions,
+        longestStreak,
+        isPremium,
+        unlockedAchievements: unlockedIds,
+      });
+
+      // Unlock new achievements
+      if (newAchievements.length > 0) {
+        await unlockMultipleAchievements(user.id, newAchievements);
+      }
+    } catch (error) {
+      console.error('Failed to check achievements:', error);
+    }
   };
 
   const handleCheckIn = async (habitId: string) => {
@@ -64,6 +117,8 @@ export default function HomeScreen() {
       // Regular check-in without note
       try {
         await toggleCheckIn(user.id, habitId);
+        // Check for achievements after check-in
+        await checkForAchievements();
       } catch (error: any) {
         Alert.alert('Error', error.message || 'Failed to update check-in');
       }
@@ -77,6 +132,8 @@ export default function HomeScreen() {
       await toggleCheckIn(user.id, selectedHabit.id, undefined, note);
       setNoteModalVisible(false);
       setSelectedHabit(null);
+      // Check for achievements after check-in with note
+      await checkForAchievements();
     } catch (error: any) {
       Alert.alert('Error', error.message || 'Failed to save check-in with note');
     }
@@ -158,6 +215,13 @@ export default function HomeScreen() {
         habitName={selectedHabit?.name || ''}
         onSave={handleSaveNote}
         onCancel={handleCancelNote}
+      />
+
+      {/* Achievement Unlocked Modal */}
+      <AchievementUnlockedModal
+        visible={getPendingUnlock() !== null}
+        achievement={getPendingUnlock()}
+        onClose={clearPendingUnlock}
       />
     </View>
   );
