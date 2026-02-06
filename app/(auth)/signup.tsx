@@ -1,22 +1,24 @@
 import { useState } from 'react';
-import { View, Text, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
+import { View, Text, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Link } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Button, Input, Card } from '@components/ui';
 import { useAuthStore } from '@store/useAuthStore';
+import { useDialog } from '@/contexts/DialogContext';
 
 export default function SignupScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { signup, loading } = useAuthStore();
+  const dialog = useDialog();
 
   const handleSignup = async () => {
     try {
       await signup({ name, email, password });
       // No manual navigation - let index.tsx handle redirect based on auth state
     } catch (err: any) {
-      Alert.alert('Signup Failed', err.message || 'Please try again');
+      dialog.alert('Signup Failed', err.message || 'Please try again');
     }
   };
 

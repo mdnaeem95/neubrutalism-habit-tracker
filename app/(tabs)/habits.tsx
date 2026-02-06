@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react';
-import { View, Text, FlatList, Alert, RefreshControl, TextStyle, ViewStyle } from 'react-native';
+import { View, Text, FlatList, RefreshControl, TextStyle, ViewStyle } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { Button } from '@components/ui';
 import { HabitCard } from '@components/habits/HabitCard';
 import { useAuthStore } from '@store/useAuthStore';
 import { useHabitsStore } from '@store/useHabitsStore';
+import { useDialog } from '@/contexts/DialogContext';
 import { trackScreenView } from '@services/firebase/analytics';
 
 export default function HabitsScreen() {
   const router = useRouter();
   const { user } = useAuthStore();
   const { habits, loading, fetchHabits, toggleCheckIn } = useHabitsStore();
+  const dialog = useDialog();
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -30,7 +32,7 @@ export default function HabitsScreen() {
     try {
       await fetchHabits(user.id);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to load habits');
+      dialog.alert('Error', error.message || 'Failed to load habits');
     }
   };
 
@@ -45,7 +47,7 @@ export default function HabitsScreen() {
     try {
       await toggleCheckIn(user.id, habitId);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to update check-in');
+      dialog.alert('Error', error.message || 'Failed to update check-in');
     }
   };
 

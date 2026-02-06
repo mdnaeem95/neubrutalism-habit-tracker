@@ -18,7 +18,7 @@ This guide covers all visual assets needed for App Store (iOS) and Google Play S
 - No gradients or effects
 
 ### Files Needed
-✅ Already created:
+Already created:
 - `assets/icon.png` (1024x1024)
 - `assets/adaptive-icon.png` (1024x1024)
 
@@ -314,7 +314,7 @@ habit tracker,daily habits,streak,routine,goals,productivity,habit builder,self 
 
 ### What's New (Update Notes)
 ```
-🎉 Block v1.0 is here!
+Block v1.0 is here!
 
 NEW IN THIS VERSION:
 • Track up to 5 habits for free
@@ -336,57 +336,57 @@ Bold habit tracking - Build better routines with simple daily check-ins.
 
 ### Full Description (4000 chars max)
 ```
-📱 BLOCK - BOLD HABIT TRACKING
+BLOCK - BOLD HABIT TRACKING
 
 Build better habits with Block - the habit tracker that combines powerful features with bold, beautiful design.
 
-✅ SIMPLE DAILY TRACKING
+SIMPLE DAILY TRACKING
 Check in on your habits with just one tap. Block makes it easy to stay consistent without complicated systems or overwhelming features.
 
-🔥 BUILD MOTIVATING STREAKS
+BUILD MOTIVATING STREAKS
 Watch your streaks grow as you complete habits day after day. Visualize your progress and stay motivated to keep going.
 
-📊 DETAILED STATISTICS
+DETAILED STATISTICS
 See how you're doing with comprehensive stats:
-• Current and longest streaks
-• Completion rates
-• Monthly calendar view
-• Daily activity charts
-• Category breakdowns
+- Current and longest streaks
+- Completion rates
+- Monthly calendar view
+- Daily activity charts
+- Category breakdowns
 
-🎨 BEAUTIFUL DESIGN
+BEAUTIFUL DESIGN
 Block features a unique neubrutalism design with:
-• Bold colors and sharp edges
-• High contrast for easy reading
-• Clean, organized layouts
-• Delightful animations
+- Bold colors and sharp edges
+- High contrast for easy reading
+- Clean, organized layouts
+- Delightful animations
 
-☁️ CLOUD SYNC
+CLOUD SYNC
 Your habits sync automatically across all your devices. Never lose your data.
 
-🆓 FREE TIER
+FREE TIER
 Start with up to 5 habits completely free. Perfect for getting started!
 
-⭐ PREMIUM FEATURES
+PREMIUM FEATURES
 Upgrade for unlimited habits plus:
-• Advanced statistics and insights
-• Export your data (CSV, JSON)
-• Custom themes and colors
-• Habit notes and journaling
-• Priority support
+- Advanced statistics and insights
+- Export your data (CSV, JSON)
+- Custom themes and colors
+- Habit notes and journaling
+- Priority support
 
-💰 PRICING
-• Free: Track up to 5 habits
-• Premium: $4.99/month or $29.99/year
-• 7-day free trial included
-• Cancel anytime
+PRICING
+- Free: Track up to 5 habits
+- Premium: $4.99/month or $29.99/year
+- 7-day free trial included
+- Cancel anytime
 
-🎯 WHY BLOCK?
-• No ads, ever
-• Privacy-focused
-• Fast and responsive
-• Regular updates
-• Excellent support
+WHY BLOCK?
+- No ads, ever
+- Privacy-focused
+- Fast and responsive
+- Regular updates
+- Excellent support
 
 Download Block today and start building habits that stick!
 
@@ -481,4 +481,4 @@ If you need professional help creating assets:
 - **Upwork**: Hire designers for custom work
 - **99designs**: Design contests for logos and graphics
 
-Good luck with your launch! 🚀
+Good luck with your launch!

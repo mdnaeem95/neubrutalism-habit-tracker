@@ -6,7 +6,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { themes, ThemePreset, ThemeId } from '@constants/themes';
 import { useAuthStore } from '@store/useAuthStore';
-import { doc, updateDoc } from 'firebase/firestore';
+import { useAchievementsStore } from '@store/useAchievementsStore';
+import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { db } from '@services/firebase/config';
 
 interface ThemeContextValue {
@@ -14,6 +15,7 @@ interface ThemeContextValue {
   setTheme: (themeId: string) => Promise<void>;
   availableThemes: ThemePreset[];
   canUseTheme: (themeId: string) => boolean;
+  usedThemesCount: number;
 }
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
@@ -32,15 +34,21 @@ interface ThemeProviderProps {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const { user } = useAuthStore();
+  const { unlockAchievement, unlockedIds } = useAchievementsStore();
   const [currentTheme, setCurrentTheme] = useState<ThemePreset>(themes.default);
+  const [usedThemes, setUsedThemes] = useState<string[]>([]);
 
-  // Load user's saved theme on mount
+  // Load user's saved theme and used themes on mount
   useEffect(() => {
     if (user?.preferences?.theme) {
       const savedTheme = themes[user.preferences.theme as ThemeId];
       if (savedTheme) {
         setCurrentTheme(savedTheme);
       }
+    }
+    // Load used themes history
+    if (user?.preferences?.usedThemes) {
+      setUsedThemes(user.preferences.usedThemes);
     }
   }, [user]);
 
@@ -70,13 +78,34 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     // Update local state
     setCurrentTheme(theme);
 
+    // Track premium theme usage for theme_master achievement
+    const isPremiumTheme = theme.isPremium;
+    const isNewTheme = isPremiumTheme && !usedThemes.includes(themeId);
+
+    if (isNewTheme) {
+      setUsedThemes((prev) => [...prev, themeId]);
+    }
+
     // Save to Firestore if user is logged in
     if (user) {
       try {
         const userRef = doc(db, 'users', user.id);
-        await updateDoc(userRef, {
+        const updateData: Record<string, any> = {
           'preferences.theme': themeId,
-        });
+        };
+
+        // Track premium theme usage
+        if (isNewTheme) {
+          updateData['preferences.usedThemes'] = arrayUnion(themeId);
+        }
+
+        await updateDoc(userRef, updateData);
+
+        // Check for theme_master achievement (3 premium themes)
+        const newUsedCount = isNewTheme ? usedThemes.length + 1 : usedThemes.length;
+        if (newUsedCount >= 3 && !unlockedIds.includes('theme_master')) {
+          await unlockAchievement(user.id, 'theme_master');
+        }
       } catch (error) {
         console.error('Failed to save theme preference:', error);
         // Don't throw - theme still works locally
@@ -89,6 +118,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     setTheme,
     availableThemes: Object.values(themes),
     canUseTheme,
+    usedThemesCount: usedThemes.length,
   };
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

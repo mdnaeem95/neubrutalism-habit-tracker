@@ -58,22 +58,22 @@ createHabit: async (userId: string, input: CreateHabitInput, userPlan: 'free' | 
 ### Premium Features (Current & Planned)
 
 #### Included in Free Tier
-✅ Up to 5 active habits
-✅ Daily check-ins
-✅ Basic streak tracking
-✅ Basic statistics (7-day, 30-day views)
-✅ Habit categories and colors
-✅ Push notifications
+- Up to 5 active habits
+- Daily check-ins
+- Basic streak tracking
+- Basic statistics (7-day, 30-day views)
+- Habit categories and colors
+- Push notifications
 
 #### Premium Only
-🔒 **Unlimited habits** (vs 5 free)
-🔒 Advanced statistics with charts
-🔒 Data export (CSV, JSON)
-🔒 Custom themes
-🔒 Habit notes & journaling
-🔒 Priority support
-🔒 Habit templates
-🔒 Habit groups/bundles
+- **Unlimited habits** (vs 5 free)
+- Advanced statistics with charts
+- Data export (CSV, JSON)
+- Custom themes
+- Habit notes & journaling
+- Priority support
+- Habit templates
+- Habit groups/bundles
 
 ### Upgrade Flow
 

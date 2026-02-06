@@ -1,14 +1,20 @@
 import { useEffect, useState } from 'react';
-import { View, Text, ScrollView, ViewStyle, TextStyle, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, ViewStyle, TextStyle, ActivityIndicator } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { Button, Card } from '@components/ui';
 import { Ionicons } from '@expo/vector-icons';
+import { useDialog } from '@/contexts/DialogContext';
+import { useAuthStore } from '@store/useAuthStore';
+import { useAchievementsStore } from '@store/useAchievementsStore';
 import { getOfferings, purchasePackage, restorePurchases, getPackagePrice, getIntroPrice } from '@services/revenuecat';
 import type { PurchasesPackage } from 'react-native-purchases';
 
 export default function PaywallScreen() {
   const router = useRouter();
+  const dialog = useDialog();
+  const { user } = useAuthStore();
+  const { unlockAchievement, unlockedIds } = useAchievementsStore();
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
   const [monthlyPackage, setMonthlyPackage] = useState<PurchasesPackage | null>(null);
@@ -40,7 +46,7 @@ export default function PaywallScreen() {
       }
     } catch (error) {
       console.error('Failed to load offerings:', error);
-      Alert.alert('Error', 'Failed to load subscription options. Please try again.');
+      dialog.alert('Error', 'Failed to load subscription options. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -53,16 +59,23 @@ export default function PaywallScreen() {
       const result = await purchasePackage(pkg);
 
       if (result.success) {
-        Alert.alert(
-          'Welcome to Premium! 🎉',
-          'You now have access to all premium features.',
-          [{ text: 'OK', onPress: () => router.back() }]
-        );
+        // Unlock premium_member achievement
+        if (user && !unlockedIds.includes('premium_member')) {
+          try {
+            await unlockAchievement(user.id, 'premium_member');
+          } catch (error) {
+            console.error('Failed to unlock premium achievement:', error);
+          }
+        }
+
+        dialog.alert('Welcome to Premium!', 'You now have access to all premium features.', [
+          { text: 'OK', onPress: () => router.back() },
+        ]);
       } else if (result.error && result.error !== 'Purchase cancelled') {
-        Alert.alert('Purchase Failed', result.error);
+        dialog.alert('Purchase Failed', result.error);
       }
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Purchase failed. Please try again.');
+      dialog.alert('Error', error.message || 'Purchase failed. Please try again.');
     } finally {
       setPurchasing(false);
     }
@@ -75,16 +88,23 @@ export default function PaywallScreen() {
       const result = await restorePurchases();
 
       if (result.success && result.isPremium) {
-        Alert.alert(
-          'Purchases Restored',
-          'Your premium subscription has been restored!',
-          [{ text: 'OK', onPress: () => router.back() }]
-        );
+        // Unlock premium_member achievement
+        if (user && !unlockedIds.includes('premium_member')) {
+          try {
+            await unlockAchievement(user.id, 'premium_member');
+          } catch (error) {
+            console.error('Failed to unlock premium achievement:', error);
+          }
+        }
+
+        dialog.alert('Purchases Restored', 'Your premium subscription has been restored!', [
+          { text: 'OK', onPress: () => router.back() },
+        ]);
       } else {
-        Alert.alert('No Purchases Found', 'We couldn\'t find any previous purchases to restore.');
+        dialog.alert('No Purchases Found', 'We couldn\'t find any previous purchases to restore.');
       }
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to restore purchases.');
+      dialog.alert('Error', error.message || 'Failed to restore purchases.');
     } finally {
       setPurchasing(false);
     }

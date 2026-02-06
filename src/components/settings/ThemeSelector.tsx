@@ -10,7 +10,6 @@ import {
   TouchableOpacity,
   ScrollView,
   StyleSheet,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,16 +17,18 @@ import { theme as defaultTheme } from '@constants/theme';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuthStore } from '@store/useAuthStore';
 import { useRouter } from 'expo-router';
+import { useDialog } from '@/contexts/DialogContext';
 
 export const ThemeSelector: React.FC = () => {
   const { currentTheme, setTheme, availableThemes, canUseTheme } = useTheme();
   const { user } = useAuthStore();
   const router = useRouter();
+  const dialog = useDialog();
   const [loading, setLoading] = useState<string | null>(null);
 
   const handleThemeSelect = async (themeId: string) => {
     if (!canUseTheme(themeId)) {
-      Alert.alert(
+      dialog.alert(
         'Premium Feature',
         'Custom themes are available with Premium. Upgrade to unlock all themes!',
         [
@@ -45,7 +46,7 @@ export const ThemeSelector: React.FC = () => {
       setLoading(themeId);
       await setTheme(themeId);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to change theme');
+      dialog.alert('Error', error.message || 'Failed to change theme');
     } finally {
       setLoading(null);
     }

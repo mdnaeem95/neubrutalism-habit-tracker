@@ -1,12 +1,15 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity, Alert, ViewStyle, TextStyle } from 'react-native';
+import { View, Text, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity, ViewStyle, TextStyle } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Input, Card } from '@components/ui';
 import { useAuthStore } from '@store/useAuthStore';
 import { useHabitsStore } from '@store/useHabitsStore';
-import type { HabitCategory, HabitColor, FrequencyType } from '@/types/habit';
+import { useAchievementsStore } from '@store/useAchievementsStore';
+import { useDialog } from '@/contexts/DialogContext';
+import { checkAchievements } from '@utils/achievementChecker';
+import type { HabitCategory, HabitColor, FrequencyType, CheckIn } from '@/types/habit';
 
 const HABIT_ICONS: Array<keyof typeof Ionicons.glyphMap> = [
   'fitness',
@@ -28,7 +31,9 @@ const CATEGORIES: HabitCategory[] = ['health', 'productivity', 'fitness', 'learn
 export default function CreateHabitScreen() {
   const router = useRouter();
   const { user } = useAuthStore();
-  const { createHabit, loading } = useHabitsStore();
+  const { createHabit, loading, habits, checkIns } = useHabitsStore();
+  const { unlockMultipleAchievements, unlockedIds } = useAchievementsStore();
+  const dialog = useDialog();
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -37,16 +42,50 @@ export default function CreateHabitScreen() {
   const [selectedCategory, setSelectedCategory] = useState<HabitCategory>('health');
   const [frequencyType,] = useState<FrequencyType>('daily');
 
+  const checkForAchievements = async (updatedHabitsCount: number) => {
+    if (!user) return;
+
+    try {
+      // Gather all check-ins across all habits
+      const allCheckIns: CheckIn[] = Object.values(checkIns).flat();
+
+      // Calculate total stats
+      const totalCompletions = allCheckIns.filter((c) => c.completed).length;
+      const longestStreak = Math.max(...habits.map((h) => h.longestStreak), 0);
+      const isPremium = user.subscription?.plan === 'premium' || user.subscription?.plan === 'trial';
+
+      // Check which achievements should be unlocked
+      // Use updatedHabitsCount since store may not have updated yet
+      const newAchievements = checkAchievements({
+        habits,
+        allCheckIns,
+        totalHabits: updatedHabitsCount,
+        totalCompletions,
+        longestStreak,
+        isPremium,
+        unlockedAchievements: unlockedIds,
+      });
+
+      // Unlock new achievements
+      if (newAchievements.length > 0) {
+        await unlockMultipleAchievements(user.id, newAchievements);
+      }
+    } catch (error) {
+      console.error('Failed to check achievements:', error);
+    }
+  };
+
   const handleCreate = async () => {
     if (!user) return;
 
     if (!name.trim()) {
-      Alert.alert('Error', 'Please enter a habit name');
+      dialog.alert('Error', 'Please enter a habit name');
       return;
     }
 
     try {
       const userPlan = user.subscription?.plan || 'free';
+      const currentHabitCount = habits.filter((h) => !h.archived).length;
 
       await createHabit(
         user.id,
@@ -64,10 +103,14 @@ export default function CreateHabitScreen() {
         userPlan
       );
 
-      Alert.alert('Success', 'Habit created successfully!');
-      router.back();
+      // Check for achievements after creating habit (pass updated count)
+      await checkForAchievements(currentHabitCount + 1);
+
+      dialog.alert('Success', 'Habit created successfully!', [
+        { text: 'OK', onPress: () => router.back() },
+      ]);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to create habit');
+      dialog.alert('Error', error.message || 'Failed to create habit');
     }
   };
 

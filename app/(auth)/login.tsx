@@ -1,21 +1,23 @@
 import { useState } from 'react';
-import { View, Text, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
+import { View, Text, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Link } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Button, Input, Card } from '@components/ui';
 import { useAuthStore } from '@store/useAuthStore';
+import { useDialog } from '@/contexts/DialogContext';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login, loading } = useAuthStore();
+  const dialog = useDialog();
 
   const handleLogin = async () => {
     try {
       await login({ email, password });
       // No manual navigation - let index.tsx handle redirect based on auth state
     } catch (err: any) {
-      Alert.alert('Login Failed', err.message || 'Please check your credentials');
+      dialog.alert('Login Failed', err.message || 'Please check your credentials');
     }
   };
 

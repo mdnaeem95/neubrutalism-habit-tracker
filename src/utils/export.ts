@@ -1,4 +1,4 @@
-import { Alert, Share, Platform } from 'react-native';
+import { Share, Platform } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import type { Habit, HabitWithStats, CheckIn } from '@/types/habit';
@@ -227,8 +227,7 @@ export async function exportData(
 ): Promise<void> {
   try {
     if (habits.length === 0) {
-      Alert.alert('No Data', 'You have no habits to export.');
-      return;
+      throw new Error('You have no habits to export.');
     }
 
     const timestamp = format(new Date(), 'yyyy-MM-dd_HHmmss');
@@ -258,9 +257,8 @@ export async function exportData(
       );
     }
 
-    Alert.alert('Success', 'Data exported successfully!');
+    // Success - caller can show confirmation if desired
   } catch (error: any) {
-    Alert.alert('Export Failed', error.message || 'Failed to export data');
-    throw error;
+    throw new Error(error.message || 'Failed to export data');
   }
 }

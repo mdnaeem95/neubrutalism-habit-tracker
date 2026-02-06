@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, Text, FlatList, Alert, RefreshControl } from 'react-native';
+import { View, Text, FlatList, RefreshControl } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { Button } from '@components/ui';
@@ -10,6 +10,7 @@ import { AchievementUnlockedModal } from '@components/achievements';
 import { useAuthStore } from '@store/useAuthStore';
 import { useHabitsStore } from '@store/useHabitsStore';
 import { useAchievementsStore } from '@store/useAchievementsStore';
+import { useDialog } from '@/contexts/DialogContext';
 import { trackScreenView } from '@services/firebase/analytics';
 import { checkAchievements } from '@utils/achievementChecker';
 import { format } from 'date-fns';
@@ -26,6 +27,7 @@ export default function HomeScreen() {
     clearPendingUnlock,
     unlockedIds,
   } = useAchievementsStore();
+  const dialog = useDialog();
   const [refreshing, setRefreshing] = useState(false);
   const [noteModalVisible, setNoteModalVisible] = useState(false);
   const [selectedHabit, setSelectedHabit] = useState<HabitWithStats | null>(null);
@@ -56,7 +58,7 @@ export default function HomeScreen() {
     try {
       await fetchHabits(user.id);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to load habits');
+      dialog.alert('Error', error.message || 'Failed to load habits');
     }
   };
 
@@ -120,7 +122,7 @@ export default function HomeScreen() {
         // Check for achievements after check-in
         await checkForAchievements();
       } catch (error: any) {
-        Alert.alert('Error', error.message || 'Failed to update check-in');
+        dialog.alert('Error', error.message || 'Failed to update check-in');
       }
     }
   };
@@ -135,7 +137,7 @@ export default function HomeScreen() {
       // Check for achievements after check-in with note
       await checkForAchievements();
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to save check-in with note');
+      dialog.alert('Error', error.message || 'Failed to save check-in with note');
     }
   };
 

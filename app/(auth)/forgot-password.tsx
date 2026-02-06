@@ -1,21 +1,23 @@
 import { useState } from 'react';
-import { View, Text, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
+import { View, Text, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { Button, Input, Card } from '@components/ui';
 import { useAuthStore } from '@store/useAuthStore';
+import { useDialog } from '@/contexts/DialogContext';
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const { sendPasswordReset, loading } = useAuthStore();
+  const dialog = useDialog();
 
   const handleResetPassword = async () => {
     try {
       await sendPasswordReset(email);
       setSent(true);
     } catch (err: any) {
-      Alert.alert('Error', err.message || 'Failed to send reset email');
+      dialog.alert('Error', err.message || 'Failed to send reset email');
     }
   };
 

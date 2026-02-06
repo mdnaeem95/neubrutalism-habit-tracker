@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { View, Text, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity, Alert, ViewStyle, TextStyle } from 'react-native';
+import { View, Text, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity, ViewStyle, TextStyle } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Input, Card } from '@components/ui';
 import { useHabitsStore } from '@store/useHabitsStore';
+import { useDialog } from '@/contexts/DialogContext';
 import type { HabitCategory, HabitColor, FrequencyType } from '@/types/habit';
 
 const HABIT_ICONS: Array<keyof typeof Ionicons.glyphMap> = [
@@ -28,6 +29,7 @@ export default function EditHabitScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { getHabitById, updateHabit, loading } = useHabitsStore();
+  const dialog = useDialog();
 
   const habit = id ? getHabitById(id) : null;
 
@@ -54,7 +56,7 @@ export default function EditHabitScreen() {
     if (!id) return;
 
     if (!name.trim()) {
-      Alert.alert('Error', 'Please enter a habit name');
+      dialog.alert('Error', 'Please enter a habit name');
       return;
     }
 
@@ -71,10 +73,11 @@ export default function EditHabitScreen() {
         reminderTime: habit?.reminderTime || null,
       });
 
-      Alert.alert('Success', 'Habit updated successfully!');
-      router.back();
+      dialog.alert('Success', 'Habit updated successfully!', [
+        { text: 'OK', onPress: () => router.back() },
+      ]);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to update habit');
+      dialog.alert('Error', error.message || 'Failed to update habit');
     }
   };
 

@@ -6,6 +6,7 @@ import { initSentry, setUserContext, clearUserContext } from '@services/sentry/c
 import { AnimatedSplash } from '@components';
 import { hasCompletedOnboardingSync, initializeStorage } from '@utils/storage';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+import { DialogProvider } from '@/contexts/DialogContext';
 
 // Initialize Sentry
 initSentry();
@@ -78,12 +79,14 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: '#F5F5F5' },
-        }}
-      />
+      <DialogProvider>
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: '#F5F5F5' },
+          }}
+        />
+      </DialogProvider>
     </ThemeProvider>
   );
 }

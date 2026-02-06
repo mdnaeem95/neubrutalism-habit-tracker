@@ -5,11 +5,11 @@ A modern habit tracker with a bold neubrutalism design.
 ## About
 
 Block helps you build better habits with:
-- ✅ Daily check-ins
-- 🔥 Streak tracking
-- 📊 Progress statistics
-- 🎨 Bold neubrutalism design
-- ☁️ Cloud sync across devices
+- Daily check-ins
+- Streak tracking
+- Progress statistics
+- Bold neubrutalism design
+- Cloud sync across devices
 
 ## Tech Stack
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, Switch, ViewStyle, TextStyle, Linking } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Switch, ViewStyle, TextStyle, Linking } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,12 +8,14 @@ import { useAuthStore } from '@store/useAuthStore';
 import { useHabitsStore } from '@store/useHabitsStore';
 import { getUserPreferences, saveUserPreferences, clearStorage, resetOnboarding } from '@utils/storage';
 import { exportData } from '@utils/export';
+import { useDialog } from '@/contexts/DialogContext';
 import Constants from 'expo-constants';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
   const { habits, checkIns } = useHabitsStore();
+  const dialog = useDialog();
 
   // Load preferences
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -37,91 +39,77 @@ export default function SettingsScreen() {
   };
 
   const handleSignOut = async () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Sign Out',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await logout();
-              await clearStorage();
-              router.replace('/(auth)/login');
-            } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to sign out');
-            }
-          },
+    dialog.alert('Sign Out', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Sign Out',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await logout();
+            await clearStorage();
+            router.replace('/(auth)/login');
+          } catch (error: any) {
+            dialog.alert('Error', error.message || 'Failed to sign out');
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleResetOnboarding = () => {
-    Alert.alert(
-      'Reset Onboarding',
-      'This will show the onboarding screens again on next launch. Continue?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Reset',
-          onPress: async () => {
-            await resetOnboarding();
-            Alert.alert('Success', 'Onboarding reset. Restart the app to see it again.');
-          },
+    dialog.alert('Reset Onboarding', 'This will show the onboarding screens again on next launch. Continue?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Reset',
+        onPress: async () => {
+          await resetOnboarding();
+          dialog.alert('Success', 'Onboarding reset. Restart the app to see it again.');
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleExportData = () => {
     const isPremium = user?.subscription?.plan === 'premium';
     if (!isPremium) {
-      Alert.alert(
-        'Premium Feature',
-        'Data export is available with Premium. Upgrade now?',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          { text: 'Upgrade', onPress: () => router.push('/paywall') },
-        ]
-      );
+      dialog.alert('Premium Feature', 'Data export is available with Premium. Upgrade now?', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Upgrade', onPress: () => router.push('/paywall') },
+      ]);
       return;
     }
 
     // Show format selection
-    Alert.alert(
-      'Export Data',
-      'Choose export format:',
-      [
-        {
-          text: 'JSON',
-          onPress: async () => {
-            try {
-              await exportData(habits, checkIns, 'json');
-            } catch (error) {
-              // Error already handled in exportData
-            }
-          },
+    dialog.alert('Export Data', 'Choose export format:', [
+      {
+        text: 'JSON',
+        onPress: async () => {
+          try {
+            await exportData(habits, checkIns, 'json');
+            dialog.alert('Success', 'Data exported successfully!');
+          } catch (error: any) {
+            dialog.alert('Export Failed', error.message || 'Failed to export data');
+          }
         },
-        {
-          text: 'CSV',
-          onPress: async () => {
-            try {
-              await exportData(habits, checkIns, 'csv');
-            } catch (error) {
-              // Error already handled in exportData
-            }
-          },
+      },
+      {
+        text: 'CSV',
+        onPress: async () => {
+          try {
+            await exportData(habits, checkIns, 'csv');
+            dialog.alert('Success', 'Data exported successfully!');
+          } catch (error: any) {
+            dialog.alert('Export Failed', error.message || 'Failed to export data');
+          }
         },
-        { text: 'Cancel', style: 'cancel' },
-      ]
-    );
+      },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
   };
 
   const handleDeleteAccount = () => {
-    Alert.alert(
+    dialog.alert(
       'Delete Account',
       'This will permanently delete your account and all data. This action cannot be undone.',
       [
@@ -130,21 +118,17 @@ export default function SettingsScreen() {
           text: 'Delete',
           style: 'destructive',
           onPress: () => {
-            Alert.alert(
-              'Are you absolutely sure?',
-              'Type "DELETE" to confirm account deletion.',
-              [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                  text: 'DELETE',
-                  style: 'destructive',
-                  onPress: async () => {
-                    // TODO: Implement account deletion
-                    Alert.alert('Error', 'Account deletion not yet implemented');
-                  },
+            dialog.alert('Are you absolutely sure?', 'This action cannot be undone.', [
+              { text: 'Cancel', style: 'cancel' },
+              {
+                text: 'DELETE',
+                style: 'destructive',
+                onPress: async () => {
+                  // TODO: Implement account deletion
+                  dialog.alert('Error', 'Account deletion not yet implemented');
                 },
-              ]
-            );
+              },
+            ]);
           },
         },
       ]

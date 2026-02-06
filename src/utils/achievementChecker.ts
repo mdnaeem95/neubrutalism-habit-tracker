@@ -10,6 +10,7 @@ interface AchievementCheckContext {
   longestStreak: number;
   isPremium: boolean;
   unlockedAchievements: AchievementId[];
+  usedThemesCount?: number; // Number of unique premium themes used
 }
 
 /**
@@ -143,6 +144,11 @@ export const checkAchievements = (context: AchievementCheckContext): Achievement
       if (notesCount >= 10) {
         newAchievements.push('note_taker');
       }
+    }
+
+    // Theme Master - Try 3 different premium themes
+    if (!isUnlocked('theme_master') && context.usedThemesCount && context.usedThemesCount >= 3) {
+      newAchievements.push('theme_master');
     }
   }
 

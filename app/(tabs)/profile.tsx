@@ -1,16 +1,18 @@
 import { useEffect } from 'react';
-import { View, Text, ScrollView, Alert, ViewStyle, TextStyle } from 'react-native';
+import { View, Text, ScrollView, ViewStyle, TextStyle } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { Button, Card } from '@components/ui';
 import { useAuthStore } from '@store/useAuthStore';
 import { useHabitsStore } from '@store/useHabitsStore';
+import { useDialog } from '@/contexts/DialogContext';
 import { trackScreenView } from '@services/firebase/analytics';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
   const { habits } = useHabitsStore();
+  const dialog = useDialog();
 
   useEffect(() => {
     // Track screen view
@@ -18,21 +20,17 @@ export default function ProfileScreen() {
   }, []);
 
   const handleLogout = () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Sign Out',
-          style: 'destructive',
-          onPress: async () => {
-            await logout();
-            // Navigation handled automatically by _layout.tsx
-          },
+    dialog.alert('Sign Out', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Sign Out',
+        style: 'destructive',
+        onPress: async () => {
+          await logout();
+          // Navigation handled automatically by _layout.tsx
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const headerStyle: ViewStyle = {
@@ -181,28 +179,28 @@ export default function ProfileScreen() {
               variant="secondary"
               onPress={() => router.push('/achievements')}
             >
-              🏆 Achievements
+              Achievements
             </Button>
 
             <Button
               variant="secondary"
               onPress={() => router.push('/theme-settings')}
             >
-              🎨 Custom Themes
+              Custom Themes
             </Button>
 
             <Button
               variant="secondary"
               onPress={() => router.push('/settings')}
             >
-              ⚙️ App Settings
+              App Settings
             </Button>
 
             <Button
               variant="secondary"
               onPress={() => router.push('/paywall')}
             >
-              💎 Subscription
+              Subscription
             </Button>
           </View>
         </Card>
@@ -213,21 +211,21 @@ export default function ProfileScreen() {
           <View style={{ gap: 12 }}>
             <Button
               variant="secondary"
-              onPress={() => Alert.alert('Help', 'Help center coming soon!')}
+              onPress={() => dialog.alert('Help', 'Help center coming soon!')}
             >
               Help & Support
             </Button>
 
             <Button
               variant="secondary"
-              onPress={() => Alert.alert('Privacy Policy', 'Privacy policy coming soon!')}
+              onPress={() => dialog.alert('Privacy Policy', 'Privacy policy coming soon!')}
             >
               Privacy Policy
             </Button>
 
             <Button
               variant="secondary"
-              onPress={() => Alert.alert('Terms', 'Terms of service coming soon!')}
+              onPress={() => dialog.alert('Terms', 'Terms of service coming soon!')}
             >
               Terms of Service
             </Button>

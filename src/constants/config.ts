@@ -41,12 +41,12 @@ export const config = {
 
   // Habit categories
   habitCategories: [
-    { id: 'health', label: 'Health', icon: '❤️', color: '#FF69B4' },
-    { id: 'productivity', label: 'Productivity', icon: '⚡', color: '#FFD700' },
-    { id: 'fitness', label: 'Fitness', icon: '💪', color: '#00FF00' },
-    { id: 'learning', label: 'Learning', icon: '📚', color: '#00FFFF' },
-    { id: 'mindfulness', label: 'Mindfulness', icon: '🧘', color: '#9D4EDD' },
-    { id: 'other', label: 'Other', icon: '✨', color: '#FF6B35' },
+    { id: 'health', label: 'Health', icon: 'heart', color: '#FF69B4' },
+    { id: 'productivity', label: 'Productivity', icon: 'flash', color: '#FFD700' },
+    { id: 'fitness', label: 'Fitness', icon: 'barbell', color: '#00FF00' },
+    { id: 'learning', label: 'Learning', icon: 'book', color: '#00FFFF' },
+    { id: 'mindfulness', label: 'Mindfulness', icon: 'leaf', color: '#9D4EDD' },
+    { id: 'other', label: 'Other', icon: 'ellipsis-horizontal', color: '#FF6B35' },
   ] as const,
 
   // Notification defaults

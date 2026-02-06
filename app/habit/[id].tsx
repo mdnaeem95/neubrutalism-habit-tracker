@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, ViewStyle, TextStyle } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ViewStyle, TextStyle } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,6 +9,7 @@ import { NoteInputModal } from '@components/habits/NoteInputModal';
 import { NoteCard } from '@components/habits/NoteCard';
 import { useAuthStore } from '@store/useAuthStore';
 import { useHabitsStore } from '@store/useHabitsStore';
+import { useDialog } from '@/contexts/DialogContext';
 import { getLast7DaysCheckIns } from '@utils/habitCalculations';
 import type { CheckIn } from '@/types/habit';
 
@@ -17,6 +18,7 @@ export default function HabitDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuthStore();
   const { getHabitById, checkIns, deleteHabit, archiveHabit, toggleCheckIn } = useHabitsStore();
+  const dialog = useDialog();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [noteModalVisible, setNoteModalVisible] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>('');
@@ -27,7 +29,7 @@ export default function HabitDetailScreen() {
   const last7Days = getLast7DaysCheckIns(habitCheckIns);
 
   const handleDelete = () => {
-    Alert.alert(
+    dialog.alert(
       'Delete Habit',
       'Are you sure you want to delete this habit? This action cannot be undone.',
       [
@@ -39,10 +41,11 @@ export default function HabitDetailScreen() {
             if (!id) return;
             try {
               await deleteHabit(id);
-              Alert.alert('Success', 'Habit deleted successfully');
-              router.back();
+              dialog.alert('Success', 'Habit deleted successfully', [
+                { text: 'OK', onPress: () => router.back() },
+              ]);
             } catch (error: any) {
-              Alert.alert('Error', error.message || 'Failed to delete habit');
+              dialog.alert('Error', error.message || 'Failed to delete habit');
             }
           },
         },
@@ -54,10 +57,11 @@ export default function HabitDetailScreen() {
     if (!id) return;
     try {
       await archiveHabit(id);
-      Alert.alert('Success', 'Habit archived successfully');
-      router.back();
+      dialog.alert('Success', 'Habit archived successfully', [
+        { text: 'OK', onPress: () => router.back() },
+      ]);
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to archive habit');
+      dialog.alert('Error', error.message || 'Failed to archive habit');
     }
   };
 
@@ -79,7 +83,7 @@ export default function HabitDetailScreen() {
       try {
         await toggleCheckIn(user.id, id, date);
       } catch (error: any) {
-        Alert.alert('Error', error.message || 'Failed to update check-in');
+        dialog.alert('Error', error.message || 'Failed to update check-in');
       }
     }
   };
@@ -93,7 +97,7 @@ export default function HabitDetailScreen() {
       setSelectedDate('');
       setCurrentNote('');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to save check-in with note');
+      dialog.alert('Error', error.message || 'Failed to save check-in with note');
     }
   };
 

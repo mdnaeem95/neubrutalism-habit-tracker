@@ -98,7 +98,12 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({
           </Text>
         )}
 
-        {!unlocked && <Text style={styles.lockedText}>🔒 Locked</Text>}
+        {!unlocked && (
+          <View style={styles.lockedContainer}>
+            <Ionicons name="lock-closed" size={12} color="#999999" />
+            <Text style={styles.lockedText}>Locked</Text>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -173,6 +178,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     color: '#00FF00',
+  },
+  lockedContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   lockedText: {
     fontSize: 12,

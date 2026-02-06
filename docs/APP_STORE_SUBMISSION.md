@@ -41,19 +41,19 @@
 ```
 Transform your life with Block - the bold habit tracker that makes building better habits simple and fun.
 
-🎯 TRACK WHAT MATTERS
+TRACK WHAT MATTERS
 Build better habits with our clean, distraction-free interface. Whether it's fitness, mindfulness, learning, or productivity - Block helps you stay consistent.
 
-⚡ DAILY CHECK-INS
+DAILY CHECK-INS
 Simple tap to mark habits complete. Build momentum with visual feedback and satisfying animations that celebrate your progress.
 
-🔥 STREAK TRACKING
+STREAK TRACKING
 Watch your streaks grow day by day. See your longest streak and current streak at a glance. Stay motivated by your consistency.
 
-📊 BEAUTIFUL STATISTICS
+BEAUTIFUL STATISTICS
 Understand your progress with clean, easy-to-read statistics. View completion rates, total check-ins, and track your habits over 7 days, 30 days, or all time.
 
-🎨 NEUBRUTALISM DESIGN
+NEUBRUTALISM DESIGN
 Enjoy a unique, bold design that stands out. High contrast, vibrant colors, and smooth animations make habit tracking a joy.
 
 FREE FEATURES:
@@ -66,14 +66,14 @@ FREE FEATURES:
 • Real-time sync across devices
 
 PREMIUM FEATURES:
-• ♾️ Unlimited habits
-• 📈 Advanced statistics with detailed charts
-• 💾 Data export (CSV, JSON)
-• 🎨 Custom themes and colors
-• 📝 Habit notes and journaling
-• 🎯 Habit templates
-• 💬 Priority support
-• 🆓 7-day free trial
+- Unlimited habits
+- Advanced statistics with detailed charts
+- Data export (CSV, JSON)
+- Custom themes and colors
+- Habit notes and journaling
+- Habit templates
+- Priority support
+- 7-day free trial
 
 WHY BLOCK?
 
@@ -106,7 +106,7 @@ habit,tracker,goals,streaks,productivity,routine,daily,fitness,health,mindfulnes
 
 **Promotional Text (max 170 characters - appears above description):**
 ```
-Build better habits with our bold, beautiful tracker. 5 habits free, unlimited with premium. Start your streak today! 🔥
+Build better habits with our bold, beautiful tracker. 5 habits free, unlimited with premium. Start your streak today!
 ```
 
 ---
@@ -144,26 +144,26 @@ Build better habits with our bold, beautiful tracker. 5 habits free, unlimited w
 ### 3.1 What's New in This Version (Version 1.0.0)
 
 ```
-Welcome to Block - Your New Favorite Habit Tracker! 🎉
+Welcome to Block - Your New Favorite Habit Tracker!
 
 This is our first release, and we're excited to help you build better habits.
 
-✨ FEATURES:
-• Track up to 5 habits for free (unlimited with premium)
-• Daily check-ins with satisfying animations
-• Streak tracking to keep you motivated
-• Beautiful statistics to visualize your progress
-• Push notifications and daily reminders
-• Real-time sync across all your devices
-• Unique neubrutalism design that stands out
+FEATURES:
+- Track up to 5 habits for free (unlimited with premium)
+- Daily check-ins with satisfying animations
+- Streak tracking to keep you motivated
+- Beautiful statistics to visualize your progress
+- Push notifications and daily reminders
+- Real-time sync across all your devices
+- Unique neubrutalism design that stands out
 
-🎁 PREMIUM PERKS:
-• Unlimited habits
-• Advanced statistics with charts
-• Data export (CSV, JSON)
-• Custom themes
-• Habit notes & journaling
-• 7-day free trial
+PREMIUM PERKS:
+- Unlimited habits
+- Advanced statistics with charts
+- Data export (CSV, JSON)
+- Custom themes
+- Habit notes & journaling
+- 7-day free trial
 
 Start your journey today!
 ```

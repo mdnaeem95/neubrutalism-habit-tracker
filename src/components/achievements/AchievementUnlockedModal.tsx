@@ -3,7 +3,7 @@
  * Celebration modal shown when user unlocks a new achievement
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Modal,
   View,
@@ -28,8 +28,8 @@ export const AchievementUnlockedModal: React.FC<AchievementUnlockedModalProps> =
   achievement,
   onClose,
 }) => {
-  const scaleAnim = new Animated.Value(0);
-  const rotateAnim = new Animated.Value(0);
+  const scaleAnim = useRef(new Animated.Value(0)).current;
+  const rotateAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (visible && achievement) {
@@ -94,10 +94,10 @@ export const AchievementUnlockedModal: React.FC<AchievementUnlockedModalProps> =
         >
           {/* Confetti Effect (decorative) */}
           <View style={styles.confettiContainer}>
-            <Text style={styles.confetti}>🎉</Text>
-            <Text style={styles.confetti}>✨</Text>
-            <Text style={styles.confetti}>🎊</Text>
-            <Text style={styles.confetti}>⭐</Text>
+            <Ionicons name="star" size={24} color="#FFD700" />
+            <Ionicons name="sparkles" size={24} color="#FF69B4" />
+            <Ionicons name="trophy" size={24} color="#00FF00" />
+            <Ionicons name="star" size={24} color="#00FFFF" />
           </View>
 
           {/* Achievement Icon */}
