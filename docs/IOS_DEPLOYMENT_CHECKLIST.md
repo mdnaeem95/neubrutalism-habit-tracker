@@ -180,32 +180,32 @@ npm install -g eas-cli
 eas login
 ```
 
-- [ ] Verify logged in: `eas whoami`
+- [Y] Verify logged in: `eas whoami`
 
 ### 5.2 Configure EAS Project
 ```bash
 eas build:configure
 ```
 
-- [ ] Select iOS
-- [ ] Follow prompts to link Expo project
+- [Y] Select iOS
+- [Y] Follow prompts to link Expo project
 
 ### 5.3 Create iOS Build (Preview - Internal Testing)
 ```bash
 eas build --platform ios --profile preview
 ```
 
-- [ ] EAS will prompt for credentials (certificate, provisioning profile)
-- [ ] Let EAS manage credentials automatically (recommended)
-- [ ] Build will take 10-20 minutes
-- [ ] Once complete, download the IPA or install via TestFlight link
+- [Y] EAS will prompt for credentials (certificate, provisioning profile)
+- [Y] Let EAS manage credentials automatically (recommended)
+- [Y] Build will take 10-20 minutes
+- [Y] Once complete, download the IPA or install via TestFlight link
 
 ### 5.4 Test Subscriptions with Sandbox
-- [ ] In App Store Connect, go to "Users and Access" → "Sandbox Testers"
-- [ ] Create 2-3 test Apple IDs:
+- [Y] In App Store Connect, go to "Users and Access" → "Sandbox Testers"
+- [Y] Create 2-3 test Apple IDs:
   - Use format: `test1@yourpersonaldomain.com`
   - Create unique emails for each tester
-- [ ] On test device:
+- [Y] On test device:
   - Sign out of App Store completely
   - Install app via TestFlight
   - When prompted to purchase, sign in with sandbox tester account

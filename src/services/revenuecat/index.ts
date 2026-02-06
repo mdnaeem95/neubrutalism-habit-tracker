@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 import Purchases, {
   CustomerInfo,
   PurchasesPackage,
@@ -8,8 +9,8 @@ import Purchases, {
 
 // RevenueCat API Keys (configure in your RevenueCat dashboard)
 const API_KEYS = {
-  apple: process.env.EXPO_PUBLIC_REVENUECAT_APPLE_API_KEY || 'your_apple_api_key',
-  google: process.env.EXPO_PUBLIC_REVENUECAT_GOOGLE_API_KEY || 'your_google_api_key',
+  apple: Constants.expoConfig?.extra?.revenuecatAppleApiKey || process.env.EXPO_PUBLIC_REVENUECAT_APPLE_API_KEY || '',
+  google: Constants.expoConfig?.extra?.revenuecatGoogleApiKey || process.env.EXPO_PUBLIC_REVENUECAT_GOOGLE_API_KEY || '',
 };
 
 // Entitlement identifiers (configure in RevenueCat dashboard)
