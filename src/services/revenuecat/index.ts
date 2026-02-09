@@ -5,6 +5,7 @@ import Purchases, {
   PurchasesPackage,
   PurchasesOffering,
   LOG_LEVEL,
+  PURCHASES_ERROR_CODE,
 } from 'react-native-purchases';
 
 // RevenueCat API Keys (configure in your RevenueCat dashboard)
@@ -123,11 +124,11 @@ export async function purchasePackage(
     };
   } catch (error: any) {
     // Handle user cancellation
-    if (error.userCancelled) {
+    if (error.code === PURCHASES_ERROR_CODE.PURCHASE_CANCELLED_ERROR) {
       return {
         success: false,
         customerInfo: null,
-        error: 'Purchase cancelled',
+        error: 'cancelled',
       };
     }
 

@@ -73,7 +73,9 @@ export default function PaywallScreen() {
         dialog.alert('Welcome to Premium!', 'You now have access to all premium features.', [
           { text: 'OK', onPress: () => router.back() },
         ]);
-      } else if (result.error && result.error !== 'Purchase cancelled') {
+      } else if (result.error === 'cancelled') {
+        // User cancelled - no action needed
+      } else if (result.error) {
         dialog.alert('Purchase Failed', result.error);
       }
     } catch (error: any) {
