@@ -29,7 +29,7 @@ export default function PaywallScreen() {
       setLoading(true);
       const offering = await getOfferings();
 
-      if (offering) {
+      if (offering && offering.availablePackages.length > 0) {
         // Find monthly and annual packages
         const monthly = offering.availablePackages.find((pkg) =>
           pkg.identifier.toLowerCase().includes('monthly') ||
@@ -41,8 +41,10 @@ export default function PaywallScreen() {
           pkg.packageType === 'ANNUAL'
         );
 
-        setMonthlyPackage(monthly || offering.availablePackages[0]);
-        setAnnualPackage(annual || offering.availablePackages[1]);
+        setMonthlyPackage(monthly || offering.availablePackages[0] || null);
+        setAnnualPackage(annual || offering.availablePackages[1] || null);
+      } else {
+        console.warn('No offerings or packages available from RevenueCat');
       }
     } catch (error) {
       console.error('Failed to load offerings:', error);

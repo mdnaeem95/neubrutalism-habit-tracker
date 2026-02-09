@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { useAuthStore } from '@store/useAuthStore';
 import { initSentry, setUserContext, clearUserContext } from '@services/sentry/config';
+import { initializeRevenueCat } from '@services/revenuecat';
 import { AnimatedSplash } from '@components';
 import { hasCompletedOnboardingSync, initializeStorage } from '@utils/storage';
 import { ThemeProvider } from '@/contexts/ThemeContext';
@@ -30,6 +31,11 @@ export default function RootLayout() {
   useEffect(() => {
     // Initialize storage cache
     initializeStorage();
+
+    // Initialize RevenueCat SDK
+    initializeRevenueCat().catch((error) => {
+      console.error('Failed to initialize RevenueCat:', error);
+    });
 
     // Initialize auth listener
     const unsubscribe = initialize();
