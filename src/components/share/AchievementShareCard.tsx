@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import { View, Text, ViewStyle, TextStyle } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ShareCard } from './ShareCard';
 import type { Achievement } from '@/types/achievement';
 
@@ -13,15 +13,15 @@ interface AchievementShareCardProps {
 const getRarityColor = (rarity: Achievement['rarity']): string => {
   switch (rarity) {
     case 'common':
-      return '#A0A0A0';
+      return '#6BCB77';
     case 'rare':
-      return '#00BFFF';
+      return '#4D96FF';
     case 'epic':
-      return '#9B59B6';
+      return '#FF6B9D';
     case 'legendary':
-      return '#FFD700';
+      return '#FFD93D';
     default:
-      return '#A0A0A0';
+      return '#6BCB77';
   }
 };
 
@@ -30,13 +30,13 @@ const getRarityLabel = (rarity: Achievement['rarity']): string => {
 };
 
 export const AchievementShareCard = forwardRef<View, AchievementShareCardProps>(
-  ({ achievement, showWatermark = true, themeColor = '#FFD700' }, ref) => {
+  ({ achievement, showWatermark = true, themeColor = '#FFD93D' }, ref) => {
     const rarityColor = getRarityColor(achievement.rarity);
 
     const titleStyle: TextStyle = {
-      fontWeight: '900',
+      fontFamily: 'SpaceMono_700Bold',
       fontSize: 24,
-      color: '#000000',
+      color: '#1A1A2E',
       textAlign: 'center',
       marginBottom: 20,
       letterSpacing: 2,
@@ -45,31 +45,31 @@ export const AchievementShareCard = forwardRef<View, AchievementShareCardProps>(
     const iconContainerStyle: ViewStyle = {
       width: 100,
       height: 100,
-      borderWidth: 4,
-      borderColor: '#000000',
-      borderRadius: 0,
+      borderWidth: 3.5,
+      borderColor: '#1A1A2E',
+      borderRadius: 12,
       backgroundColor: themeColor,
       justifyContent: 'center',
       alignItems: 'center',
       marginBottom: 20,
-      shadowColor: '#000000',
+      shadowColor: '#1A1A2E',
       shadowOffset: { width: 4, height: 4 },
       shadowOpacity: 1,
       shadowRadius: 0,
     };
 
     const nameStyle: TextStyle = {
-      fontWeight: '800',
+      fontFamily: 'SpaceMono_700Bold',
       fontSize: 20,
-      color: '#000000',
+      color: '#1A1A2E',
       textAlign: 'center',
       marginBottom: 8,
     };
 
     const descriptionStyle: TextStyle = {
-      fontWeight: '600',
+      fontFamily: 'SpaceMono_400Regular',
       fontSize: 14,
-      color: '#666666',
+      color: '#6B7280',
       textAlign: 'center',
       marginBottom: 16,
       paddingHorizontal: 16,
@@ -78,26 +78,27 @@ export const AchievementShareCard = forwardRef<View, AchievementShareCardProps>(
     const rarityBadgeStyle: ViewStyle = {
       paddingHorizontal: 16,
       paddingVertical: 8,
-      borderWidth: 3,
-      borderColor: '#000000',
+      borderWidth: 2.5,
+      borderColor: '#1A1A2E',
+      borderRadius: 9999,
       backgroundColor: rarityColor,
     };
 
     const rarityTextStyle: TextStyle = {
-      fontWeight: '900',
+      fontFamily: 'SpaceMono_700Bold',
       fontSize: 12,
-      color: '#000000',
+      color: '#1A1A2E',
       letterSpacing: 2,
     };
 
     return (
-      <ShareCard ref={ref} showWatermark={showWatermark} backgroundColor="#F5F5F5">
+      <ShareCard ref={ref} showWatermark={showWatermark}>
         <Text style={titleStyle}>UNLOCKED!</Text>
         <View style={iconContainerStyle}>
-          <Ionicons
-            name={achievement.icon as keyof typeof Ionicons.glyphMap}
+          <MaterialCommunityIcons
+            name={achievement.icon as any}
             size={48}
-            color="#000000"
+            color="#1A1A2E"
           />
         </View>
         <Text style={nameStyle}>{achievement.name}</Text>

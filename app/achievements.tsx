@@ -8,21 +8,21 @@ import {
   View,
   Text,
   ScrollView,
-  StyleSheet,
   TouchableOpacity,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { AchievementCard } from '@components/achievements';
 import { useAuthStore } from '@store/useAuthStore';
 import { getUserAchievements } from '@services/firebase/achievements';
 import { getAllAchievements } from '@/constants/achievements';
-import type { UserAchievement, AchievementId } from '@/types/achievement';
-import { theme } from '@constants/theme';
+import { useTheme } from '@/contexts/ThemeContext';
+import type { UserAchievement } from '@/types/achievement';
 
 export default function AchievementsScreen() {
   const router = useRouter();
+  const { colors, colorScheme } = useTheme();
   const { user } = useAuthStore();
   const [userAchievements, setUserAchievements] = useState<UserAchievement[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,87 +62,154 @@ export default function AchievementsScreen() {
   const progress = Math.round((unlockedCount / totalCount) * 100);
 
   return (
-    <View style={styles.container}>
-      <StatusBar style="dark" />
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
 
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#000000" />
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: 24,
+          paddingTop: 48,
+          paddingBottom: 16,
+          backgroundColor: colors.surface,
+          borderBottomWidth: 2.5,
+          borderBottomColor: colors.border,
+        }}
+      >
+        <TouchableOpacity onPress={() => router.back()} style={{ marginRight: 16 }}>
+          <MaterialCommunityIcons name="arrow-left" size={24} color={colors.text} />
         </TouchableOpacity>
 
         <View style={{ flex: 1 }}>
-          <Text style={styles.title}>Achievements</Text>
-          <Text style={styles.subtitle}>
+          <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 28, color: colors.text }}>
+            Achievements
+          </Text>
+          <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 12, color: colors.textMuted, marginTop: 4 }}>
             {unlockedCount} / {totalCount} Unlocked ({progress}%)
           </Text>
         </View>
 
-        <View style={styles.trophyContainer}>
-          <Ionicons name="trophy" size={32} color="#FFD700" />
+        <View style={{ marginLeft: 16 }}>
+          <MaterialCommunityIcons name="trophy" size={32} color={colors.warning} />
         </View>
       </View>
 
       {/* Progress Bar */}
-      <View style={styles.progressContainer}>
-        <View style={styles.progressBarBackground}>
+      <View
+        style={{
+          paddingHorizontal: 24,
+          paddingVertical: 16,
+          backgroundColor: colors.surface,
+          borderBottomWidth: 2.5,
+          borderBottomColor: colors.border,
+        }}
+      >
+        <View
+          style={{
+            height: 24,
+            backgroundColor: colors.divider,
+            borderWidth: 2.5,
+            borderColor: colors.border,
+            borderRadius: 8,
+            overflow: 'hidden',
+          }}
+        >
           <View
-            style={[
-              styles.progressBarFill,
-              { width: `${progress}%` },
-            ]}
+            style={{
+              height: '100%',
+              width: `${progress}%`,
+              backgroundColor: colors.accent,
+            }}
           />
         </View>
       </View>
 
       {/* Filter Tabs */}
-      <View style={styles.filterContainer}>
+      <View style={{ flexDirection: 'row', paddingHorizontal: 24, paddingVertical: 16, gap: 8 }}>
         <TouchableOpacity
-          style={[
-            styles.filterTab,
-            filter === 'all' && styles.filterTabActive,
-          ]}
+          style={{
+            flex: 1,
+            paddingVertical: 12,
+            borderWidth: 2.5,
+            borderColor: colors.border,
+            borderRadius: 12,
+            backgroundColor: filter === 'all' ? colors.warning : colors.surface,
+            alignItems: 'center',
+            ...(filter === 'all' ? {
+              shadowColor: colors.border,
+              shadowOffset: { width: 4, height: 4 },
+              shadowOpacity: 1,
+              shadowRadius: 0,
+            } : {}),
+          }}
           onPress={() => setFilter('all')}
         >
           <Text
-            style={[
-              styles.filterText,
-              filter === 'all' && styles.filterTextActive,
-            ]}
+            style={{
+              fontFamily: 'SpaceMono_700Bold',
+              fontSize: 12,
+              color: filter === 'all' ? colors.text : colors.textMuted,
+            }}
           >
             All
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[
-            styles.filterTab,
-            filter === 'unlocked' && styles.filterTabActive,
-          ]}
+          style={{
+            flex: 1,
+            paddingVertical: 12,
+            borderWidth: 2.5,
+            borderColor: colors.border,
+            borderRadius: 12,
+            backgroundColor: filter === 'unlocked' ? colors.warning : colors.surface,
+            alignItems: 'center',
+            ...(filter === 'unlocked' ? {
+              shadowColor: colors.border,
+              shadowOffset: { width: 4, height: 4 },
+              shadowOpacity: 1,
+              shadowRadius: 0,
+            } : {}),
+          }}
           onPress={() => setFilter('unlocked')}
         >
           <Text
-            style={[
-              styles.filterText,
-              filter === 'unlocked' && styles.filterTextActive,
-            ]}
+            style={{
+              fontFamily: 'SpaceMono_700Bold',
+              fontSize: 12,
+              color: filter === 'unlocked' ? colors.text : colors.textMuted,
+            }}
           >
             Unlocked ({unlockedCount})
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[
-            styles.filterTab,
-            filter === 'locked' && styles.filterTabActive,
-          ]}
+          style={{
+            flex: 1,
+            paddingVertical: 12,
+            borderWidth: 2.5,
+            borderColor: colors.border,
+            borderRadius: 12,
+            backgroundColor: filter === 'locked' ? colors.warning : colors.surface,
+            alignItems: 'center',
+            ...(filter === 'locked' ? {
+              shadowColor: colors.border,
+              shadowOffset: { width: 4, height: 4 },
+              shadowOpacity: 1,
+              shadowRadius: 0,
+            } : {}),
+          }}
           onPress={() => setFilter('locked')}
         >
           <Text
-            style={[
-              styles.filterText,
-              filter === 'locked' && styles.filterTextActive,
-            ]}
+            style={{
+              fontFamily: 'SpaceMono_700Bold',
+              fontSize: 12,
+              color: filter === 'locked' ? colors.text : colors.textMuted,
+            }}
           >
             Locked ({totalCount - unlockedCount})
           </Text>
@@ -151,17 +218,21 @@ export default function AchievementsScreen() {
 
       {/* Achievements List */}
       <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.listContent}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ padding: 24 }}
       >
         {loading ? (
-          <View style={styles.loadingContainer}>
-            <Text style={styles.loadingText}>Loading achievements...</Text>
+          <View style={{ paddingVertical: 48, alignItems: 'center' }}>
+            <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 15, color: colors.textMuted }}>
+              Loading achievements...
+            </Text>
           </View>
         ) : filteredAchievements.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Ionicons name="trophy-outline" size={64} color="#999999" />
-            <Text style={styles.emptyText}>No achievements found</Text>
+          <View style={{ paddingVertical: 48, alignItems: 'center' }}>
+            <MaterialCommunityIcons name="trophy-outline" size={64} color={colors.textMuted} />
+            <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 15, color: colors.textMuted, marginTop: 16 }}>
+              No achievements found
+            </Text>
           </View>
         ) : (
           filteredAchievements.map((achievement) => {
@@ -184,110 +255,3 @@ export default function AchievementsScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.bg.secondary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingTop: 48,
-    paddingBottom: 16,
-    backgroundColor: theme.colors.white,
-    borderBottomWidth: 3,
-    borderBottomColor: theme.colors.black,
-  },
-  backButton: {
-    marginRight: 16,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '900',
-    color: theme.colors.black,
-  },
-  subtitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#666666',
-    marginTop: 4,
-  },
-  trophyContainer: {
-    marginLeft: 16,
-  },
-  progressContainer: {
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    backgroundColor: theme.colors.white,
-    borderBottomWidth: 3,
-    borderBottomColor: theme.colors.black,
-  },
-  progressBarBackground: {
-    height: 24,
-    backgroundColor: '#E0E0E0',
-    borderWidth: 3,
-    borderColor: theme.colors.black,
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: '100%',
-    backgroundColor: theme.colors.lime,
-  },
-  filterContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    gap: 8,
-  },
-  filterTab: {
-    flex: 1,
-    paddingVertical: 12,
-    borderWidth: 3,
-    borderColor: theme.colors.black,
-    backgroundColor: theme.colors.white,
-    alignItems: 'center',
-  },
-  filterTabActive: {
-    backgroundColor: theme.colors.yellow,
-    shadowColor: theme.colors.black,
-    shadowOffset: { width: 3, height: 3 },
-    shadowOpacity: 1,
-    shadowRadius: 0,
-  },
-  filterText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#666666',
-  },
-  filterTextActive: {
-    fontWeight: '800',
-    color: theme.colors.black,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  listContent: {
-    padding: 24,
-  },
-  loadingContainer: {
-    paddingVertical: 48,
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#666666',
-  },
-  emptyContainer: {
-    paddingVertical: 48,
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#666666',
-    marginTop: 16,
-  },
-});

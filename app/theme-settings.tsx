@@ -3,26 +3,42 @@
  * Allows users to select custom themes
  */
 
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ThemeSelector } from '@components/settings/ThemeSelector';
-import { theme } from '@constants/theme';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function ThemeSettingsScreen() {
   const router = useRouter();
+  const { colors, colorScheme } = useTheme();
 
   return (
-    <View style={styles.container}>
-      <StatusBar style="dark" />
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
 
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={28} color={theme.colors.black} />
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: 20,
+          paddingTop: 48,
+          paddingBottom: 16,
+          backgroundColor: colors.background,
+        }}
+      >
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={{ width: 40, height: 40, justifyContent: 'center', alignItems: 'center' }}
+        >
+          <MaterialCommunityIcons name="arrow-left" size={28} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Themes</Text>
+        <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 22, color: colors.text }}>
+          Themes
+        </Text>
         <View style={{ width: 28 }} />
       </View>
 
@@ -31,30 +47,3 @@ export default function ThemeSettingsScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: 48,
-    paddingBottom: 16,
-    backgroundColor: '#F5F5F5',
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: '900',
-    color: theme.colors.black,
-  },
-});

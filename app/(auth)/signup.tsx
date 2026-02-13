@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Button, Input, Card } from '@components/ui';
 import { useAuthStore } from '@store/useAuthStore';
 import { useDialog } from '@/contexts/DialogContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function SignupScreen() {
   const [name, setName] = useState('');
@@ -12,11 +13,11 @@ export default function SignupScreen() {
   const [password, setPassword] = useState('');
   const { signup, loading } = useAuthStore();
   const dialog = useDialog();
+  const { colors, colorScheme } = useTheme();
 
   const handleSignup = async () => {
     try {
       await signup({ name, email, password });
-      // No manual navigation - let index.tsx handle redirect based on auth state
     } catch (err: any) {
       dialog.alert('Signup Failed', err.message || 'Please try again');
     }
@@ -25,19 +26,19 @@ export default function SignupScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1, backgroundColor: '#F5F5F5' }}
+      style={{ flex: 1, backgroundColor: colors.background }}
     >
-      <StatusBar style="dark" />
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
       >
         <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 48 }}>
           <View style={{ marginBottom: 32 }}>
-            <Text style={{ fontWeight: '900', fontSize: 48, color: '#000000', marginBottom: 8 }}>
+            <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 28, color: colors.text, marginBottom: 8 }}>
               Get Started
             </Text>
-            <Text style={{ fontWeight: '600', fontSize: 18, color: '#000000' }}>
+            <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 15, color: colors.textMuted }}>
               Create your account and start building habits
             </Text>
           </View>
@@ -94,11 +95,11 @@ export default function SignupScreen() {
           </View>
 
           <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ fontWeight: '600', fontSize: 16, color: '#000000' }}>
+            <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 15, color: colors.text }}>
               Already have an account?{' '}
             </Text>
             <Link href="/(auth)/login">
-              <Text style={{ fontWeight: '800', fontSize: 16, color: '#FFD700' }}>
+              <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 15, color: colors.primary }}>
                 Sign In
               </Text>
             </Link>

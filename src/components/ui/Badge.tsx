@@ -1,59 +1,68 @@
+/**
+ * NeuChip - Fokus Neubrutalism Chip/Badge Component
+ * Pill-shaped, bold border, small shadow, SpaceMono font
+ */
+
 import React from 'react';
 import { View, Text, ViewProps, ViewStyle, TextStyle } from 'react-native';
-import { colors } from '@constants/colors';
+import { useTheme } from '@/contexts/ThemeContext';
 
-interface BadgeProps extends ViewProps {
+interface NeuChipProps extends ViewProps {
   variant?: 'default' | 'success' | 'error' | 'warning' | 'info';
   children: React.ReactNode;
 }
 
-export const Badge: React.FC<BadgeProps> = ({
+export const NeuChip: React.FC<NeuChipProps> = ({
   variant = 'default',
   children,
   style,
   ...props
 }) => {
-  const getBackgroundColor = () => {
+  const { colors } = useTheme();
+
+  const getBackgroundColor = (): string => {
     switch (variant) {
       case 'success':
-        return '#00FF00'; // lime
+        return colors.accent;
       case 'error':
-        return '#FF0000'; // red
+        return colors.error;
       case 'warning':
-        return '#FF6B35'; // orange
+        return colors.warning;
       case 'info':
-        return '#00FFFF'; // cyan
+        return colors.secondary;
       default:
-        return '#FFD700'; // yellow
+        return colors.warning;
     }
   };
 
-  const badgeStyle: ViewStyle = {
-    borderWidth: 2,
-    borderColor: '#000000',
-    borderRadius: 0,
+  const chipStyle: ViewStyle = {
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    borderRadius: 9999,
     paddingHorizontal: 12,
     paddingVertical: 4,
     backgroundColor: getBackgroundColor(),
-    shadowColor: '#000000',
+    shadowColor: colors.border,
     shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 1,
     shadowRadius: 0,
-    elevation: 0,
+    elevation: 2,
+    alignSelf: 'flex-start',
   };
 
   const textStyle: TextStyle = {
-    fontWeight: '800',
+    fontFamily: 'SpaceMono_700Bold',
+    fontWeight: '700',
     fontSize: 12,
-    color: '#000000',
+    color: colors.text,
   };
 
   return (
-    <View
-      style={[badgeStyle, style]}
-      {...props}
-    >
+    <View style={[chipStyle, style]} {...props}>
       <Text style={textStyle}>{children}</Text>
     </View>
   );
 };
+
+/** @deprecated Use NeuChip instead */
+export const Badge = NeuChip;

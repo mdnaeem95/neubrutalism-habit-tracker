@@ -1,17 +1,31 @@
 import '../global.css';
 import { useEffect, useState } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
+import { useFonts, SpaceMono_400Regular, SpaceMono_700Bold } from '@expo-google-fonts/space-mono';
 import { useAuthStore } from '@store/useAuthStore';
 import { initSentry, setUserContext, clearUserContext } from '@services/sentry/config';
 import { initializeRevenueCat } from '@services/revenuecat';
 import { AnimatedSplash } from '@components';
 import { hasCompletedOnboardingSync, initializeStorage } from '@utils/storage';
-import { ThemeProvider } from '@/contexts/ThemeContext';
+import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 import { DialogProvider } from '@/contexts/DialogContext';
 import { useNotifications } from '@/hooks/useNotifications';
 
 // Initialize Sentry
 initSentry();
+
+function RootNavigator() {
+  const { colors } = useTheme();
+
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        contentStyle: { backgroundColor: colors.background },
+      }}
+    />
+  );
+}
 
 export default function RootLayout() {
   const [showSplash, setShowSplash] = useState(true);
@@ -20,6 +34,11 @@ export default function RootLayout() {
   const loading = useAuthStore((state) => state.loading);
   const segments = useSegments();
   const router = useRouter();
+
+  const [fontsLoaded] = useFonts({
+    SpaceMono_400Regular,
+    SpaceMono_700Bold,
+  });
 
   // Initialize notification listeners
   useNotifications();
@@ -56,8 +75,8 @@ export default function RootLayout() {
   }, [user]);
 
   useEffect(() => {
-    // Wait for splash to complete before routing
-    if (showSplash) return;
+    // Wait for splash and fonts before routing
+    if (showSplash || !fontsLoaded) return;
 
     // Wait for auth to initialize
     if (loading) return;
@@ -66,10 +85,8 @@ export default function RootLayout() {
     const inOnboarding = segments[0] === 'onboarding';
 
     if (!user && !inAuthGroup) {
-      // Redirect to login if not authenticated and not in auth group
       router.replace('/(auth)/login');
     } else if (user && inAuthGroup) {
-      // Check if user has completed onboarding
       const completedOnboarding = hasCompletedOnboardingSync();
       if (!completedOnboarding) {
         router.replace('/onboarding');
@@ -77,25 +94,19 @@ export default function RootLayout() {
         router.replace('/(tabs)');
       }
     } else if (user && !inOnboarding && !hasCompletedOnboardingSync()) {
-      // Redirect to onboarding if authenticated but hasn't completed onboarding
       router.replace('/onboarding');
     }
-  }, [user, segments, loading, showSplash]);
+  }, [user, segments, loading, showSplash, fontsLoaded]);
 
-  // Show animated splash screen on first load
-  if (showSplash) {
+  // Show animated splash screen on first load (also waits for fonts)
+  if (showSplash || !fontsLoaded) {
     return <AnimatedSplash onAnimationComplete={handleSplashComplete} />;
   }
 
   return (
     <ThemeProvider>
       <DialogProvider>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: '#F5F5F5' },
-          }}
-        />
+        <RootNavigator />
       </DialogProvider>
     </ThemeProvider>
   );

@@ -1,9 +1,7 @@
 /**
  * Custom Theme Presets - Premium Feature
- * Different color combinations for the neubrutalism aesthetic
+ * Different color combinations for the Fokus neubrutalism aesthetic
  */
-
-import { colors } from './colors';
 
 export interface ThemePreset {
   id: string;
@@ -19,62 +17,62 @@ export interface ThemePreset {
 export const themes: Record<string, ThemePreset> = {
   default: {
     id: 'default',
-    name: 'Classic Yellow',
-    description: 'The original Block theme',
-    primary: colors.yellow,
-    secondary: colors.pink,
-    accent: colors.cyan,
-    background: colors.gray,
-    isPremium: false, // Free theme
+    name: 'Fokus Pink',
+    description: 'The signature Fokus theme',
+    primary: '#FF6B9D',
+    secondary: '#4D96FF',
+    accent: '#6BCB77',
+    background: '#FFF8E7',
+    isPremium: false,
   },
   sunset: {
     id: 'sunset',
     name: 'Sunset Vibes',
-    description: 'Warm orange and pink',
-    primary: colors.orange,
-    secondary: colors.pink,
-    accent: colors.yellow,
-    background: colors.gray,
+    description: 'Warm orange and pink tones',
+    primary: '#FF8C42',
+    secondary: '#FF6B9D',
+    accent: '#FFD93D',
+    background: '#FFF8E7',
     isPremium: true,
   },
   ocean: {
     id: 'ocean',
     name: 'Ocean Breeze',
-    description: 'Cool cyan and blue',
-    primary: colors.cyan,
-    secondary: colors.blue,
-    accent: colors.lime,
-    background: colors.gray,
+    description: 'Cool blue and green',
+    primary: '#4D96FF',
+    secondary: '#6BCB77',
+    accent: '#85D694',
+    background: '#FFF8E7',
     isPremium: true,
   },
   neon: {
     id: 'neon',
     name: 'Neon Nights',
-    description: 'Electric purple and lime',
-    primary: colors.purple,
-    secondary: colors.lime,
-    accent: colors.pink,
-    background: colors.gray,
+    description: 'Electric purple and green',
+    primary: '#A855F7',
+    secondary: '#6BCB77',
+    accent: '#FF6B9D',
+    background: '#FFF8E7',
     isPremium: true,
   },
   monochrome: {
     id: 'monochrome',
     name: 'Monochrome',
-    description: 'Clean black and white',
-    primary: colors.black,
-    secondary: colors.gray,
-    accent: colors.white,
-    background: colors.white,
+    description: 'Sleek black and white',
+    primary: '#1A1A2E',
+    secondary: '#6B7280',
+    accent: '#F0F0F0',
+    background: '#FFFFFF',
     isPremium: true,
   },
   candy: {
     id: 'candy',
     name: 'Candy Pop',
-    description: 'Sweet pink and cyan',
-    primary: colors.pink,
-    secondary: colors.cyan,
-    accent: colors.yellow,
-    background: colors.gray,
+    description: 'Sweet pink and blue',
+    primary: '#FF85B1',
+    secondary: '#6DAAFF',
+    accent: '#FFD93D',
+    background: '#FFF8E7',
     isPremium: true,
   },
 } as const;

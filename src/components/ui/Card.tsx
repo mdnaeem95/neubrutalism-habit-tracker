@@ -1,55 +1,61 @@
+/**
+ * NeuCard - Fokus Neubrutalism Card Component
+ * Opaque backgrounds, bold borders, hard shadows
+ */
+
 import React from 'react';
 import { View, ViewProps, ViewStyle } from 'react-native';
-import { colors } from '@constants/colors';
+import { useTheme } from '@/contexts/ThemeContext';
 
-interface CardProps extends ViewProps {
-  variant?: 'default' | 'yellow' | 'pink' | 'cyan' | 'lime';
+interface NeuCardProps extends ViewProps {
+  variant?: 'default' | 'primary' | 'secondary' | 'accent' | 'warning';
   noPadding?: boolean;
   children: React.ReactNode;
 }
 
-export const Card: React.FC<CardProps> = ({
+export const NeuCard: React.FC<NeuCardProps> = ({
   variant = 'default',
   noPadding = false,
   children,
   style,
   ...props
 }) => {
-  const getBackgroundColor = () => {
+  const { colors } = useTheme();
+
+  const getBackgroundColor = (): string => {
     switch (variant) {
-      case 'yellow':
-        return '#FFD700';
-      case 'pink':
-        return '#FF69B4';
-      case 'cyan':
-        return '#00FFFF';
-      case 'lime':
-        return '#00FF00';
+      case 'primary':
+        return colors.primary;
+      case 'secondary':
+        return colors.secondary;
+      case 'accent':
+        return colors.accent;
+      case 'warning':
+        return colors.warning;
       default:
-        return '#FFFFFF';
+        return colors.surface;
     }
   };
 
+  const cardStyle: ViewStyle = {
+    borderWidth: 2.5,
+    borderColor: colors.border,
+    borderRadius: 12,
+    backgroundColor: getBackgroundColor(),
+    padding: noPadding ? 0 : 16,
+    shadowColor: colors.border,
+    shadowOffset: { width: 4, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 4,
+  };
+
   return (
-    <View
-      style={[
-        {
-          borderWidth: 3,
-          borderColor: '#000000',
-          borderRadius: 0,
-          backgroundColor: getBackgroundColor(),
-          padding: noPadding ? 0 : 16,
-          shadowColor: '#000000',
-          shadowOffset: { width: 4, height: 4 },
-          shadowOpacity: 1,
-          shadowRadius: 0,
-          elevation: 0,
-        },
-        style,
-      ]}
-      {...props}
-    >
+    <View style={[cardStyle, style]} {...props}>
       {children}
     </View>
   );
 };
+
+/** @deprecated Use NeuCard instead */
+export const Card = NeuCard;

@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ViewStyle, TextStyle } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { HabitWithStats } from '@/types/habit';
 import { Badge } from '@components/ui';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface HabitCardProps {
   habit: HabitWithStats;
@@ -11,31 +12,33 @@ interface HabitCardProps {
 }
 
 export const HabitCard: React.FC<HabitCardProps> = ({ habit, onPress, onCheckIn }) => {
+  const { colors } = useTheme();
+
   const getColorValue = (color: string): string => {
     switch (color) {
       case 'yellow':
-        return '#FFD700';
+        return colors.warning;
       case 'pink':
-        return '#FF69B4';
+        return colors.primary;
       case 'cyan':
-        return '#00FFFF';
+        return colors.secondary;
       case 'lime':
-        return '#00FF00';
+        return colors.accent;
       case 'orange':
-        return '#FF6B35';
+        return colors.orange;
       default:
-        return '#FFD700';
+        return colors.warning;
     }
   };
 
   const cardStyle: ViewStyle = {
-    borderWidth: 3,
-    borderColor: '#000000',
-    borderRadius: 0,
+    borderWidth: 2.5,
+    borderColor: colors.border,
+    borderRadius: 12,
     backgroundColor: getColorValue(habit.color),
     padding: 16,
     marginBottom: 16,
-    shadowColor: '#000000',
+    shadowColor: colors.border,
     shadowOffset: { width: 4, height: 4 },
     shadowOpacity: 1,
     shadowRadius: 0,
@@ -55,39 +58,29 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit, onPress, onCheckIn 
     flex: 1,
   };
 
-  const iconStyle: TextStyle = {
-    fontSize: 24,
-    marginRight: 8,
-  };
-
   const nameStyle: TextStyle = {
-    fontWeight: '800',
+    fontFamily: 'SpaceMono_700Bold',
     fontSize: 18,
-    color: '#000000',
+    color: colors.text,
     flex: 1,
+    marginLeft: 8,
   };
 
   const checkboxStyle: ViewStyle = {
     width: 32,
     height: 32,
-    borderWidth: 3,
-    borderColor: '#000000',
-    borderRadius: 0,
-    backgroundColor: habit.todayCheckedIn ? '#00FF00' : '#FFFFFF',
+    borderWidth: 2.5,
+    borderColor: colors.border,
+    borderRadius: 8,
+    backgroundColor: habit.todayCheckedIn ? colors.accent : colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
   };
 
-  const checkmarkStyle: TextStyle = {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#000000',
-  };
-
   const descriptionStyle: TextStyle = {
-    fontWeight: '600',
+    fontFamily: 'SpaceMono_400Regular',
     fontSize: 14,
-    color: '#000000',
+    color: colors.text,
     marginBottom: 12,
   };
 
@@ -103,16 +96,16 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit, onPress, onCheckIn 
   };
 
   const statLabelStyle: TextStyle = {
-    fontWeight: '700',
+    fontFamily: 'SpaceMono_700Bold',
     fontSize: 12,
-    color: '#000000',
+    color: colors.text,
     marginRight: 4,
   };
 
   const statValueStyle: TextStyle = {
-    fontWeight: '900',
+    fontFamily: 'SpaceMono_700Bold',
     fontSize: 14,
-    color: '#000000',
+    color: colors.text,
   };
 
   const badgeContainerStyle: ViewStyle = {
@@ -125,7 +118,7 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit, onPress, onCheckIn 
       {/* Header with title and checkbox */}
       <View style={headerStyle}>
         <View style={titleContainerStyle}>
-          <Ionicons name={habit.icon as any} size={24} color="#000000" />
+          <MaterialCommunityIcons name={habit.icon as any} size={24} color={colors.text} />
           <Text style={nameStyle} numberOfLines={1}>
             {habit.name}
           </Text>
@@ -138,7 +131,9 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit, onPress, onCheckIn 
           }}
           activeOpacity={0.7}
         >
-          {habit.todayCheckedIn && <Text style={checkmarkStyle}>✓</Text>}
+          {habit.todayCheckedIn && (
+            <MaterialCommunityIcons name="check" size={20} color={colors.text} />
+          )}
         </TouchableOpacity>
       </View>
 

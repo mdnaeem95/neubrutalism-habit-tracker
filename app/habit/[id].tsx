@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, ViewStyle, TextStyle } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button, Card, Badge } from '@components/ui';
 import { HabitCalendar } from '@components';
 import { NoteInputModal } from '@components/habits/NoteInputModal';
@@ -11,11 +11,13 @@ import { ShareCardModal, StreakShareCard } from '@components/share';
 import { useAuthStore } from '@store/useAuthStore';
 import { useHabitsStore } from '@store/useHabitsStore';
 import { useDialog } from '@/contexts/DialogContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { getLast7DaysCheckIns } from '@utils/habitCalculations';
 import type { CheckIn } from '@/types/habit';
 
 export default function HabitDetailScreen() {
   const router = useRouter();
+  const { colors, colorScheme } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuthStore();
   const { getHabitById, checkIns, deleteHabit, archiveHabit, toggleCheckIn } = useHabitsStore();
@@ -26,7 +28,6 @@ export default function HabitDetailScreen() {
   const [currentNote, setCurrentNote] = useState<string>('');
   const [showShareModal, setShowShareModal] = useState(false);
 
-  // Check if user has premium (for watermark removal)
   const isPremium = user?.subscription?.plan === 'premium' || user?.subscription?.plan === 'trial';
 
   const habit = id ? getHabitById(id) : null;
@@ -73,18 +74,15 @@ export default function HabitDetailScreen() {
   const handleCheckIn = async (date: string) => {
     if (!user || !id) return;
 
-    // Check if user is premium and if we're checking in (not unchecking)
     const isPremium = user.subscription?.plan === 'premium' || user.subscription?.plan === 'trial';
     const existingCheckIn = habitCheckIns.find((c) => c.date === date);
     const isCheckingIn = !existingCheckIn?.completed;
 
     if (isPremium && isCheckingIn) {
-      // Show note modal for premium users
       setSelectedDate(date);
       setCurrentNote(existingCheckIn?.note || '');
       setNoteModalVisible(true);
     } else {
-      // Regular check-in without note
       try {
         await toggleCheckIn(user.id, id, date);
       } catch (error: any) {
@@ -114,9 +112,9 @@ export default function HabitDetailScreen() {
 
   if (!habit) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#F5F5F5', justifyContent: 'center', alignItems: 'center' }}>
-        <StatusBar style="dark" />
-        <Text style={{ fontWeight: '700', fontSize: 16, color: '#000000' }}>Habit not found</Text>
+      <View style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}>
+        <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+        <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 15, color: colors.text }}>Habit not found</Text>
         <Button variant="secondary" onPress={() => router.back()} style={{ marginTop: 16 }}>
           Go Back
         </Button>
@@ -126,116 +124,94 @@ export default function HabitDetailScreen() {
 
   const getColorValue = (color: string): string => {
     switch (color) {
-      case 'yellow': return '#FFD700';
-      case 'pink': return '#FF69B4';
-      case 'cyan': return '#00FFFF';
-      case 'lime': return '#00FF00';
-      case 'orange': return '#FF6B35';
-      default: return '#FFD700';
+      case 'yellow': return colors.warning;
+      case 'pink': return colors.primary;
+      case 'cyan': return colors.secondary;
+      case 'lime': return colors.accent;
+      case 'orange': return colors.orange;
+      default: return colors.warning;
     }
-  };
-
-  const headerStyle: ViewStyle = {
-    paddingHorizontal: 24,
-    paddingTop: 48,
-    paddingBottom: 16,
   };
 
   const iconContainerStyle: ViewStyle = {
     width: 80,
     height: 80,
-    borderWidth: 3,
-    borderColor: '#000000',
-    borderRadius: 0,
+    borderWidth: 2.5,
+    borderColor: colors.border,
+    borderRadius: 16,
     backgroundColor: getColorValue(habit.color),
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
-    shadowColor: '#000000',
+    shadowColor: colors.border,
     shadowOffset: { width: 4, height: 4 },
     shadowOpacity: 1,
     shadowRadius: 0,
     elevation: 0,
   };
 
-  const titleStyle: TextStyle = {
-    fontWeight: '900',
-    fontSize: 36,
-    color: '#000000',
-    marginBottom: 8,
-  };
-
-  const descriptionStyle: TextStyle = {
-    fontWeight: '600',
-    fontSize: 16,
-    color: '#000000',
-    marginBottom: 16,
-  };
-
   const statCardStyle: ViewStyle = {
     padding: 16,
-    borderWidth: 3,
-    borderColor: '#000000',
-    borderRadius: 0,
-    backgroundColor: '#FFFFFF',
+    borderWidth: 2.5,
+    borderColor: colors.border,
+    borderRadius: 12,
+    backgroundColor: colors.surface,
     alignItems: 'center',
-    shadowColor: '#000000',
-    shadowOffset: { width: 3, height: 3 },
+    shadowColor: colors.border,
+    shadowOffset: { width: 4, height: 4 },
     shadowOpacity: 1,
     shadowRadius: 0,
     elevation: 0,
   };
 
   const statValueStyle: TextStyle = {
-    fontWeight: '900',
-    fontSize: 32,
-    color: '#000000',
+    fontFamily: 'SpaceMono_700Bold',
+    fontSize: 28,
+    color: colors.text,
     marginBottom: 4,
   };
 
   const statLabelStyle: TextStyle = {
-    fontWeight: '700',
+    fontFamily: 'SpaceMono_700Bold',
     fontSize: 12,
-    color: '#000000',
+    color: colors.textMuted,
   };
 
   const dayBoxStyle = (completed: boolean): ViewStyle => ({
     width: 40,
     height: 40,
-    borderWidth: 3,
-    borderColor: '#000000',
-    borderRadius: 0,
-    backgroundColor: completed ? '#00FF00' : '#FFFFFF',
+    borderWidth: 2.5,
+    borderColor: colors.border,
+    borderRadius: 8,
+    backgroundColor: completed ? colors.accent : colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
   });
 
-  const dayTextStyle: TextStyle = {
-    fontWeight: '800',
-    fontSize: 12,
-    color: '#000000',
-  };
-
   const sectionTitleStyle: TextStyle = {
-    fontWeight: '800',
+    fontFamily: 'SpaceMono_700Bold',
     fontSize: 18,
-    color: '#000000',
+    color: colors.text,
     marginBottom: 12,
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F5F5F5' }}>
-      <StatusBar style="dark" />
+    <ScrollView style={{ flex: 1, backgroundColor: colors.background }}>
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
 
-      <View style={headerStyle}>
+      <View style={{ paddingHorizontal: 24, paddingTop: 48, paddingBottom: 16 }}>
         <View style={iconContainerStyle}>
-          <Ionicons name={habit.icon as any} size={48} color="#000000" />
+          <MaterialCommunityIcons name={habit.icon as any} size={48} color={colors.text} />
         </View>
 
-        <Text style={titleStyle}>{habit.name}</Text>
+        <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 28, color: colors.text, marginBottom: 8 }}>
+          {habit.name}
+        </Text>
 
         {habit.description && (
-          <Text style={descriptionStyle}>{habit.description}</Text>
+          <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 15, color: colors.textMuted, marginBottom: 16 }}>
+            {habit.description}
+          </Text>
         )}
 
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
@@ -261,8 +237,8 @@ export default function HabitDetailScreen() {
               <Text style={statLabelStyle}>Current Streak</Text>
               {habit.currentStreak > 0 && (
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
-                  <Ionicons name="share-outline" size={14} color="#666666" />
-                  <Text style={{ fontSize: 10, fontWeight: '700', color: '#666666', marginLeft: 4 }}>
+                  <MaterialCommunityIcons name="share-variant" size={14} color={colors.textMuted} />
+                  <Text style={{ fontSize: 10, fontFamily: 'SpaceMono_700Bold', color: colors.textMuted, marginLeft: 4 }}>
                     Tap to share
                   </Text>
                 </View>
@@ -309,11 +285,13 @@ export default function HabitDetailScreen() {
                     onPress={() => handleCheckIn(day.date)}
                     activeOpacity={0.7}
                   >
-                    <Text style={dayTextStyle}>{dayName}</Text>
+                    <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 12, color: colors.text }}>
+                      {dayName}
+                    </Text>
                   </TouchableOpacity>
                   {hasNote && (
                     <View style={{ marginTop: 4 }}>
-                      <Ionicons name="document-text" size={12} color="#000000" />
+                      <MaterialCommunityIcons name="text-box" size={12} color={colors.textMuted} />
                     </View>
                   )}
                 </View>
@@ -337,16 +315,16 @@ export default function HabitDetailScreen() {
         {(() => {
           const notesWithCheckIns = habitCheckIns
             .filter((c) => c.note && c.note.trim().length > 0)
-            .slice(0, 5); // Show last 5 notes
+            .slice(0, 5);
 
           if (notesWithCheckIns.length > 0) {
             return (
               <Card style={{ marginBottom: 24 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
                   <Text style={sectionTitleStyle}>Recent Notes</Text>
-                  <View style={{ marginLeft: 8, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 2, backgroundColor: '#FFD700', borderWidth: 2, borderColor: '#000000' }}>
-                    <Ionicons name="star" size={10} color="#000000" />
-                    <Text style={{ fontSize: 10, fontWeight: '800', color: '#000000', marginLeft: 4 }}>PREMIUM</Text>
+                  <View style={{ marginLeft: 8, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 2, backgroundColor: colors.warning, borderWidth: 2, borderColor: colors.border, borderRadius: 8 }}>
+                    <MaterialCommunityIcons name="star" size={10} color={colors.text} />
+                    <Text style={{ fontSize: 10, fontFamily: 'SpaceMono_700Bold', color: colors.text, marginLeft: 4 }}>PREMIUM</Text>
                   </View>
                 </View>
                 <View style={{ gap: 12 }}>

@@ -5,17 +5,18 @@ import { StatusBar } from 'expo-status-bar';
 import { Button, Input, Card } from '@components/ui';
 import { useAuthStore } from '@store/useAuthStore';
 import { useDialog } from '@/contexts/DialogContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login, loading } = useAuthStore();
   const dialog = useDialog();
+  const { colors, colorScheme } = useTheme();
 
   const handleLogin = async () => {
     try {
       await login({ email, password });
-      // No manual navigation - let index.tsx handle redirect based on auth state
     } catch (err: any) {
       dialog.alert('Login Failed', err.message || 'Please check your credentials');
     }
@@ -24,19 +25,19 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1, backgroundColor: '#F5F5F5' }}
+      style={{ flex: 1, backgroundColor: colors.background }}
     >
-      <StatusBar style="dark" />
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
       >
         <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 48 }}>
           <View style={{ marginBottom: 32 }}>
-            <Text style={{ fontWeight: '900', fontSize: 48, color: '#000000', marginBottom: 8 }}>
+            <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 28, color: colors.text, marginBottom: 8 }}>
               Welcome Back
             </Text>
-            <Text style={{ fontWeight: '600', fontSize: 18, color: '#000000' }}>
+            <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 15, color: colors.textMuted }}>
               Sign in to continue crushing your habits
             </Text>
           </View>
@@ -75,7 +76,7 @@ export default function LoginScreen() {
 
             <View style={{ marginTop: 16, alignItems: 'center' }}>
               <Link href="/(auth)/forgot-password">
-                <Text style={{ fontWeight: '700', fontSize: 14, color: '#000000' }}>
+                <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 12, color: colors.textMuted }}>
                   Forgot Password?
                 </Text>
               </Link>
@@ -92,11 +93,11 @@ export default function LoginScreen() {
           </View>
 
           <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-            <Text style={{ fontWeight: '600', fontSize: 16, color: '#000000' }}>
+            <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 15, color: colors.text }}>
               Don't have an account?{' '}
             </Text>
             <Link href="/(auth)/signup">
-              <Text style={{ fontWeight: '800', fontSize: 16, color: '#FFD700' }}>
+              <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 15, color: colors.primary }}>
                 Sign Up
               </Text>
             </Link>

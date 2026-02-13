@@ -14,7 +14,7 @@ export const ShareCard = forwardRef<View, ShareCardProps>(
   (
     {
       children,
-      backgroundColor = '#F5F5F5',
+      backgroundColor,
       showWatermark = true,
       aspectRatio = '1:1',
       style,
@@ -24,15 +24,18 @@ export const ShareCard = forwardRef<View, ShareCardProps>(
     const cardWidth = 320;
     const cardHeight = aspectRatio === '1:1' ? 320 : 568; // 9:16 ratio
 
+    // Default bg uses colors.background (#FFF8E7 light), but accept override
+    const bgColor = backgroundColor || '#FFF8E7';
+
     const containerStyle: ViewStyle = {
       width: cardWidth,
       height: cardHeight,
-      backgroundColor,
-      borderWidth: 4,
-      borderColor: '#000000',
-      borderRadius: 0,
-      shadowColor: '#000000',
-      shadowOffset: { width: 8, height: 8 },
+      backgroundColor: bgColor,
+      borderWidth: 3.5,
+      borderColor: '#1A1A2E',
+      borderRadius: 16,
+      shadowColor: '#1A1A2E',
+      shadowOffset: { width: 6, height: 6 },
       shadowOpacity: 1,
       shadowRadius: 0,
       elevation: 8,

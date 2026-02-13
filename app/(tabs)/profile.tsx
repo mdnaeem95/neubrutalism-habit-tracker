@@ -1,21 +1,22 @@
 import { useEffect } from 'react';
-import { View, Text, ScrollView, ViewStyle, TextStyle } from 'react-native';
+import { View, Text, ScrollView, ViewStyle, TextStyle, Linking } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { Button, Card } from '@components/ui';
 import { useAuthStore } from '@store/useAuthStore';
 import { useHabitsStore } from '@store/useHabitsStore';
 import { useDialog } from '@/contexts/DialogContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { trackScreenView } from '@services/firebase/analytics';
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { colors, colorScheme } = useTheme();
   const { user, logout } = useAuthStore();
   const { habits } = useHabitsStore();
   const dialog = useDialog();
 
   useEffect(() => {
-    // Track screen view
     trackScreenView('Profile');
   }, []);
 
@@ -27,82 +28,70 @@ export default function ProfileScreen() {
         style: 'destructive',
         onPress: async () => {
           await logout();
-          // Navigation handled automatically by _layout.tsx
         },
       },
     ]);
   };
 
-  const headerStyle: ViewStyle = {
-    paddingHorizontal: 24,
-    paddingTop: 48,
-    paddingBottom: 16,
-  };
-
-  const titleStyle: TextStyle = {
-    fontWeight: '900',
-    fontSize: 48,
-    color: '#000000',
-    marginBottom: 8,
-  };
-
   const sectionTitleStyle: TextStyle = {
-    fontWeight: '800',
+    fontFamily: 'SpaceMono_700Bold',
     fontSize: 18,
-    color: '#000000',
+    color: colors.text,
     marginBottom: 12,
   };
 
   const labelStyle: TextStyle = {
-    fontWeight: '700',
-    fontSize: 14,
-    color: '#000000',
+    fontFamily: 'SpaceMono_700Bold',
+    fontSize: 12,
+    color: colors.textMuted,
     marginBottom: 4,
   };
 
   const valueStyle: TextStyle = {
-    fontWeight: '600',
-    fontSize: 16,
-    color: '#000000',
+    fontFamily: 'SpaceMono_400Regular',
+    fontSize: 15,
+    color: colors.text,
   };
 
   const statBoxStyle: ViewStyle = {
     padding: 16,
-    borderWidth: 3,
-    borderColor: '#000000',
-    borderRadius: 0,
-    backgroundColor: '#FFFFFF',
+    borderWidth: 2.5,
+    borderColor: colors.border,
+    borderRadius: 12,
+    backgroundColor: colors.surface,
     flex: 1,
     alignItems: 'center',
-    shadowColor: '#000000',
-    shadowOffset: { width: 3, height: 3 },
+    shadowColor: colors.border,
+    shadowOffset: { width: 4, height: 4 },
     shadowOpacity: 1,
     shadowRadius: 0,
     elevation: 0,
   };
 
   const statValueStyle: TextStyle = {
-    fontWeight: '900',
-    fontSize: 32,
-    color: '#000000',
+    fontFamily: 'SpaceMono_700Bold',
+    fontSize: 28,
+    color: colors.text,
     marginBottom: 4,
   };
 
   const statLabelStyle: TextStyle = {
-    fontWeight: '700',
+    fontFamily: 'SpaceMono_700Bold',
     fontSize: 12,
-    color: '#000000',
+    color: colors.textMuted,
   };
 
   const activeHabits = habits.filter((h) => !h.archived).length;
   const totalStreakDays = habits.reduce((sum, h) => sum + h.currentStreak, 0);
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F5F5F5' }}>
-      <StatusBar style="dark" />
+    <ScrollView style={{ flex: 1, backgroundColor: colors.background }}>
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
 
-      <View style={headerStyle}>
-        <Text style={titleStyle}>Profile</Text>
+      <View style={{ paddingHorizontal: 24, paddingTop: 48, paddingBottom: 16 }}>
+        <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 28, color: colors.text, marginBottom: 8 }}>
+          Profile
+        </Text>
       </View>
 
       <View style={{ paddingHorizontal: 24 }}>
@@ -145,17 +134,17 @@ export default function ProfileScreen() {
             <View
               style={{
                 padding: 12,
-                borderWidth: 3,
-                borderColor: '#000000',
-                borderRadius: 0,
-                backgroundColor: '#FFD700',
+                borderWidth: 2.5,
+                borderColor: colors.border,
+                borderRadius: 12,
+                backgroundColor: colors.warning,
                 marginTop: 8,
               }}
             >
-              <Text style={{ fontWeight: '700', fontSize: 14, color: '#000000', textAlign: 'center' }}>
+              <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 12, color: colors.text, textAlign: 'center' }}>
                 You're at the free tier limit (5 habits)
               </Text>
-              <Text style={{ fontWeight: '600', fontSize: 12, color: '#000000', textAlign: 'center', marginTop: 4 }}>
+              <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 12, color: colors.text, textAlign: 'center', marginTop: 4 }}>
                 Upgrade to Premium for unlimited habits!
               </Text>
               <View style={{ marginTop: 12 }}>
@@ -204,6 +193,7 @@ export default function ProfileScreen() {
             </Button>
           </View>
         </Card>
+
         {/* Info Card */}
         <Card style={{ marginBottom: 24 }}>
           <Text style={sectionTitleStyle}>About</Text>
@@ -218,23 +208,23 @@ export default function ProfileScreen() {
 
             <Button
               variant="secondary"
-              onPress={() => dialog.alert('Privacy Policy', 'Privacy policy coming soon!')}
+              onPress={() => Linking.openURL('https://blockapp.co/privacy')}
             >
               Privacy Policy
             </Button>
 
             <Button
               variant="secondary"
-              onPress={() => dialog.alert('Terms', 'Terms of service coming soon!')}
+              onPress={() => Linking.openURL('https://blockapp.co/terms')}
             >
               Terms of Service
             </Button>
 
             <View style={{ marginTop: 8 }}>
-              <Text style={{ fontWeight: '600', fontSize: 12, color: '#000000', textAlign: 'center' }}>
+              <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 12, color: colors.textMuted, textAlign: 'center' }}>
                 Version 1.0.0
               </Text>
-              <Text style={{ fontWeight: '500', fontSize: 10, color: '#666666', textAlign: 'center', marginTop: 4 }}>
+              <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 10, color: colors.textMuted, textAlign: 'center', marginTop: 4 }}>
                 Made with Claude Code
               </Text>
             </View>

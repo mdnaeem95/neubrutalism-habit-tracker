@@ -5,7 +5,8 @@
 
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTheme } from '@/contexts/ThemeContext';
 import type { Achievement } from '@/types/achievement';
 
 interface AchievementBadgeProps {
@@ -19,6 +20,7 @@ export const AchievementBadge: React.FC<AchievementBadgeProps> = ({
   size = 'medium',
   unlocked,
 }) => {
+  const { colors } = useTheme();
   const sizeValue = size === 'small' ? 32 : size === 'medium' ? 48 : 64;
   const iconSize = size === 'small' ? 16 : size === 'medium' ? 24 : 32;
 
@@ -29,15 +31,17 @@ export const AchievementBadge: React.FC<AchievementBadgeProps> = ({
         {
           width: sizeValue,
           height: sizeValue,
-          backgroundColor: unlocked ? achievement.color : '#E0E0E0',
+          backgroundColor: unlocked ? achievement.color : colors.divider,
+          borderColor: colors.border,
+          shadowColor: colors.border,
           opacity: unlocked ? 1 : 0.5,
         },
       ]}
     >
-      <Ionicons
+      <MaterialCommunityIcons
         name={achievement.icon as any}
         size={iconSize}
-        color={unlocked ? '#000000' : '#999999'}
+        color={unlocked ? colors.text : colors.textMuted}
       />
     </View>
   );
@@ -45,12 +49,10 @@ export const AchievementBadge: React.FC<AchievementBadgeProps> = ({
 
 const styles = StyleSheet.create({
   badge: {
-    borderWidth: 3,
-    borderColor: '#000000',
-    borderRadius: 0,
+    borderWidth: 2.5,
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000000',
     shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 1,
     shadowRadius: 0,

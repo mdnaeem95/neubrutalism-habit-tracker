@@ -119,8 +119,8 @@ export function AnimatedSplash({ onAnimationComplete }: AnimatedSplashProps) {
             y="40"
             width="928"
             height="928"
-            fill="#FFD700"
-            stroke="#000000"
+            fill="#FF6B9D"
+            stroke="#1A1A2E"
             strokeWidth="60"
           />
         </AnimatedG>
@@ -130,7 +130,7 @@ export function AnimatedSplash({ onAnimationComplete }: AnimatedSplashProps) {
           <AnimatedPath
             d="M 300 512 L 450 680 L 750 340"
             fill="none"
-            stroke="#000000"
+            stroke="#1A1A2E"
             strokeWidth="80"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -151,14 +151,14 @@ export function AnimatedSplash({ onAnimationComplete }: AnimatedSplashProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFF8E7',
     justifyContent: 'center',
     alignItems: 'center',
   },
   appName: {
     fontSize: 64,
     fontWeight: '900',
-    color: '#000000',
+    color: '#1A1A2E',
     marginTop: 32,
     letterSpacing: -2,
   },

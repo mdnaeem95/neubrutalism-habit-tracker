@@ -10,9 +10,7 @@ module.exports = {
     scheme: 'blockhabittracker',
     description: 'Bold habit tracking with a neubrutalism design',
     splash: {
-      image: './assets/splash-icon.png',
-      resizeMode: 'contain',
-      backgroundColor: '#F5F5F5',
+      backgroundColor: '#FFF8E7',
     },
     ios: {
       bundleIdentifier: 'com.blockapp.habits',
@@ -25,7 +23,7 @@ module.exports = {
     android: {
       adaptiveIcon: {
         foregroundImage: './assets/adaptive-icon.png',
-        backgroundColor: '#FFD700',
+        backgroundColor: '#FF6B9D',
       },
       package: 'com.blockapp.habits',
       edgeToEdgeEnabled: true,

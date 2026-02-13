@@ -14,8 +14,8 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { theme } from '@constants/theme';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface NoteInputModalProps {
   visible: boolean;
@@ -33,6 +33,7 @@ export const NoteInputModal: React.FC<NoteInputModalProps> = ({
   habitName,
 }) => {
   const [note, setNote] = useState(initialNote);
+  const { colors } = useTheme();
 
   const handleSave = () => {
     onSave(note.trim());
@@ -61,57 +62,101 @@ export const NoteInputModal: React.FC<NoteInputModalProps> = ({
           onPress={handleCancel}
         />
 
-        <View style={styles.modal}>
+        <View
+          style={[
+            styles.modal,
+            {
+              backgroundColor: colors.surface,
+              borderColor: colors.border,
+              shadowColor: colors.border,
+            },
+          ]}
+        >
           {/* Header */}
           <View style={styles.header}>
             <View style={{ flex: 1 }}>
-              <Text style={styles.title}>Add Note</Text>
-              <Text style={styles.subtitle}>{habitName}</Text>
+              <Text style={[styles.title, { color: colors.text }]}>Add Note</Text>
+              <Text style={[styles.subtitle, { color: colors.textMuted }]}>{habitName}</Text>
             </View>
             <TouchableOpacity onPress={handleCancel} style={styles.closeButton}>
-              <Ionicons name="close" size={28} color={theme.colors.black} />
+              <MaterialCommunityIcons name="close" size={28} color={colors.text} />
             </TouchableOpacity>
           </View>
 
           {/* Note Input */}
           <View style={styles.inputContainer}>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  borderColor: colors.border,
+                  color: colors.text,
+                  backgroundColor: colors.surface,
+                },
+              ]}
               value={note}
               onChangeText={setNote}
               placeholder="How did it go? Any reflections?"
-              placeholderTextColor="#999999"
+              placeholderTextColor={colors.textMuted}
               multiline
               numberOfLines={6}
               textAlignVertical="top"
               autoFocus
               maxLength={500}
             />
-            <Text style={styles.charCount}>{note.length}/500</Text>
+            <Text style={[styles.charCount, { color: colors.textMuted }]}>{note.length}/500</Text>
           </View>
 
           {/* Action Buttons */}
           <View style={styles.actions}>
             <TouchableOpacity
-              style={[styles.button, styles.buttonSecondary]}
+              style={[
+                styles.button,
+                {
+                  backgroundColor: colors.surface,
+                  borderColor: colors.border,
+                  shadowColor: colors.border,
+                  shadowOffset: { width: 2, height: 2 },
+                  shadowOpacity: 1,
+                  shadowRadius: 0,
+                },
+              ]}
               onPress={handleCancel}
             >
-              <Text style={styles.buttonTextSecondary}>Cancel</Text>
+              <Text style={[styles.buttonText, { color: colors.text }]}>Cancel</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.button, styles.buttonPrimary]}
+              style={[
+                styles.button,
+                {
+                  backgroundColor: colors.accent,
+                  borderColor: colors.border,
+                  shadowColor: colors.border,
+                  shadowOffset: { width: 4, height: 4 },
+                  shadowOpacity: 1,
+                  shadowRadius: 0,
+                },
+              ]}
               onPress={handleSave}
             >
-              <Ionicons name="checkmark" size={20} color={theme.colors.black} />
-              <Text style={styles.buttonTextPrimary}>Save Note</Text>
+              <MaterialCommunityIcons name="check" size={20} color={colors.text} />
+              <Text style={[styles.buttonText, { color: colors.text }]}>Save Note</Text>
             </TouchableOpacity>
           </View>
 
           {/* Premium Badge */}
-          <View style={styles.premiumBadge}>
-            <Ionicons name="star" size={14} color={theme.colors.black} />
-            <Text style={styles.premiumText}>Premium Feature</Text>
+          <View
+            style={[
+              styles.premiumBadge,
+              {
+                backgroundColor: colors.warning,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <MaterialCommunityIcons name="star" size={14} color={colors.text} />
+            <Text style={[styles.premiumText, { color: colors.text }]}>Premium Feature</Text>
           </View>
         </View>
       </KeyboardAvoidingView>
@@ -129,16 +174,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modal: {
-    backgroundColor: theme.colors.white,
-    borderTopWidth: 4,
-    borderLeftWidth: 4,
-    borderRightWidth: 4,
-    borderColor: theme.colors.black,
-    borderTopLeftRadius: 0,
-    borderTopRightRadius: 0,
+    borderTopWidth: 3.5,
+    borderLeftWidth: 3.5,
+    borderRightWidth: 3.5,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
     padding: 24,
     paddingBottom: 40,
-    shadowColor: theme.colors.black,
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 1,
     shadowRadius: 0,
@@ -151,13 +193,11 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: '900',
-    color: theme.colors.black,
+    fontFamily: 'SpaceMono_700Bold',
   },
   subtitle: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#666666',
+    fontFamily: 'SpaceMono_400Regular',
     marginTop: 4,
   },
   closeButton: {
@@ -167,19 +207,16 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   input: {
-    borderWidth: 3,
-    borderColor: theme.colors.black,
+    borderWidth: 2.5,
+    borderRadius: 8,
     padding: 16,
     fontSize: 16,
-    fontWeight: '600',
-    color: theme.colors.black,
-    backgroundColor: theme.colors.bg.secondary,
+    fontFamily: 'SpaceMono_400Regular',
     minHeight: 120,
   },
   charCount: {
     fontSize: 12,
-    fontWeight: '600',
-    color: '#999999',
+    fontFamily: 'SpaceMono_400Regular',
     textAlign: 'right',
     marginTop: 8,
   },
@@ -193,33 +230,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 16,
-    borderWidth: 3,
-    borderColor: theme.colors.black,
+    borderWidth: 2.5,
+    borderRadius: 12,
     gap: 8,
   },
-  buttonPrimary: {
-    backgroundColor: theme.colors.yellow,
-    shadowColor: theme.colors.black,
-    shadowOffset: { width: 4, height: 4 },
-    shadowOpacity: 1,
-    shadowRadius: 0,
-  },
-  buttonSecondary: {
-    backgroundColor: theme.colors.white,
-    shadowColor: theme.colors.black,
-    shadowOffset: { width: 3, height: 3 },
-    shadowOpacity: 1,
-    shadowRadius: 0,
-  },
-  buttonTextPrimary: {
+  buttonText: {
     fontSize: 16,
-    fontWeight: '800',
-    color: theme.colors.black,
-  },
-  buttonTextSecondary: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: theme.colors.black,
+    fontFamily: 'SpaceMono_700Bold',
   },
   premiumBadge: {
     flexDirection: 'row',
@@ -229,14 +246,12 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingVertical: 8,
     paddingHorizontal: 16,
-    backgroundColor: theme.colors.yellow,
-    borderWidth: 2,
-    borderColor: theme.colors.black,
+    borderWidth: 2.5,
+    borderRadius: 9999,
     alignSelf: 'center',
   },
   premiumText: {
     fontSize: 12,
-    fontWeight: '800',
-    color: theme.colors.black,
+    fontFamily: 'SpaceMono_700Bold',
   },
 });

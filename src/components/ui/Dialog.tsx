@@ -1,6 +1,6 @@
 /**
- * Neubrutalism Dialog Component
- * Custom styled dialog to replace native Alert.alert
+ * Dialog - Fokus Neubrutalism Dialog Component
+ * Modal dialog with thick borders, large shadow, SpaceMono font
  */
 
 import React, { useEffect } from 'react';
@@ -11,7 +11,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   Animated,
+  ViewStyle,
+  TextStyle,
 } from 'react-native';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export interface DialogButton {
   text: string;
@@ -34,6 +37,7 @@ export const Dialog: React.FC<DialogProps> = ({
   buttons = [{ text: 'OK', style: 'default' }],
   onClose,
 }) => {
+  const { colors } = useTheme();
   const scaleAnim = new Animated.Value(0);
 
   useEffect(() => {
@@ -54,15 +58,69 @@ export const Dialog: React.FC<DialogProps> = ({
     onClose();
   };
 
-  const getButtonStyle = (style?: DialogButton['style']) => {
+  const getButtonBackgroundColor = (style?: DialogButton['style']): string => {
     switch (style) {
       case 'destructive':
-        return { backgroundColor: '#FF0000' };
+        return colors.error;
       case 'cancel':
-        return { backgroundColor: '#00FFFF' };
+        return colors.secondary;
       default:
-        return { backgroundColor: '#FFD700' };
+        return colors.primary;
     }
+  };
+
+  const dialogStyle: ViewStyle = {
+    backgroundColor: colors.surface,
+    borderWidth: 3.5,
+    borderColor: colors.border,
+    borderRadius: 16,
+    padding: 24,
+    maxWidth: 320,
+    width: '90%',
+    shadowColor: colors.border,
+    shadowOffset: { width: 6, height: 6 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 6,
+  };
+
+  const titleStyle: TextStyle = {
+    fontFamily: 'SpaceMono_700Bold',
+    fontWeight: '700',
+    fontSize: 24,
+    color: colors.text,
+    marginBottom: 12,
+  };
+
+  const messageStyle: TextStyle = {
+    fontFamily: 'SpaceMono_400Regular',
+    fontWeight: '400',
+    fontSize: 15,
+    color: colors.textMuted,
+    marginBottom: 24,
+    lineHeight: 22,
+  };
+
+  const buttonStyle = (btnStyle?: DialogButton['style']): ViewStyle => ({
+    borderWidth: 2.5,
+    borderColor: colors.border,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    backgroundColor: getButtonBackgroundColor(btnStyle),
+    shadowColor: colors.border,
+    shadowOffset: { width: 4, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 4,
+  });
+
+  const buttonTextStyle: TextStyle = {
+    fontFamily: 'SpaceMono_700Bold',
+    fontWeight: '700',
+    fontSize: 15,
+    color: colors.text,
+    textAlign: 'center',
   };
 
   return (
@@ -76,25 +134,25 @@ export const Dialog: React.FC<DialogProps> = ({
 
         <Animated.View
           style={[
-            styles.dialog,
+            dialogStyle,
             {
               transform: [{ scale: scaleAnim }],
             },
           ]}
         >
-          <Text style={styles.title}>{title}</Text>
+          <Text style={titleStyle}>{title}</Text>
 
-          {message && <Text style={styles.message}>{message}</Text>}
+          {message && <Text style={messageStyle}>{message}</Text>}
 
           <View style={styles.buttonContainer}>
             {buttons.map((button, index) => (
               <TouchableOpacity
                 key={index}
-                style={[styles.button, getButtonStyle(button.style)]}
+                style={buttonStyle(button.style)}
                 onPress={() => handleButtonPress(button)}
                 activeOpacity={0.8}
               >
-                <Text style={styles.buttonText}>{button.text}</Text>
+                <Text style={buttonTextStyle}>{button.text}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -114,50 +172,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
-  dialog: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 4,
-    borderColor: '#000000',
-    padding: 24,
-    maxWidth: 320,
-    width: '90%',
-    shadowColor: '#000000',
-    shadowOffset: { width: 8, height: 8 },
-    shadowOpacity: 1,
-    shadowRadius: 0,
-    elevation: 0,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '900',
-    color: '#000000',
-    marginBottom: 12,
-  },
-  message: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#666666',
-    marginBottom: 24,
-    lineHeight: 24,
-  },
   buttonContainer: {
     gap: 12,
-  },
-  button: {
-    borderWidth: 3,
-    borderColor: '#000000',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    shadowColor: '#000000',
-    shadowOffset: { width: 4, height: 4 },
-    shadowOpacity: 1,
-    shadowRadius: 0,
-    elevation: 0,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#000000',
-    textAlign: 'center',
   },
 });

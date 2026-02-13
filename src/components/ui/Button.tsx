@@ -1,3 +1,8 @@
+/**
+ * NeuButton - Fokus Neubrutalism Button Component
+ * Bold borders, hard shadows, SpaceMono font
+ */
+
 import React from 'react';
 import {
   TouchableOpacity,
@@ -7,16 +12,16 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
-import { colors } from '@constants/colors';
+import { useTheme } from '@/contexts/ThemeContext';
 
-interface ButtonProps extends TouchableOpacityProps {
+interface NeuButtonProps extends TouchableOpacityProps {
   variant?: 'primary' | 'secondary' | 'danger' | 'success';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
   children: React.ReactNode;
 }
 
-export const Button: React.FC<ButtonProps> = ({
+export const NeuButton: React.FC<NeuButtonProps> = ({
   variant = 'primary',
   size = 'md',
   isLoading = false,
@@ -25,22 +30,24 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   ...props
 }) => {
-  const getBackgroundColor = () => {
+  const { colors } = useTheme();
+
+  const getBackgroundColor = (): string => {
     switch (variant) {
       case 'primary':
-        return '#FFD700'; // yellow
+        return colors.primary;
       case 'secondary':
-        return '#00FFFF'; // cyan
+        return colors.secondary;
       case 'danger':
-        return '#FF0000'; // red
+        return colors.error;
       case 'success':
-        return '#00FF00'; // lime
+        return colors.accent;
       default:
-        return '#FFD700';
+        return colors.primary;
     }
   };
 
-  const getPadding = () => {
+  const getPadding = (): { paddingHorizontal: number; paddingVertical: number } => {
     switch (size) {
       case 'sm':
         return { paddingHorizontal: 16, paddingVertical: 8 };
@@ -53,7 +60,7 @@ export const Button: React.FC<ButtonProps> = ({
     }
   };
 
-  const getTextSize = () => {
+  const getTextSize = (): number => {
     switch (size) {
       case 'sm':
         return 14;
@@ -67,23 +74,24 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const buttonStyle: ViewStyle = {
-    borderWidth: 3,
-    borderColor: '#000000',
-    borderRadius: 0,
+    borderWidth: 2.5,
+    borderColor: colors.border,
+    borderRadius: 12,
     backgroundColor: getBackgroundColor(),
     ...getPadding(),
-    shadowColor: '#000000',
+    shadowColor: colors.border,
     shadowOffset: { width: 4, height: 4 },
     shadowOpacity: 1,
     shadowRadius: 0,
-    elevation: 0,
+    elevation: 4,
     opacity: disabled || isLoading ? 0.5 : 1,
   };
 
   const textStyle: TextStyle = {
-    fontWeight: '800',
+    fontFamily: 'SpaceMono_700Bold',
+    fontWeight: '700',
     fontSize: getTextSize(),
-    color: '#000000',
+    color: colors.text,
     textAlign: 'center',
   };
 
@@ -95,12 +103,13 @@ export const Button: React.FC<ButtonProps> = ({
       {...props}
     >
       {isLoading ? (
-        <ActivityIndicator color={colors.black} size="small" />
+        <ActivityIndicator color={colors.text} size="small" />
       ) : (
-        <Text style={textStyle}>
-          {children}
-        </Text>
+        <Text style={textStyle}>{children}</Text>
       )}
     </TouchableOpacity>
   );
 };
+
+/** @deprecated Use NeuButton instead */
+export const Button = NeuButton;

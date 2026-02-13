@@ -1,11 +1,12 @@
 /**
- * PremiumLockBadge Component
- * Small badge showing premium lock status
+ * PremiumLockBadge - Fokus Neubrutalism Premium Lock Badge
+ * MaterialCommunityIcons lock, theme colors, SpaceMono font
  */
 
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, TouchableOpacity, ViewStyle, TextStyle } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface PremiumLockBadgeProps {
   size?: 'sm' | 'md';
@@ -18,25 +19,40 @@ export const PremiumLockBadge: React.FC<PremiumLockBadgeProps> = ({
   onPress,
   variant = 'default',
 }) => {
+  const { colors } = useTheme();
+
   const isSmall = size === 'sm';
   const isInline = variant === 'inline';
 
+  const badgeStyle: ViewStyle = {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.warning,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    borderRadius: 4,
+    gap: 4,
+    ...(isSmall
+      ? { paddingHorizontal: 6, paddingVertical: 2 }
+      : { paddingHorizontal: 10, paddingVertical: 4 }),
+    ...(isInline ? { marginLeft: 8 } : {}),
+  };
+
+  const textStyle: TextStyle = {
+    fontFamily: 'SpaceMono_700Bold',
+    fontWeight: '700',
+    color: colors.text,
+    fontSize: isSmall ? 9 : 11,
+  };
+
   const content = (
-    <View
-      style={[
-        styles.badge,
-        isSmall ? styles.badgeSmall : styles.badgeMedium,
-        isInline && styles.badgeInline,
-      ]}
-    >
-      <Ionicons
-        name="lock-closed"
+    <View style={badgeStyle}>
+      <MaterialCommunityIcons
+        name="lock"
         size={isSmall ? 10 : 12}
-        color="#000000"
+        color={colors.text}
       />
-      <Text style={[styles.text, isSmall ? styles.textSmall : styles.textMedium]}>
-        PRO
-      </Text>
+      <Text style={textStyle}>PRO</Text>
     </View>
   );
 
@@ -50,35 +66,3 @@ export const PremiumLockBadge: React.FC<PremiumLockBadgeProps> = ({
 
   return content;
 };
-
-const styles = StyleSheet.create({
-  badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFD700',
-    borderWidth: 2,
-    borderColor: '#000000',
-    gap: 4,
-  },
-  badgeSmall: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  badgeMedium: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  badgeInline: {
-    marginLeft: 8,
-  },
-  text: {
-    fontWeight: '800',
-    color: '#000000',
-  },
-  textSmall: {
-    fontSize: 9,
-  },
-  textMedium: {
-    fontSize: 11,
-  },
-});

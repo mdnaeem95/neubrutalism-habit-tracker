@@ -2,32 +2,32 @@ import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Switch, ViewStyle, TextStyle, Linking } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Card, Button, TimePicker } from '@components/ui';
 import { useAuthStore } from '@store/useAuthStore';
 import { useHabitsStore } from '@store/useHabitsStore';
 import { getUserPreferences, saveUserPreferences, clearStorage, resetOnboarding } from '@utils/storage';
 import { exportData } from '@utils/export';
 import { useDialog } from '@/contexts/DialogContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { scheduleDailyNotification, cancelAllNotifications } from '@services/notifications';
 import { useNotifications } from '@/hooks/useNotifications';
 import Constants from 'expo-constants';
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const { colors, colorScheme } = useTheme();
   const { user, logout } = useAuthStore();
   const { habits, checkIns } = useHabitsStore();
   const dialog = useDialog();
   const { hasPermission, requestPermission } = useNotifications();
 
-  // Load preferences
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [notificationTime, setNotificationTime] = useState<string | null>('09:00');
   const [preferences, setPreferences] = useState<Record<string, any>>({});
   const [globalNotificationId, setGlobalNotificationId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load preferences on mount
     const loadPreferences = async () => {
       const prefs = await getUserPreferences();
       setPreferences(prefs);
@@ -39,7 +39,6 @@ export default function SettingsScreen() {
   }, []);
 
   const handleToggleNotifications = async (value: boolean) => {
-    // Request permission if enabling and don't have permission
     if (value && !hasPermission) {
       const granted = await requestPermission();
       if (!granted) {
@@ -52,10 +51,8 @@ export default function SettingsScreen() {
     await saveUserPreferences({ ...preferences, notificationsEnabled: value });
 
     if (value && notificationTime) {
-      // Schedule the daily reminder
       await scheduleGlobalReminder(notificationTime);
     } else {
-      // Cancel all notifications
       await cancelAllNotifications();
       setGlobalNotificationId(null);
       await saveUserPreferences({ ...preferences, notificationsEnabled: value, globalNotificationId: null });
@@ -69,7 +66,6 @@ export default function SettingsScreen() {
     if (notificationsEnabled && time) {
       await scheduleGlobalReminder(time);
     } else if (!time) {
-      // Clear the notification if time is removed
       await cancelAllNotifications();
       setGlobalNotificationId(null);
       await saveUserPreferences({ ...preferences, notificationTime: null, globalNotificationId: null });
@@ -78,7 +74,6 @@ export default function SettingsScreen() {
 
   const scheduleGlobalReminder = async (time: string) => {
     try {
-      // Request permission if not granted
       if (!hasPermission) {
         const granted = await requestPermission();
         if (!granted) {
@@ -87,13 +82,10 @@ export default function SettingsScreen() {
         }
       }
 
-      // Cancel existing notification
       await cancelAllNotifications();
 
-      // Parse time string "HH:MM"
       const [hours, minutes] = time.split(':').map(Number);
 
-      // Schedule new notification
       const notificationId = await scheduleDailyNotification(
         'Time to check your habits!',
         'Stay consistent and keep your streaks going!',
@@ -155,7 +147,6 @@ export default function SettingsScreen() {
       return;
     }
 
-    // Show format selection
     dialog.alert('Export Data', 'Choose export format:', [
       {
         text: 'JSON',
@@ -199,7 +190,6 @@ export default function SettingsScreen() {
                 text: 'DELETE',
                 style: 'destructive',
                 onPress: async () => {
-                  // TODO: Implement account deletion
                   dialog.alert('Error', 'Account deletion not yet implemented');
                 },
               },
@@ -222,71 +212,26 @@ export default function SettingsScreen() {
     Linking.openURL('mailto:support@blockapp.co');
   };
 
-  const containerStyle: ViewStyle = {
-    flex: 1,
-    backgroundColor: '#F5F5F5',
-  };
-
-  const headerStyle: ViewStyle = {
-    paddingHorizontal: 24,
-    paddingTop: 60,
-    paddingBottom: 24,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  };
-
-  const backButtonStyle: ViewStyle = {
-    width: 44,
-    height: 44,
-    borderWidth: 3,
-    borderColor: '#000000',
-    borderRadius: 0,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000000',
-    shadowOffset: { width: 3, height: 3 },
-    shadowOpacity: 1,
-    shadowRadius: 0,
-    elevation: 0,
-  };
-
-  const titleStyle: TextStyle = {
-    fontWeight: '900',
-    fontSize: 36,
-    color: '#000000',
-  };
-
-  const sectionTitleStyle: TextStyle = {
-    fontWeight: '800',
-    fontSize: 14,
-    color: '#000000',
-    marginLeft: 24,
-    marginBottom: 12,
-    marginTop: 16,
-  };
-
   const settingItemStyle: ViewStyle = {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomWidth: 1.5,
+    borderBottomColor: colors.divider,
   };
 
   const settingLabelStyle: TextStyle = {
-    fontWeight: '700',
-    fontSize: 16,
-    color: '#000000',
+    fontFamily: 'SpaceMono_700Bold',
+    fontSize: 15,
+    color: colors.text,
     flex: 1,
   };
 
   const settingValueStyle: TextStyle = {
-    fontWeight: '600',
-    fontSize: 14,
-    color: '#666666',
+    fontFamily: 'SpaceMono_400Regular',
+    fontSize: 12,
+    color: colors.textMuted,
     marginRight: 8,
   };
 
@@ -295,8 +240,8 @@ export default function SettingsScreen() {
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomWidth: 1.5,
+    borderBottomColor: colors.divider,
   };
 
   const appVersion = Constants.expoConfig?.version || '1.0.0';
@@ -304,19 +249,42 @@ export default function SettingsScreen() {
   const isPremium = userPlan === 'premium';
 
   return (
-    <ScrollView style={containerStyle}>
-      <StatusBar style="dark" />
+    <ScrollView style={{ flex: 1, backgroundColor: colors.background }}>
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
 
       {/* Header */}
-      <View style={headerStyle}>
+      <View
+        style={{
+          paddingHorizontal: 24,
+          paddingTop: 60,
+          paddingBottom: 24,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
         <TouchableOpacity
-          style={backButtonStyle}
+          style={{
+            width: 44,
+            height: 44,
+            borderWidth: 2.5,
+            borderColor: colors.border,
+            borderRadius: 12,
+            backgroundColor: colors.surface,
+            justifyContent: 'center',
+            alignItems: 'center',
+            shadowColor: colors.border,
+            shadowOffset: { width: 4, height: 4 },
+            shadowOpacity: 1,
+            shadowRadius: 0,
+            elevation: 0,
+          }}
           onPress={() => router.back()}
           activeOpacity={0.7}
         >
-          <Ionicons name="arrow-back" size={24} color="#000000" />
+          <MaterialCommunityIcons name="arrow-left" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={titleStyle}>Settings</Text>
+        <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 28, color: colors.text }}>Settings</Text>
         <View style={{ width: 44 }} />
       </View>
 
@@ -328,33 +296,34 @@ export default function SettingsScreen() {
               style={{
                 width: 80,
                 height: 80,
-                borderWidth: 3,
-                borderColor: '#000000',
-                borderRadius: 0,
-                backgroundColor: '#FFD700',
+                borderWidth: 2.5,
+                borderColor: colors.border,
+                borderRadius: 12,
+                backgroundColor: colors.warning,
                 justifyContent: 'center',
                 alignItems: 'center',
                 marginBottom: 12,
               }}
             >
-              <Ionicons name="person" size={40} color="#000000" />
+              <MaterialCommunityIcons name="account" size={40} color={colors.text} />
             </View>
-            <Text style={{ fontWeight: '800', fontSize: 20, color: '#000000', marginBottom: 4 }}>
+            <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 18, color: colors.text, marginBottom: 4 }}>
               {user?.displayName || 'User'}
             </Text>
-            <Text style={{ fontWeight: '600', fontSize: 14, color: '#666666', marginBottom: 8 }}>
+            <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 12, color: colors.textMuted, marginBottom: 8 }}>
               {user?.email}
             </Text>
             <View
               style={{
                 paddingHorizontal: 12,
                 paddingVertical: 6,
-                borderWidth: 3,
-                borderColor: '#000000',
-                backgroundColor: isPremium ? '#00FF00' : '#FFD700',
+                borderWidth: 2.5,
+                borderColor: colors.border,
+                borderRadius: 8,
+                backgroundColor: isPremium ? colors.accent : colors.warning,
               }}
             >
-              <Text style={{ fontWeight: '800', fontSize: 12, color: '#000000' }}>
+              <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 12, color: colors.text }}>
                 {isPremium ? 'PREMIUM' : 'FREE'}
               </Text>
             </View>
@@ -365,25 +334,25 @@ export default function SettingsScreen() {
         <Card style={{ marginBottom: 16 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 8 }}>
             <View style={{ alignItems: 'center' }}>
-              <Text style={{ fontWeight: '900', fontSize: 28, color: '#000000' }}>
+              <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 22, color: colors.text }}>
                 {habits.filter((h) => !h.archived).length}
               </Text>
-              <Text style={{ fontWeight: '700', fontSize: 12, color: '#666666' }}>
+              <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 12, color: colors.textMuted }}>
                 Active Habits
               </Text>
             </View>
             <View
               style={{
-                width: 2,
-                backgroundColor: '#000000',
+                width: 1.5,
+                backgroundColor: colors.border,
                 marginHorizontal: 16,
               }}
             />
             <View style={{ alignItems: 'center' }}>
-              <Text style={{ fontWeight: '900', fontSize: 28, color: '#000000' }}>
+              <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 22, color: colors.text }}>
                 {habits.reduce((sum, h) => sum + h.totalCompletions, 0)}
               </Text>
-              <Text style={{ fontWeight: '700', fontSize: 12, color: '#666666' }}>
+              <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 12, color: colors.textMuted }}>
                 Total Check-ins
               </Text>
             </View>
@@ -392,11 +361,11 @@ export default function SettingsScreen() {
 
         {/* Upgrade Banner for Free Users */}
         {!isPremium && (
-          <Card style={{ marginBottom: 16, backgroundColor: '#FFD700' }}>
-            <Text style={{ fontWeight: '800', fontSize: 18, color: '#000000', marginBottom: 8 }}>
+          <Card style={{ marginBottom: 16, backgroundColor: colors.warning }}>
+            <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 18, color: colors.text, marginBottom: 8 }}>
               Upgrade to Premium
             </Text>
-            <Text style={{ fontWeight: '600', fontSize: 14, color: '#000000', marginBottom: 12 }}>
+            <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 12, color: colors.text, marginBottom: 12 }}>
               Unlimited habits, advanced stats, and more!
             </Text>
             <Button variant="primary" onPress={() => router.push('/paywall')}>
@@ -407,7 +376,9 @@ export default function SettingsScreen() {
       </View>
 
       {/* Notifications */}
-      <Text style={sectionTitleStyle}>NOTIFICATIONS</Text>
+      <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 12, color: colors.textMuted, marginLeft: 24, marginBottom: 12, marginTop: 16 }}>
+        NOTIFICATIONS
+      </Text>
       <View style={{ paddingHorizontal: 24 }}>
         <Card>
           <View style={settingItemStyle}>
@@ -415,9 +386,9 @@ export default function SettingsScreen() {
             <Switch
               value={notificationsEnabled}
               onValueChange={handleToggleNotifications}
-              trackColor={{ false: '#E0E0E0', true: '#00FF00' }}
+              trackColor={{ false: colors.divider, true: colors.accent }}
               thumbColor={'#FFFFFF'}
-              ios_backgroundColor="#E0E0E0"
+              ios_backgroundColor={colors.divider}
             />
           </View>
           <View style={{ paddingTop: 8 }}>
@@ -433,7 +404,9 @@ export default function SettingsScreen() {
       </View>
 
       {/* Data & Privacy */}
-      <Text style={sectionTitleStyle}>DATA & PRIVACY</Text>
+      <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 12, color: colors.textMuted, marginLeft: 24, marginBottom: 12, marginTop: 16 }}>
+        DATA & PRIVACY
+      </Text>
       <View style={{ paddingHorizontal: 24 }}>
         <Card>
           <TouchableOpacity style={linkButtonStyle} onPress={handleExportData} activeOpacity={0.7}>
@@ -444,34 +417,37 @@ export default function SettingsScreen() {
                   paddingHorizontal: 8,
                   paddingVertical: 4,
                   borderWidth: 2,
-                  borderColor: '#000000',
-                  backgroundColor: '#FFD700',
+                  borderColor: colors.border,
+                  borderRadius: 8,
+                  backgroundColor: colors.warning,
                   marginRight: 8,
                 }}
               >
-                <Text style={{ fontWeight: '800', fontSize: 10, color: '#000000' }}>PRO</Text>
+                <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 10, color: colors.text }}>PRO</Text>
               </View>
             )}
-            <Ionicons name="chevron-forward" size={20} color="#000000" />
+            <MaterialCommunityIcons name="chevron-right" size={20} color={colors.text} />
           </TouchableOpacity>
           <TouchableOpacity style={linkButtonStyle} onPress={openPrivacyPolicy} activeOpacity={0.7}>
             <Text style={settingLabelStyle}>Privacy Policy</Text>
-            <Ionicons name="chevron-forward" size={20} color="#000000" />
+            <MaterialCommunityIcons name="chevron-right" size={20} color={colors.text} />
           </TouchableOpacity>
           <TouchableOpacity style={linkButtonStyle} onPress={openTermsOfService} activeOpacity={0.7}>
             <Text style={settingLabelStyle}>Terms of Service</Text>
-            <Ionicons name="chevron-forward" size={20} color="#000000" />
+            <MaterialCommunityIcons name="chevron-right" size={20} color={colors.text} />
           </TouchableOpacity>
         </Card>
       </View>
 
       {/* Support */}
-      <Text style={sectionTitleStyle}>SUPPORT</Text>
+      <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 12, color: colors.textMuted, marginLeft: 24, marginBottom: 12, marginTop: 16 }}>
+        SUPPORT
+      </Text>
       <View style={{ paddingHorizontal: 24 }}>
         <Card>
           <TouchableOpacity style={linkButtonStyle} onPress={openSupport} activeOpacity={0.7}>
             <Text style={settingLabelStyle}>Contact Support</Text>
-            <Ionicons name="chevron-forward" size={20} color="#000000" />
+            <MaterialCommunityIcons name="chevron-right" size={20} color={colors.text} />
           </TouchableOpacity>
           <View style={settingItemStyle}>
             <Text style={settingLabelStyle}>App Version</Text>
@@ -483,7 +459,9 @@ export default function SettingsScreen() {
       {/* Developer Tools (Debug) */}
       {__DEV__ && (
         <>
-          <Text style={sectionTitleStyle}>DEVELOPER</Text>
+          <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 12, color: colors.textMuted, marginLeft: 24, marginBottom: 12, marginTop: 16 }}>
+            DEVELOPER
+          </Text>
           <View style={{ paddingHorizontal: 24 }}>
             <Card>
               <TouchableOpacity
@@ -492,7 +470,7 @@ export default function SettingsScreen() {
                 activeOpacity={0.7}
               >
                 <Text style={settingLabelStyle}>Reset Onboarding</Text>
-                <Ionicons name="chevron-forward" size={20} color="#000000" />
+                <MaterialCommunityIcons name="chevron-right" size={20} color={colors.text} />
               </TouchableOpacity>
             </Card>
           </View>

@@ -1,54 +1,86 @@
-import React from 'react';
-import { TextInput, View, Text, TextInputProps } from 'react-native';
-import { colors } from '@constants/colors';
+/**
+ * NeuInput - Fokus Neubrutalism Input Component
+ * Clean input with bold borders, small shadow, SpaceMono font
+ */
 
-interface InputProps extends TextInputProps {
+import React from 'react';
+import { TextInput, View, Text, TextInputProps, ViewStyle, TextStyle } from 'react-native';
+import { useTheme } from '@/contexts/ThemeContext';
+
+interface NeuInputProps extends TextInputProps {
   label?: string;
   error?: string;
   helperText?: string;
 }
 
-export const Input: React.FC<InputProps> = ({ label, error, helperText, style, ...props }) => {
+export const NeuInput: React.FC<NeuInputProps> = ({
+  label,
+  error,
+  helperText,
+  style,
+  ...props
+}) => {
+  const { colors } = useTheme();
+
+  const containerStyle: ViewStyle = {
+    width: '100%',
+  };
+
+  const labelStyle: TextStyle = {
+    fontFamily: 'SpaceMono_700Bold',
+    fontWeight: '700',
+    fontSize: 15,
+    color: colors.text,
+    marginBottom: 8,
+  };
+
+  const inputStyle: TextStyle = {
+    borderWidth: 2.5,
+    borderColor: error ? colors.error : colors.border,
+    borderRadius: 8,
+    backgroundColor: colors.surface,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontFamily: 'SpaceMono_400Regular',
+    fontWeight: '400',
+    fontSize: 15,
+    color: colors.text,
+    shadowColor: colors.border,
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 2,
+  };
+
+  const errorStyle: TextStyle = {
+    fontFamily: 'SpaceMono_400Regular',
+    fontWeight: '400',
+    fontSize: 14,
+    color: colors.error,
+    marginTop: 4,
+  };
+
+  const helperStyle: TextStyle = {
+    fontFamily: 'SpaceMono_400Regular',
+    fontWeight: '400',
+    fontSize: 14,
+    color: colors.textMuted,
+    marginTop: 4,
+  };
+
   return (
-    <View style={{ width: '100%' }}>
-      {label && (
-        <Text style={{ fontWeight: '800', fontSize: 16, color: '#000000', marginBottom: 8 }}>
-          {label}
-        </Text>
-      )}
+    <View style={containerStyle}>
+      {label && <Text style={labelStyle}>{label}</Text>}
       <TextInput
-        style={[
-          {
-            borderWidth: 3,
-            borderColor: error ? '#FF0000' : '#000000',
-            borderRadius: 0,
-            backgroundColor: '#FFFFFF',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            fontWeight: '600',
-            fontSize: 16,
-            color: '#000000',
-            shadowColor: '#000000',
-            shadowOffset: { width: 2, height: 2 },
-            shadowOpacity: 1,
-            shadowRadius: 0,
-            elevation: 0,
-          },
-          style,
-        ]}
-        placeholderTextColor={colors.black}
+        style={[inputStyle, style]}
+        placeholderTextColor={colors.textMuted}
         {...props}
       />
-      {error && (
-        <Text style={{ fontWeight: '600', fontSize: 14, color: '#FF0000', marginTop: 4 }}>
-          {error}
-        </Text>
-      )}
-      {helperText && !error && (
-        <Text style={{ fontWeight: '500', fontSize: 14, color: '#666666', marginTop: 4 }}>
-          {helperText}
-        </Text>
-      )}
+      {error && <Text style={errorStyle}>{error}</Text>}
+      {helperText && !error && <Text style={helperStyle}>{helperText}</Text>}
     </View>
   );
 };
+
+/** @deprecated Use NeuInput instead */
+export const Input = NeuInput;

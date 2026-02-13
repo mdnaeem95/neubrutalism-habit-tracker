@@ -1,10 +1,12 @@
 /**
- * Theme Context - Premium Feature
- * Manages custom theme selection and application
+ * Theme Context - Fokus Neubrutalism
+ * Manages theme selection, dark mode, and color resolution
  */
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useColorScheme } from 'react-native';
 import { themes, ThemePreset, ThemeId } from '@constants/themes';
+import { lightColors, darkColors, ColorScheme } from '@constants/colors';
 import { useAuthStore } from '@store/useAuthStore';
 import { useAchievementsStore } from '@store/useAchievementsStore';
 import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
@@ -16,6 +18,8 @@ interface ThemeContextValue {
   availableThemes: ThemePreset[];
   canUseTheme: (themeId: string) => boolean;
   usedThemesCount: number;
+  colors: ColorScheme;
+  colorScheme: 'light' | 'dark';
 }
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
@@ -37,6 +41,24 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const { unlockAchievement, unlockedIds } = useAchievementsStore();
   const [currentTheme, setCurrentTheme] = useState<ThemePreset>(themes.default);
   const [usedThemes, setUsedThemes] = useState<string[]>([]);
+  const systemScheme = useColorScheme();
+  const colorScheme: 'light' | 'dark' = systemScheme === 'dark' ? 'dark' : 'light';
+
+  // Resolve colors: base palette for current scheme
+  const baseColors = colorScheme === 'dark' ? darkColors : lightColors;
+  const colors: ColorScheme = {
+    ...baseColors,
+    // Override primary/secondary/accent from selected theme preset
+    primary: colorScheme === 'dark'
+      ? adjustForDark(currentTheme.primary)
+      : currentTheme.primary,
+    secondary: colorScheme === 'dark'
+      ? adjustForDark(currentTheme.secondary)
+      : currentTheme.secondary,
+    accent: colorScheme === 'dark'
+      ? adjustForDark(currentTheme.accent)
+      : currentTheme.accent,
+  };
 
   // Load user's saved theme and used themes on mount
   useEffect(() => {
@@ -46,7 +68,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
         setCurrentTheme(savedTheme);
       }
     }
-    // Load used themes history
     if (user?.preferences?.usedThemes) {
       setUsedThemes(user.preferences.usedThemes);
     }
@@ -55,11 +76,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const canUseTheme = (themeId: string): boolean => {
     const theme = themes[themeId as ThemeId];
     if (!theme) return false;
-
-    // Free themes are always available
     if (!theme.isPremium) return true;
-
-    // Premium themes require premium subscription
     const userPlan = user?.subscription?.plan || 'free';
     return userPlan === 'premium' || userPlan === 'trial';
   };
@@ -70,15 +87,12 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       throw new Error('Invalid theme ID');
     }
 
-    // Check if user can use this theme
     if (!canUseTheme(themeId)) {
       throw new Error('This theme requires a premium subscription');
     }
 
-    // Update local state
     setCurrentTheme(theme);
 
-    // Track premium theme usage for theme_master achievement
     const isPremiumTheme = theme.isPremium;
     const isNewTheme = isPremiumTheme && !usedThemes.includes(themeId);
 
@@ -86,7 +100,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       setUsedThemes((prev) => [...prev, themeId]);
     }
 
-    // Save to Firestore if user is logged in
     if (user) {
       try {
         const userRef = doc(db, 'users', user.id);
@@ -94,21 +107,18 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
           'preferences.theme': themeId,
         };
 
-        // Track premium theme usage
         if (isNewTheme) {
           updateData['preferences.usedThemes'] = arrayUnion(themeId);
         }
 
         await updateDoc(userRef, updateData);
 
-        // Check for theme_master achievement (3 premium themes)
         const newUsedCount = isNewTheme ? usedThemes.length + 1 : usedThemes.length;
         if (newUsedCount >= 3 && !unlockedIds.includes('theme_master')) {
           await unlockAchievement(user.id, 'theme_master');
         }
       } catch (error) {
         console.error('Failed to save theme preference:', error);
-        // Don't throw - theme still works locally
       }
     }
   };
@@ -119,7 +129,28 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     availableThemes: Object.values(themes),
     canUseTheme,
     usedThemesCount: usedThemes.length,
+    colors,
+    colorScheme,
   };
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
+
+/**
+ * Simple brightness adjustment for dark mode.
+ * Lightens a color slightly so it remains visible on dark backgrounds.
+ */
+function adjustForDark(hex: string): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+
+  // Lighten by ~15%
+  const lighten = (v: number) => Math.min(255, Math.round(v + (255 - v) * 0.15));
+
+  const rr = lighten(r).toString(16).padStart(2, '0');
+  const gg = lighten(g).toString(16).padStart(2, '0');
+  const bb = lighten(b).toString(16).padStart(2, '0');
+
+  return `#${rr}${gg}${bb}`;
+}

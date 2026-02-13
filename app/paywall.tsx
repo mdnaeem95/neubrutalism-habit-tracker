@@ -1,18 +1,23 @@
 import { useEffect, useState } from 'react';
-import { View, Text, ScrollView, ViewStyle, TextStyle, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, ViewStyle, TextStyle, ActivityIndicator, Linking } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { Button, Card } from '@components/ui';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useDialog } from '@/contexts/DialogContext';
 import { useAuthStore } from '@store/useAuthStore';
 import { useAchievementsStore } from '@store/useAchievementsStore';
+import { useTheme } from '@/contexts/ThemeContext';
 import { getOfferings, purchasePackage, restorePurchases, getPackagePrice, getIntroPrice } from '@services/revenuecat';
 import type { PurchasesPackage } from 'react-native-purchases';
+
+const PRIVACY_URL = 'https://blockapp.co/privacy';
+const TERMS_URL = 'https://blockapp.co/terms';
 
 export default function PaywallScreen() {
   const router = useRouter();
   const dialog = useDialog();
+  const { colors, colorScheme } = useTheme();
   const { user } = useAuthStore();
   const { unlockAchievement, unlockedIds } = useAchievementsStore();
   const [loading, setLoading] = useState(true);
@@ -30,7 +35,6 @@ export default function PaywallScreen() {
       const offering = await getOfferings();
 
       if (offering && offering.availablePackages.length > 0) {
-        // Find monthly and annual packages
         const monthly = offering.availablePackages.find((pkg) =>
           pkg.identifier.toLowerCase().includes('monthly') ||
           pkg.packageType === 'MONTHLY'
@@ -61,7 +65,6 @@ export default function PaywallScreen() {
       const result = await purchasePackage(pkg);
 
       if (result.success) {
-        // Unlock premium_member achievement
         if (user && !unlockedIds.includes('premium_member')) {
           try {
             await unlockAchievement(user.id, 'premium_member');
@@ -74,7 +77,7 @@ export default function PaywallScreen() {
           { text: 'OK', onPress: () => router.back() },
         ]);
       } else if (result.error === 'cancelled') {
-        // User cancelled - no action needed
+        // User cancelled
       } else if (result.error) {
         dialog.alert('Purchase Failed', result.error);
       }
@@ -92,7 +95,6 @@ export default function PaywallScreen() {
       const result = await restorePurchases();
 
       if (result.success && result.isPremium) {
-        // Unlock premium_member achievement
         if (user && !unlockedIds.includes('premium_member')) {
           try {
             await unlockAchievement(user.id, 'premium_member');
@@ -114,28 +116,6 @@ export default function PaywallScreen() {
     }
   };
 
-  const headerStyle: ViewStyle = {
-    paddingHorizontal: 24,
-    paddingTop: 48,
-    paddingBottom: 16,
-  };
-
-  const titleStyle: TextStyle = {
-    fontWeight: '900',
-    fontSize: 48,
-    color: '#000000',
-    marginBottom: 8,
-    textAlign: 'center',
-  };
-
-  const subtitleStyle: TextStyle = {
-    fontWeight: '600',
-    fontSize: 16,
-    color: '#000000',
-    textAlign: 'center',
-    marginBottom: 24,
-  };
-
   const featureItemStyle: ViewStyle = {
     flexDirection: 'row',
     alignItems: 'center',
@@ -144,66 +124,21 @@ export default function PaywallScreen() {
   };
 
   const featureTextStyle: TextStyle = {
-    fontWeight: '700',
-    fontSize: 16,
-    color: '#000000',
+    fontFamily: 'SpaceMono_700Bold',
+    fontSize: 15,
+    color: colors.text,
     flex: 1,
   };
 
-  const priceCardStyle = (isPopular: boolean): ViewStyle => ({
-    marginBottom: 16,
-    backgroundColor: isPopular ? '#FFD700' : '#FFFFFF',
-  });
-
-  const priceHeaderStyle: TextStyle = {
-    fontWeight: '800',
-    fontSize: 18,
-    color: '#000000',
-    marginBottom: 8,
-  };
-
-  const priceAmountStyle: TextStyle = {
-    fontWeight: '900',
-    fontSize: 36,
-    color: '#000000',
-    marginBottom: 4,
-  };
-
-  const pricePeriodStyle: TextStyle = {
-    fontWeight: '600',
-    fontSize: 14,
-    color: '#000000',
-    marginBottom: 16,
-  };
-
-  const popularBadgeStyle: ViewStyle = {
-    position: 'absolute',
-    top: -12,
-    right: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderWidth: 3,
-    borderColor: '#000000',
-    backgroundColor: '#FF69B4',
-    shadowColor: '#000000',
-    shadowOffset: { width: 2, height: 2 },
-    shadowOpacity: 1,
-    shadowRadius: 0,
-  };
-
-  const popularTextStyle: TextStyle = {
-    fontWeight: '800',
-    fontSize: 12,
-    color: '#000000',
-  };
-
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#F5F5F5' }}>
-      <StatusBar style="dark" />
+    <ScrollView style={{ flex: 1, backgroundColor: colors.background }}>
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
 
-      <View style={headerStyle}>
-        <Text style={titleStyle}>Upgrade to Premium</Text>
-        <Text style={subtitleStyle}>
+      <View style={{ paddingHorizontal: 24, paddingTop: 48, paddingBottom: 16 }}>
+        <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 28, color: colors.text, marginBottom: 8, textAlign: 'center' }}>
+          Upgrade to Premium
+        </Text>
+        <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 15, color: colors.textMuted, textAlign: 'center', marginBottom: 24 }}>
           Unlock unlimited habits and premium features
         </Text>
       </View>
@@ -211,37 +146,37 @@ export default function PaywallScreen() {
       <View style={{ paddingHorizontal: 24 }}>
         {/* Features Card */}
         <Card style={{ marginBottom: 24 }}>
-          <Text style={{ fontWeight: '800', fontSize: 20, color: '#000000', marginBottom: 16 }}>
+          <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 18, color: colors.text, marginBottom: 16 }}>
             Premium Features
           </Text>
 
           <View style={featureItemStyle}>
-            <Ionicons name="infinite" size={24} color="#000000" />
+            <MaterialCommunityIcons name="infinity" size={24} color={colors.text} />
             <Text style={featureTextStyle}>Unlimited habits (vs 5 free)</Text>
           </View>
 
           <View style={featureItemStyle}>
-            <Ionicons name="stats-chart" size={24} color="#000000" />
+            <MaterialCommunityIcons name="chart-line" size={24} color={colors.text} />
             <Text style={featureTextStyle}>Advanced statistics & insights</Text>
           </View>
 
           <View style={featureItemStyle}>
-            <Ionicons name="download" size={24} color="#000000" />
+            <MaterialCommunityIcons name="download" size={24} color={colors.text} />
             <Text style={featureTextStyle}>Export your data (CSV, JSON)</Text>
           </View>
 
           <View style={featureItemStyle}>
-            <Ionicons name="color-palette" size={24} color="#000000" />
+            <MaterialCommunityIcons name="palette" size={24} color={colors.text} />
             <Text style={featureTextStyle}>Custom themes & colors</Text>
           </View>
 
           <View style={featureItemStyle}>
-            <Ionicons name="document-text" size={24} color="#000000" />
+            <MaterialCommunityIcons name="text-box" size={24} color={colors.text} />
             <Text style={featureTextStyle}>Habit notes & journaling</Text>
           </View>
 
           <View style={featureItemStyle}>
-            <Ionicons name="shield-checkmark" size={24} color="#000000" />
+            <MaterialCommunityIcons name="shield-check" size={24} color={colors.text} />
             <Text style={featureTextStyle}>Priority support</Text>
           </View>
         </Card>
@@ -249,8 +184,8 @@ export default function PaywallScreen() {
         {/* Loading State */}
         {loading && (
           <View style={{ alignItems: 'center', paddingVertical: 40 }}>
-            <ActivityIndicator size="large" color="#000000" />
-            <Text style={{ fontWeight: '600', fontSize: 14, color: '#666666', marginTop: 12 }}>
+            <ActivityIndicator size="large" color={colors.text} />
+            <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 12, color: colors.textMuted, marginTop: 12 }}>
               Loading subscription options...
             </Text>
           </View>
@@ -261,16 +196,32 @@ export default function PaywallScreen() {
           <View style={{ position: 'relative' }}>
             {/* Yearly Plan (Popular) */}
             {annualPackage && (
-              <Card style={priceCardStyle(true)}>
-                <View style={popularBadgeStyle}>
-                  <Text style={popularTextStyle}>BEST VALUE</Text>
+              <Card style={{ marginBottom: 16, backgroundColor: colors.warning }}>
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: -12,
+                    right: 16,
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    borderWidth: 2.5,
+                    borderColor: colors.border,
+                    borderRadius: 9999,
+                    backgroundColor: colors.primary,
+                    shadowColor: colors.border,
+                    shadowOffset: { width: 2, height: 2 },
+                    shadowOpacity: 1,
+                    shadowRadius: 0,
+                  }}
+                >
+                  <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 12, color: colors.text }}>BEST VALUE</Text>
                 </View>
 
-                <Text style={priceHeaderStyle}>Yearly</Text>
-                <Text style={priceAmountStyle}>{getPackagePrice(annualPackage)}</Text>
-                <Text style={pricePeriodStyle}>
+                <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 18, color: colors.text, marginBottom: 8 }}>Yearly</Text>
+                <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 28, color: colors.text, marginBottom: 4 }}>{getPackagePrice(annualPackage)}</Text>
+                <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 12, color: colors.text, marginBottom: 16 }}>
                   {annualPackage.product.subscriptionPeriod || 'per year'}
-                  {getIntroPrice(annualPackage) && ' • Free Trial Available'}
+                  {getIntroPrice(annualPackage) && ' - Free Trial Available'}
                 </Text>
 
                 <Button
@@ -286,12 +237,12 @@ export default function PaywallScreen() {
 
             {/* Monthly Plan */}
             {monthlyPackage && (
-              <Card style={priceCardStyle(false)}>
-                <Text style={priceHeaderStyle}>Monthly</Text>
-                <Text style={priceAmountStyle}>{getPackagePrice(monthlyPackage)}</Text>
-                <Text style={pricePeriodStyle}>
+              <Card style={{ marginBottom: 16 }}>
+                <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 18, color: colors.text, marginBottom: 8 }}>Monthly</Text>
+                <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 28, color: colors.text, marginBottom: 4 }}>{getPackagePrice(monthlyPackage)}</Text>
+                <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 12, color: colors.text, marginBottom: 16 }}>
                   {monthlyPackage.product.subscriptionPeriod || 'per month'}
-                  {getIntroPrice(monthlyPackage) && ' • Free Trial Available'}
+                  {getIntroPrice(monthlyPackage) && ' - Free Trial Available'}
                 </Text>
 
                 <Button
@@ -308,7 +259,7 @@ export default function PaywallScreen() {
             {/* Fallback if no packages loaded */}
             {!annualPackage && !monthlyPackage && (
               <Card style={{ marginBottom: 16 }}>
-                <Text style={{ fontWeight: '700', fontSize: 16, color: '#000000', textAlign: 'center' }}>
+                <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 15, color: colors.text, textAlign: 'center' }}>
                   Unable to load subscription options. Please try again later.
                 </Text>
                 <Button variant="primary" onPress={loadOfferings} style={{ marginTop: 16 }}>
@@ -319,14 +270,37 @@ export default function PaywallScreen() {
           </View>
         )}
 
-        {/* Fine Print */}
+        {/* Subscription Disclosure */}
         <View style={{ marginTop: 16, marginBottom: 24 }}>
-          <Text style={{ fontWeight: '600', fontSize: 12, color: '#666666', textAlign: 'center' }}>
-            Free trial available • Cancel anytime
+          <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 12, color: colors.text, textAlign: 'center', marginBottom: 8 }}>
+            Block Premium — Auto-Renewable Subscription
           </Text>
-          <Text style={{ fontWeight: '500', fontSize: 10, color: '#666666', textAlign: 'center', marginTop: 8 }}>
-            Payment will be charged to your app store account. Subscription automatically renews unless auto-renew is turned off at least 24 hours before the end of the current period.
+
+          <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 11, color: colors.textMuted, textAlign: 'center', lineHeight: 18 }}>
+            {annualPackage && `Yearly: ${getPackagePrice(annualPackage)}/year. `}
+            {monthlyPackage && `Monthly: ${getPackagePrice(monthlyPackage)}/month. `}
+            {'\n'}Includes unlimited habits, advanced stats, custom themes, data export, habit notes, and priority support for the duration of your subscription.
           </Text>
+
+          <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 10, color: colors.textMuted, textAlign: 'center', marginTop: 12, lineHeight: 16 }}>
+            Payment will be charged to your Apple ID account at confirmation of purchase. Subscription automatically renews unless auto-renew is turned off at least 24 hours before the end of the current period. Your account will be charged for renewal within 24 hours prior to the end of the current period. You can manage and cancel your subscriptions by going to your account settings on the App Store after purchase.
+          </Text>
+
+          {/* Terms & Privacy Links */}
+          <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 16, marginTop: 16 }}>
+            <Text
+              style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 12, color: colors.primary, textDecorationLine: 'underline' }}
+              onPress={() => Linking.openURL(TERMS_URL)}
+            >
+              Terms of Use
+            </Text>
+            <Text
+              style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 12, color: colors.primary, textDecorationLine: 'underline' }}
+              onPress={() => Linking.openURL(PRIVACY_URL)}
+            >
+              Privacy Policy
+            </Text>
+          </View>
         </View>
 
         {/* Restore Purchases Button */}

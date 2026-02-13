@@ -11,6 +11,7 @@ import { useAuthStore } from '@store/useAuthStore';
 import { useHabitsStore } from '@store/useHabitsStore';
 import { useAchievementsStore } from '@store/useAchievementsStore';
 import { useDialog } from '@/contexts/DialogContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { trackScreenView } from '@services/firebase/analytics';
 import { checkAchievements } from '@utils/achievementChecker';
 import { format } from 'date-fns';
@@ -18,6 +19,7 @@ import type { HabitWithStats, CheckIn } from '@/types/habit';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { colors, colorScheme } = useTheme();
   const { user } = useAuthStore();
   const { habits, loading, fetchHabits, toggleCheckIn, checkIns } = useHabitsStore();
   const {
@@ -40,7 +42,6 @@ export default function HomeScreen() {
   }, [user]);
 
   useEffect(() => {
-    // Track screen view
     trackScreenView('Today');
   }, []);
 
@@ -72,16 +73,12 @@ export default function HomeScreen() {
     if (!user) return;
 
     try {
-      // Gather all check-ins across all habits
       const allCheckIns: CheckIn[] = Object.values(checkIns).flat();
-
-      // Calculate total stats
       const totalHabits = habits.filter((h) => !h.archived).length;
       const totalCompletions = allCheckIns.filter((c) => c.completed).length;
       const longestStreak = Math.max(...habits.map((h) => h.longestStreak), 0);
       const isPremium = user.subscription?.plan === 'premium' || user.subscription?.plan === 'trial';
 
-      // Check which achievements should be unlocked
       const newAchievements = checkAchievements({
         habits,
         allCheckIns,
@@ -92,7 +89,6 @@ export default function HomeScreen() {
         unlockedAchievements: unlockedIds,
       });
 
-      // Unlock new achievements
       if (newAchievements.length > 0) {
         await unlockMultipleAchievements(user.id, newAchievements);
       }
@@ -107,19 +103,15 @@ export default function HomeScreen() {
     const habit = habits.find((h) => h.id === habitId);
     if (!habit) return;
 
-    // Check if user is premium and habit is being checked in (not unchecking)
     const isPremium = user.subscription?.plan === 'premium' || user.subscription?.plan === 'trial';
     const isCheckingIn = !habit.todayCheckedIn;
 
     if (isPremium && isCheckingIn) {
-      // Show note modal for premium users
       setSelectedHabit(habit);
       setNoteModalVisible(true);
     } else {
-      // Regular check-in without note
       try {
         await toggleCheckIn(user.id, habitId);
-        // Check for achievements after check-in
         await checkForAchievements();
       } catch (error: any) {
         dialog.alert('Error', error.message || 'Failed to update check-in');
@@ -134,7 +126,6 @@ export default function HomeScreen() {
       await toggleCheckIn(user.id, selectedHabit.id, undefined, note);
       setNoteModalVisible(false);
       setSelectedHabit(null);
-      // Check for achievements after check-in with note
       await checkForAchievements();
     } catch (error: any) {
       dialog.alert('Error', error.message || 'Failed to save check-in with note');
@@ -157,15 +148,15 @@ export default function HomeScreen() {
   const todayDate = format(new Date(), 'EEEE, MMMM d');
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#F5F5F5' }}>
-      <StatusBar style="dark" />
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
 
       {/* Header */}
       <View style={{ paddingHorizontal: 24, paddingTop: 48, paddingBottom: 16 }}>
-        <Text style={{ fontWeight: '900', fontSize: 48, color: '#000000', marginBottom: 4 }}>
+        <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 28, color: colors.text, marginBottom: 4 }}>
           Today
         </Text>
-        <Text style={{ fontWeight: '600', fontSize: 16, color: '#000000', marginBottom: 16 }}>
+        <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 15, color: colors.textMuted, marginBottom: 16 }}>
           {todayDate}
         </Text>
 
@@ -180,16 +171,16 @@ export default function HomeScreen() {
       {/* Habits List */}
       {loading && habits.length === 0 ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ fontWeight: '700', fontSize: 16, color: '#000000' }}>
+          <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 15, color: colors.text }}>
             Loading habits...
           </Text>
         </View>
       ) : habits.length === 0 ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
-          <Text style={{ fontWeight: '900', fontSize: 32, color: '#000000', marginBottom: 16, textAlign: 'center' }}>
+          <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 22, color: colors.text, marginBottom: 16, textAlign: 'center' }}>
             No habits yet!
           </Text>
-          <Text style={{ fontWeight: '600', fontSize: 16, color: '#000000', marginBottom: 24, textAlign: 'center' }}>
+          <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 15, color: colors.textMuted, marginBottom: 24, textAlign: 'center' }}>
             Create your first habit to start building better routines
           </Text>
         </View>

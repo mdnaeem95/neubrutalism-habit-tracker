@@ -5,8 +5,8 @@
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { theme } from '@constants/theme';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTheme } from '@/contexts/ThemeContext';
 import { format } from 'date-fns';
 
 interface NoteCardProps {
@@ -16,13 +16,22 @@ interface NoteCardProps {
 }
 
 export const NoteCard: React.FC<NoteCardProps> = ({ note, date, compact = false }) => {
+  const { colors } = useTheme();
   const formattedDate = format(new Date(date), 'MMM d, yyyy');
 
   if (compact) {
     return (
-      <View style={styles.compactContainer}>
-        <Ionicons name="document-text" size={16} color={theme.colors.black} />
-        <Text style={styles.compactText} numberOfLines={1}>
+      <View
+        style={[
+          styles.compactContainer,
+          {
+            backgroundColor: colors.warning,
+            borderColor: colors.border,
+          },
+        ]}
+      >
+        <MaterialCommunityIcons name="text-box" size={16} color={colors.text} />
+        <Text style={[styles.compactText, { color: colors.text }]} numberOfLines={1}>
           {note}
         </Text>
       </View>
@@ -30,27 +39,35 @@ export const NoteCard: React.FC<NoteCardProps> = ({ note, date, compact = false 
   }
 
   return (
-    <View style={styles.card}>
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: colors.surface,
+          borderColor: colors.border,
+          shadowColor: colors.border,
+        },
+      ]}
+    >
       <View style={styles.header}>
-        <Ionicons name="document-text" size={20} color={theme.colors.black} />
-        <Text style={styles.date}>{formattedDate}</Text>
+        <MaterialCommunityIcons name="text-box" size={20} color={colors.text} />
+        <Text style={[styles.date, { color: colors.textMuted }]}>{formattedDate}</Text>
       </View>
-      <Text style={styles.noteText}>{note}</Text>
+      <Text style={[styles.noteText, { color: colors.text }]}>{note}</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: theme.colors.bg.secondary,
-    borderWidth: 3,
-    borderColor: theme.colors.black,
+    borderWidth: 2.5,
+    borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    shadowColor: theme.colors.black,
-    shadowOffset: { width: 3, height: 3 },
+    shadowOffset: { width: 4, height: 4 },
     shadowOpacity: 1,
     shadowRadius: 0,
+    elevation: 0,
   },
   header: {
     flexDirection: 'row',
@@ -60,13 +77,11 @@ const styles = StyleSheet.create({
   },
   date: {
     fontSize: 14,
-    fontWeight: '700',
-    color: '#666666',
+    fontFamily: 'SpaceMono_700Bold',
   },
   noteText: {
     fontSize: 15,
-    fontWeight: '600',
-    color: theme.colors.black,
+    fontFamily: 'SpaceMono_400Regular',
     lineHeight: 22,
   },
   compactContainer: {
@@ -75,15 +90,13 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingVertical: 8,
     paddingHorizontal: 12,
-    backgroundColor: theme.colors.yellow,
-    borderWidth: 2,
-    borderColor: theme.colors.black,
+    borderWidth: 2.5,
+    borderRadius: 9999,
     marginTop: 8,
   },
   compactText: {
     flex: 1,
     fontSize: 13,
-    fontWeight: '600',
-    color: theme.colors.black,
+    fontFamily: 'SpaceMono_400Regular',
   },
 });

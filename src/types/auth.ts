@@ -12,6 +12,7 @@ export interface User {
   preferences?: {
     theme?: string; // Theme ID (premium feature)
     notificationTime?: string;
+    usedThemes?: string[];
   };
 }
 

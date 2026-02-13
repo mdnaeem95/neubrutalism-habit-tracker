@@ -12,9 +12,9 @@ import {
   StyleSheet,
   Animated,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
-import { theme } from '@constants/theme';
+import { useTheme } from '@/contexts/ThemeContext';
 import type { Achievement } from '@/types/achievement';
 import { ShareCardModal, AchievementShareCard } from '@components/share';
 import { useAuthStore } from '@store/useAuthStore';
@@ -30,6 +30,7 @@ export const AchievementUnlockedModal: React.FC<AchievementUnlockedModalProps> =
   achievement,
   onClose,
 }) => {
+  const { colors } = useTheme();
   const [showShareModal, setShowShareModal] = useState(false);
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
@@ -95,16 +96,19 @@ export const AchievementUnlockedModal: React.FC<AchievementUnlockedModalProps> =
           style={[
             styles.modal,
             {
+              backgroundColor: colors.surface,
+              borderColor: colors.border,
+              shadowColor: colors.border,
               transform: [{ scale: scaleAnim }],
             },
           ]}
         >
           {/* Confetti Effect (decorative) */}
           <View style={styles.confettiContainer}>
-            <Ionicons name="star" size={24} color="#FFD700" />
-            <Ionicons name="sparkles" size={24} color="#FF69B4" />
-            <Ionicons name="trophy" size={24} color="#00FF00" />
-            <Ionicons name="star" size={24} color="#00FFFF" />
+            <MaterialCommunityIcons name="star" size={24} color={colors.warning} />
+            <MaterialCommunityIcons name="creation" size={24} color={colors.primary} />
+            <MaterialCommunityIcons name="trophy" size={24} color={colors.accent} />
+            <MaterialCommunityIcons name="star" size={24} color={colors.secondary} />
           </View>
 
           {/* Achievement Icon */}
@@ -113,29 +117,31 @@ export const AchievementUnlockedModal: React.FC<AchievementUnlockedModalProps> =
               styles.iconContainer,
               {
                 backgroundColor: achievement.color,
+                borderColor: colors.border,
+                shadowColor: colors.border,
                 transform: [{ rotate }],
               },
             ]}
           >
-            <Ionicons
+            <MaterialCommunityIcons
               name={achievement.icon as any}
               size={64}
-              color="#000000"
+              color={colors.text}
             />
           </Animated.View>
 
           {/* Title */}
-          <Text style={styles.title}>Achievement Unlocked!</Text>
+          <Text style={[styles.title, { color: colors.text }]}>Achievement Unlocked!</Text>
 
           {/* Achievement Name */}
-          <Text style={styles.achievementName}>{achievement.name}</Text>
+          <Text style={[styles.achievementName, { color: colors.text }]}>{achievement.name}</Text>
 
           {/* Description */}
-          <Text style={styles.description}>{achievement.description}</Text>
+          <Text style={[styles.description, { color: colors.textMuted }]}>{achievement.description}</Text>
 
           {/* Rarity Badge */}
-          <View style={styles.rarityBadge}>
-            <Text style={styles.rarityText}>
+          <View style={[styles.rarityBadge, { backgroundColor: colors.warning, borderColor: colors.border }]}>
+            <Text style={[styles.rarityText, { color: colors.text }]}>
               {achievement.rarity.toUpperCase()}
             </Text>
           </View>
@@ -143,15 +149,18 @@ export const AchievementUnlockedModal: React.FC<AchievementUnlockedModalProps> =
           {/* Action Buttons */}
           <View style={styles.buttonContainer}>
             <TouchableOpacity
-              style={styles.shareButton}
+              style={[styles.shareButton, { backgroundColor: colors.secondary, borderColor: colors.border, shadowColor: colors.border }]}
               onPress={() => setShowShareModal(true)}
             >
-              <Ionicons name="share-outline" size={20} color="#000000" />
-              <Text style={styles.shareButtonText}>Share</Text>
+              <MaterialCommunityIcons name="share-variant" size={20} color={colors.text} />
+              <Text style={[styles.shareButtonText, { color: colors.text }]}>Share</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-              <Text style={styles.closeButtonText}>Awesome!</Text>
+            <TouchableOpacity
+              style={[styles.closeButton, { backgroundColor: colors.accent, borderColor: colors.border, shadowColor: colors.border }]}
+              onPress={onClose}
+            >
+              <Text style={[styles.closeButtonText, { color: colors.text }]}>Awesome!</Text>
             </TouchableOpacity>
           </View>
         </Animated.View>
@@ -185,15 +194,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   modal: {
-    backgroundColor: theme.colors.white,
-    borderWidth: 4,
-    borderColor: theme.colors.black,
+    borderWidth: 3.5,
+    borderRadius: 16,
     padding: 32,
     alignItems: 'center',
     maxWidth: 320,
     width: '90%',
-    shadowColor: theme.colors.black,
-    shadowOffset: { width: 8, height: 8 },
+    shadowOffset: { width: 6, height: 6 },
     shadowOpacity: 1,
     shadowRadius: 0,
     elevation: 0,
@@ -204,93 +211,78 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 16,
   },
-  confetti: {
-    fontSize: 24,
-  },
   iconContainer: {
     width: 120,
     height: 120,
-    borderWidth: 4,
-    borderColor: theme.colors.black,
+    borderWidth: 3.5,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 24,
-    shadowColor: theme.colors.black,
     shadowOffset: { width: 4, height: 4 },
     shadowOpacity: 1,
     shadowRadius: 0,
   },
   title: {
     fontSize: 24,
-    fontWeight: '900',
-    color: theme.colors.black,
+    fontFamily: 'SpaceMono_700Bold',
     marginBottom: 8,
     textAlign: 'center',
   },
   achievementName: {
     fontSize: 20,
-    fontWeight: '800',
-    color: theme.colors.black,
+    fontFamily: 'SpaceMono_700Bold',
     marginBottom: 12,
     textAlign: 'center',
   },
   description: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#666666',
+    fontFamily: 'SpaceMono_400Regular',
     marginBottom: 16,
     textAlign: 'center',
   },
   rarityBadge: {
-    backgroundColor: theme.colors.yellow,
-    borderWidth: 3,
-    borderColor: theme.colors.black,
+    borderWidth: 2.5,
+    borderRadius: 9999,
     paddingHorizontal: 16,
     paddingVertical: 8,
     marginBottom: 24,
   },
   rarityText: {
     fontSize: 12,
-    fontWeight: '800',
-    color: theme.colors.black,
+    fontFamily: 'SpaceMono_700Bold',
   },
   buttonContainer: {
     flexDirection: 'row',
     gap: 12,
   },
   shareButton: {
-    backgroundColor: theme.colors.cyan,
-    borderWidth: 3,
-    borderColor: theme.colors.black,
+    borderWidth: 2.5,
+    borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 20,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    shadowColor: theme.colors.black,
     shadowOffset: { width: 4, height: 4 },
     shadowOpacity: 1,
     shadowRadius: 0,
   },
   shareButtonText: {
     fontSize: 16,
-    fontWeight: '800',
-    color: theme.colors.black,
+    fontFamily: 'SpaceMono_700Bold',
   },
   closeButton: {
-    backgroundColor: theme.colors.lime,
-    borderWidth: 3,
-    borderColor: theme.colors.black,
+    borderWidth: 2.5,
+    borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 32,
-    shadowColor: theme.colors.black,
     shadowOffset: { width: 4, height: 4 },
     shadowOpacity: 1,
     shadowRadius: 0,
   },
   closeButtonText: {
     fontSize: 16,
-    fontWeight: '800',
-    color: theme.colors.black,
+    fontFamily: 'SpaceMono_700Bold',
   },
 });

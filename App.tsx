@@ -46,24 +46,24 @@ export default function App() {
                   Default Card
                 </Text>
               </Card>
-              <Card variant="yellow">
+              <Card variant="warning">
                 <Text className="font-bold text-base text-neu-black">
-                  Yellow Card
+                  Warning Card
                 </Text>
               </Card>
-              <Card variant="pink">
+              <Card variant="primary">
                 <Text className="font-bold text-base text-neu-black">
-                  Pink Card
+                  Primary Card
                 </Text>
               </Card>
-              <Card variant="cyan">
+              <Card variant="secondary">
                 <Text className="font-bold text-base text-neu-black">
-                  Cyan Card
+                  Secondary Card
                 </Text>
               </Card>
-              <Card variant="lime">
+              <Card variant="accent">
                 <Text className="font-bold text-base text-neu-black">
-                  Lime Card
+                  Accent Card
                 </Text>
               </Card>
             </View>

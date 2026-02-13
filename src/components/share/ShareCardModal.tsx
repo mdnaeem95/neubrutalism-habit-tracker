@@ -9,9 +9,10 @@ import {
   TextStyle,
   ScrollView,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { captureCard, shareGeneral, saveToPhotos, shareToInstagramStories } from '@services/share';
 import { useDialog } from '@/contexts/DialogContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface ShareCardModalProps {
   visible: boolean;
@@ -28,6 +29,7 @@ export function ShareCardModal({
   children,
   title = 'Share Your Progress',
 }: ShareCardModalProps) {
+  const { colors } = useTheme();
   const [loading, setLoading] = useState<ShareAction | null>(null);
   const cardRef = useRef<View | null>(null);
   const dialog = useDialog();
@@ -85,16 +87,16 @@ export function ShareCardModal({
   };
 
   const containerStyle: ViewStyle = {
-    backgroundColor: '#F5F5F5',
-    borderWidth: 4,
-    borderColor: '#000000',
-    borderRadius: 0,
+    backgroundColor: colors.surface,
+    borderWidth: 3.5,
+    borderColor: colors.border,
+    borderRadius: 16,
     padding: 24,
     width: '90%',
     maxWidth: 400,
     maxHeight: '90%',
-    shadowColor: '#000000',
-    shadowOffset: { width: 8, height: 8 },
+    shadowColor: colors.border,
+    shadowOffset: { width: 6, height: 6 },
     shadowOpacity: 1,
     shadowRadius: 0,
     elevation: 8,
@@ -108,18 +110,18 @@ export function ShareCardModal({
   };
 
   const titleStyle: TextStyle = {
-    fontWeight: '900',
+    fontFamily: 'SpaceMono_700Bold',
     fontSize: 20,
-    color: '#000000',
+    color: colors.text,
   };
 
   const closeButtonStyle: ViewStyle = {
     width: 36,
     height: 36,
-    borderWidth: 3,
-    borderColor: '#000000',
-    borderRadius: 0,
-    backgroundColor: '#FFFFFF',
+    borderWidth: 2.5,
+    borderColor: colors.border,
+    borderRadius: 8,
+    backgroundColor: colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
   };
@@ -139,11 +141,11 @@ export function ShareCardModal({
     justifyContent: 'center',
     paddingVertical: 14,
     paddingHorizontal: 20,
-    borderWidth: 3,
-    borderColor: '#000000',
-    borderRadius: 0,
+    borderWidth: 2.5,
+    borderColor: colors.border,
+    borderRadius: 12,
     backgroundColor: color,
-    shadowColor: '#000000',
+    shadowColor: colors.border,
     shadowOffset: { width: 4, height: 4 },
     shadowOpacity: 1,
     shadowRadius: 0,
@@ -151,9 +153,9 @@ export function ShareCardModal({
   });
 
   const actionTextStyle: TextStyle = {
-    fontWeight: '800',
+    fontFamily: 'SpaceMono_700Bold',
     fontSize: 16,
-    color: '#000000',
+    color: colors.text,
     marginLeft: 12,
   };
 
@@ -176,7 +178,7 @@ export function ShareCardModal({
               onPress={onClose}
               activeOpacity={0.7}
             >
-              <Ionicons name="close" size={20} color="#000000" />
+              <MaterialCommunityIcons name="close" size={20} color={colors.text} />
             </TouchableOpacity>
           </View>
 
@@ -185,48 +187,48 @@ export function ShareCardModal({
 
             <View style={actionsStyle}>
               <TouchableOpacity
-                style={actionButtonStyle('#00FF00')}
+                style={actionButtonStyle(colors.accent)}
                 onPress={() => handleShare('share')}
                 activeOpacity={0.7}
                 disabled={loading !== null}
               >
                 {loading === 'share' ? (
-                  <ActivityIndicator color="#000000" />
+                  <ActivityIndicator color={colors.text} />
                 ) : (
                   <>
-                    <Ionicons name="share-outline" size={24} color="#000000" />
+                    <MaterialCommunityIcons name="share-variant" size={24} color={colors.text} />
                     <Text style={actionTextStyle}>Share</Text>
                   </>
                 )}
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={actionButtonStyle('#FF69B4')}
+                style={actionButtonStyle(colors.primary)}
                 onPress={() => handleShare('instagram')}
                 activeOpacity={0.7}
                 disabled={loading !== null}
               >
                 {loading === 'instagram' ? (
-                  <ActivityIndicator color="#000000" />
+                  <ActivityIndicator color={colors.text} />
                 ) : (
                   <>
-                    <Ionicons name="logo-instagram" size={24} color="#000000" />
+                    <MaterialCommunityIcons name="instagram" size={24} color={colors.text} />
                     <Text style={actionTextStyle}>Instagram Stories</Text>
                   </>
                 )}
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={actionButtonStyle('#00FFFF')}
+                style={actionButtonStyle(colors.secondary)}
                 onPress={() => handleShare('save')}
                 activeOpacity={0.7}
                 disabled={loading !== null}
               >
                 {loading === 'save' ? (
-                  <ActivityIndicator color="#000000" />
+                  <ActivityIndicator color={colors.text} />
                 ) : (
                   <>
-                    <Ionicons name="download-outline" size={24} color="#000000" />
+                    <MaterialCommunityIcons name="download" size={24} color={colors.text} />
                     <Text style={actionTextStyle}>Save to Photos</Text>
                   </>
                 )}

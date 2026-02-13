@@ -1,6 +1,6 @@
 /**
- * TimePicker Component
- * Neubrutalism-styled time picker for selecting reminder times
+ * TimePicker - Fokus Neubrutalism Time Picker Component
+ * MaterialCommunityIcons, theme colors, SpaceMono font
  */
 
 import React, { useState } from 'react';
@@ -11,9 +11,12 @@ import {
   Modal,
   Platform,
   StyleSheet,
+  ViewStyle,
+  TextStyle,
 } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface TimePickerProps {
   value: string | null;          // "HH:MM" format
@@ -34,6 +37,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   onLockPress,
   placeholder = 'Set time',
 }) => {
+  const { colors } = useTheme();
   const [showPicker, setShowPicker] = useState(false);
 
   // Parse "HH:MM" string to Date object
@@ -95,44 +99,169 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     setShowPicker(false);
   };
 
-  return (
-    <View style={styles.container}>
-      {label && <Text style={styles.label}>{label}</Text>}
+  // --- Dynamic styles using theme colors ---
 
-      <View style={styles.inputRow}>
+  const containerStyle: ViewStyle = {
+    marginBottom: 16,
+  };
+
+  const labelStyle: TextStyle = {
+    fontFamily: 'SpaceMono_700Bold',
+    fontWeight: '700',
+    fontSize: 14,
+    color: colors.text,
+    marginBottom: 8,
+  };
+
+  const inputRowStyle: ViewStyle = {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  };
+
+  const pickerStyle: ViewStyle = {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: colors.surface,
+    borderWidth: 2.5,
+    borderColor: colors.border,
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    shadowColor: colors.border,
+    shadowOffset: { width: 4, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 4,
+  };
+
+  const pickerDisabledStyle: ViewStyle = {
+    backgroundColor: colors.background,
+    opacity: 0.7,
+  };
+
+  const pickerLockedStyle: ViewStyle = {
+    backgroundColor: colors.background,
+  };
+
+  const pickerTextStyle: TextStyle = {
+    flex: 1,
+    fontFamily: 'SpaceMono_700Bold',
+    fontWeight: '700',
+    fontSize: 16,
+    color: colors.text,
+  };
+
+  const pickerPlaceholderStyle: TextStyle = {
+    color: colors.textMuted,
+    fontFamily: 'SpaceMono_400Regular',
+    fontWeight: '400',
+  };
+
+  const pickerTextLockedStyle: TextStyle = {
+    color: colors.textMuted,
+  };
+
+  const proBadgeStyle: ViewStyle = {
+    backgroundColor: colors.warning,
+    borderWidth: 2,
+    borderColor: colors.border,
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  };
+
+  const proBadgeTextStyle: TextStyle = {
+    fontFamily: 'SpaceMono_700Bold',
+    fontWeight: '700',
+    fontSize: 10,
+    color: colors.text,
+  };
+
+  const clearButtonStyle: ViewStyle = {
+    padding: 4,
+  };
+
+  // iOS Modal styles
+  const modalContentStyle: ViewStyle = {
+    backgroundColor: colors.surface,
+    borderTopWidth: 2.5,
+    borderTopColor: colors.border,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  };
+
+  const modalHeaderStyle: ViewStyle = {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 2,
+    borderBottomColor: colors.border,
+  };
+
+  const modalTitleStyle: TextStyle = {
+    fontFamily: 'SpaceMono_700Bold',
+    fontWeight: '700',
+    fontSize: 18,
+    color: colors.text,
+  };
+
+  const modalCancelStyle: TextStyle = {
+    fontFamily: 'SpaceMono_400Regular',
+    fontWeight: '400',
+    fontSize: 16,
+    color: colors.textMuted,
+  };
+
+  const modalDoneStyle: TextStyle = {
+    fontFamily: 'SpaceMono_700Bold',
+    fontWeight: '700',
+    fontSize: 16,
+    color: colors.text,
+  };
+
+  return (
+    <View style={containerStyle}>
+      {label && <Text style={labelStyle}>{label}</Text>}
+
+      <View style={inputRowStyle}>
         <TouchableOpacity
           style={[
-            styles.picker,
-            disabled && styles.pickerDisabled,
-            showLock && styles.pickerLocked,
+            pickerStyle,
+            disabled && pickerDisabledStyle,
+            showLock && pickerLockedStyle,
           ]}
           onPress={handlePress}
           activeOpacity={0.8}
         >
-          <Ionicons
-            name={showLock ? 'lock-closed' : 'time-outline'}
+          <MaterialCommunityIcons
+            name={showLock ? 'lock' : 'clock-outline'}
             size={20}
-            color={showLock ? '#666666' : '#000000'}
+            color={showLock ? colors.textMuted : colors.text}
           />
           <Text
             style={[
-              styles.pickerText,
-              !value && styles.pickerPlaceholder,
-              showLock && styles.pickerTextLocked,
+              pickerTextStyle,
+              !value && pickerPlaceholderStyle,
+              showLock && pickerTextLockedStyle,
             ]}
           >
             {showLock ? 'Premium' : formatDisplayTime(value)}
           </Text>
           {showLock && (
-            <View style={styles.proBadge}>
-              <Text style={styles.proBadgeText}>PRO</Text>
+            <View style={proBadgeStyle}>
+              <Text style={proBadgeTextStyle}>PRO</Text>
             </View>
           )}
         </TouchableOpacity>
 
         {value && !showLock && !disabled && (
-          <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
-            <Ionicons name="close-circle" size={24} color="#000000" />
+          <TouchableOpacity style={clearButtonStyle} onPress={handleClear}>
+            <MaterialCommunityIcons name="close-circle" size={24} color={colors.text} />
           </TouchableOpacity>
         )}
       </View>
@@ -145,20 +274,20 @@ export const TimePicker: React.FC<TimePickerProps> = ({
           visible={showPicker}
           onRequestClose={() => setShowPicker(false)}
         >
-          <View style={styles.modalOverlay}>
+          <View style={staticStyles.modalOverlay}>
             <TouchableOpacity
-              style={styles.modalBackdrop}
+              style={staticStyles.modalBackdrop}
               activeOpacity={1}
               onPress={() => setShowPicker(false)}
             />
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
+            <View style={modalContentStyle}>
+              <View style={modalHeaderStyle}>
                 <TouchableOpacity onPress={() => setShowPicker(false)}>
-                  <Text style={styles.modalCancel}>Cancel</Text>
+                  <Text style={modalCancelStyle}>Cancel</Text>
                 </TouchableOpacity>
-                <Text style={styles.modalTitle}>Select Time</Text>
+                <Text style={modalTitleStyle}>Select Time</Text>
                 <TouchableOpacity onPress={handleDone}>
-                  <Text style={styles.modalDone}>Done</Text>
+                  <Text style={modalDoneStyle}>Done</Text>
                 </TouchableOpacity>
               </View>
               <DateTimePicker
@@ -166,7 +295,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
                 mode="time"
                 display="spinner"
                 onChange={handleChange}
-                style={styles.iosPicker}
+                style={staticStyles.iosPicker}
               />
             </View>
           </View>
@@ -186,74 +315,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#000000',
-    marginBottom: 8,
-  },
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  picker: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 3,
-    borderColor: '#000000',
-    borderRadius: 0,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    shadowColor: '#000000',
-    shadowOffset: { width: 4, height: 4 },
-    shadowOpacity: 1,
-    shadowRadius: 0,
-    elevation: 0,
-  },
-  pickerDisabled: {
-    backgroundColor: '#E5E5E5',
-    opacity: 0.7,
-  },
-  pickerLocked: {
-    backgroundColor: '#F5F5F5',
-  },
-  pickerText: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#000000',
-  },
-  pickerPlaceholder: {
-    color: '#666666',
-    fontWeight: '600',
-  },
-  pickerTextLocked: {
-    color: '#666666',
-  },
-  proBadge: {
-    backgroundColor: '#FFD700',
-    borderWidth: 2,
-    borderColor: '#000000',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-  },
-  proBadgeText: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: '#000000',
-  },
-  clearButton: {
-    padding: 4,
-  },
-  // iOS Modal Styles
+const staticStyles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     justifyContent: 'flex-end',
@@ -261,35 +323,6 @@ const styles = StyleSheet.create({
   modalBackdrop: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 4,
-    borderTopColor: '#000000',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 2,
-    borderBottomColor: '#000000',
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#000000',
-  },
-  modalCancel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#666666',
-  },
-  modalDone: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#000000',
   },
   iosPicker: {
     height: 200,

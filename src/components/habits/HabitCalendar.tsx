@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, ViewStyle, TextStyle } from 'react-native';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns';
-import { Ionicons } from '@expo/vector-icons';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameDay, addMonths, subMonths } from 'date-fns';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface HabitCalendarProps {
   checkIns: { date: string; completed: boolean }[];
@@ -15,6 +16,8 @@ export function HabitCalendar({
   currentMonth = new Date(),
   onMonthChange,
 }: HabitCalendarProps) {
+  const { colors } = useTheme();
+
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
   const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
@@ -52,7 +55,7 @@ export function HabitCalendar({
   };
 
   const today = new Date();
-  const isToday = (date: Date): boolean => isSameDay(date, today);
+  const isTodayDate = (date: Date): boolean => isSameDay(date, today);
 
   const containerStyle: ViewStyle = {
     width: '100%',
@@ -67,21 +70,21 @@ export function HabitCalendar({
   };
 
   const monthTextStyle: TextStyle = {
-    fontWeight: '900',
+    fontFamily: 'SpaceMono_700Bold',
     fontSize: 20,
-    color: '#000000',
+    color: colors.text,
   };
 
   const navButtonStyle: ViewStyle = {
     width: 40,
     height: 40,
-    borderWidth: 3,
-    borderColor: '#000000',
-    borderRadius: 0,
-    backgroundColor: '#FFFFFF',
+    borderWidth: 2.5,
+    borderColor: colors.border,
+    borderRadius: 8,
+    backgroundColor: colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000000',
+    shadowColor: colors.border,
     shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 1,
     shadowRadius: 0,
@@ -95,9 +98,9 @@ export function HabitCalendar({
   };
 
   const weekdayTextStyle: TextStyle = {
-    fontWeight: '800',
+    fontFamily: 'SpaceMono_700Bold',
     fontSize: 12,
-    color: '#000000',
+    color: colors.text,
     width: 40,
     textAlign: 'center',
   };
@@ -113,19 +116,19 @@ export function HabitCalendar({
     padding: 2,
   };
 
-  const getDayBoxStyle = (date: Date | null, checked: boolean, today: boolean): ViewStyle => {
-    let bgColor = '#FFFFFF';
+  const getDayBoxStyle = (date: Date | null, checked: boolean, isToday: boolean): ViewStyle => {
+    let bgColor = colors.surface;
     if (checked) {
-      bgColor = '#00FF00';
-    } else if (today) {
-      bgColor = '#FFD700';
+      bgColor = colors.accent;
+    } else if (isToday) {
+      bgColor = colors.warning;
     }
 
     return {
       flex: 1,
-      borderWidth: 3,
-      borderColor: '#000000',
-      borderRadius: 0,
+      borderWidth: 2.5,
+      borderColor: colors.border,
+      borderRadius: 8,
       backgroundColor: bgColor,
       justifyContent: 'center',
       alignItems: 'center',
@@ -134,9 +137,9 @@ export function HabitCalendar({
   };
 
   const dayTextStyle: TextStyle = {
-    fontWeight: '800',
+    fontFamily: 'SpaceMono_700Bold',
     fontSize: 14,
-    color: '#000000',
+    color: colors.text,
   };
 
   const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
@@ -150,7 +153,7 @@ export function HabitCalendar({
           onPress={handlePrevMonth}
           activeOpacity={0.7}
         >
-          <Ionicons name="chevron-back" size={20} color="#000000" />
+          <MaterialCommunityIcons name="chevron-left" size={20} color={colors.text} />
         </TouchableOpacity>
 
         <Text style={monthTextStyle}>
@@ -162,7 +165,7 @@ export function HabitCalendar({
           onPress={handleNextMonth}
           activeOpacity={0.7}
         >
-          <Ionicons name="chevron-forward" size={20} color="#000000" />
+          <MaterialCommunityIcons name="chevron-right" size={20} color={colors.text} />
         </TouchableOpacity>
       </View>
 
@@ -187,12 +190,12 @@ export function HabitCalendar({
           }
 
           const checked = isCheckedIn(day);
-          const isTodayDate = isToday(day);
+          const todayDate = isTodayDate(day);
 
           return (
             <View key={format(day, 'yyyy-MM-dd')} style={dayContainerStyle}>
               <TouchableOpacity
-                style={getDayBoxStyle(day, checked, isTodayDate)}
+                style={getDayBoxStyle(day, checked, todayDate)}
                 onPress={() => handleDayPress(day)}
                 activeOpacity={0.7}
                 disabled={!onDayPress}
@@ -211,24 +214,26 @@ export function HabitCalendar({
             style={{
               width: 20,
               height: 20,
-              borderWidth: 3,
-              borderColor: '#000000',
-              backgroundColor: '#00FF00',
+              borderWidth: 2.5,
+              borderColor: colors.border,
+              borderRadius: 4,
+              backgroundColor: colors.accent,
             }}
           />
-          <Text style={{ fontWeight: '700', fontSize: 12, color: '#000000' }}>Completed</Text>
+          <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 12, color: colors.text }}>Completed</Text>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <View
             style={{
               width: 20,
               height: 20,
-              borderWidth: 3,
-              borderColor: '#000000',
-              backgroundColor: '#FFD700',
+              borderWidth: 2.5,
+              borderColor: colors.border,
+              borderRadius: 4,
+              backgroundColor: colors.warning,
             }}
           />
-          <Text style={{ fontWeight: '700', fontSize: 12, color: '#000000' }}>Today</Text>
+          <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 12, color: colors.text }}>Today</Text>
         </View>
       </View>
     </View>

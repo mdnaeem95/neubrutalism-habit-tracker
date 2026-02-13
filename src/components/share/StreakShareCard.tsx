@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import { View, Text, ViewStyle, TextStyle } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ShareCard } from './ShareCard';
 
 interface StreakShareCardProps {
@@ -22,7 +22,7 @@ const getMilestoneMessage = (days: number): string => {
 };
 
 export const StreakShareCard = forwardRef<View, StreakShareCardProps>(
-  ({ habitName, streakDays, showWatermark = true, themeColor = '#FF6B35' }, ref) => {
+  ({ habitName, streakDays, showWatermark = true, themeColor = '#FF8C42' }, ref) => {
     const milestoneMessage = getMilestoneMessage(streakDays);
 
     const fireContainerStyle: ViewStyle = {
@@ -32,25 +32,25 @@ export const StreakShareCard = forwardRef<View, StreakShareCardProps>(
     };
 
     const streakNumberStyle: TextStyle = {
-      fontWeight: '900',
+      fontFamily: 'SpaceMono_700Bold',
       fontSize: 72,
-      color: '#000000',
+      color: '#1A1A2E',
       textAlign: 'center',
       lineHeight: 80,
     };
 
     const daysLabelStyle: TextStyle = {
-      fontWeight: '800',
+      fontFamily: 'SpaceMono_700Bold',
       fontSize: 20,
-      color: '#000000',
+      color: '#1A1A2E',
       textAlign: 'center',
       marginBottom: 8,
     };
 
     const habitNameStyle: TextStyle = {
-      fontWeight: '700',
+      fontFamily: 'SpaceMono_400Regular',
       fontSize: 16,
-      color: '#666666',
+      color: '#6B7280',
       textAlign: 'center',
       marginBottom: 20,
     };
@@ -58,28 +58,29 @@ export const StreakShareCard = forwardRef<View, StreakShareCardProps>(
     const milestoneBadgeStyle: ViewStyle = {
       paddingHorizontal: 20,
       paddingVertical: 10,
-      borderWidth: 4,
-      borderColor: '#000000',
+      borderWidth: 3.5,
+      borderColor: '#1A1A2E',
+      borderRadius: 12,
       backgroundColor: themeColor,
-      shadowColor: '#000000',
+      shadowColor: '#1A1A2E',
       shadowOffset: { width: 4, height: 4 },
       shadowOpacity: 1,
       shadowRadius: 0,
     };
 
     const milestoneTextStyle: TextStyle = {
-      fontWeight: '900',
+      fontFamily: 'SpaceMono_700Bold',
       fontSize: 18,
-      color: '#000000',
+      color: '#1A1A2E',
       letterSpacing: 2,
     };
 
     return (
-      <ShareCard ref={ref} showWatermark={showWatermark} backgroundColor="#F5F5F5">
+      <ShareCard ref={ref} showWatermark={showWatermark}>
         <View style={fireContainerStyle}>
-          <Ionicons name="flame" size={40} color="#FF6B35" />
-          <Ionicons name="flame" size={56} color="#FFD700" />
-          <Ionicons name="flame" size={40} color="#FF6B35" />
+          <MaterialCommunityIcons name="fire" size={40} color="#FF8C42" />
+          <MaterialCommunityIcons name="fire" size={56} color="#FFD93D" />
+          <MaterialCommunityIcons name="fire" size={40} color="#FF8C42" />
         </View>
         <Text style={streakNumberStyle}>{streakDays}</Text>
         <Text style={daysLabelStyle}>DAY STREAK</Text>
