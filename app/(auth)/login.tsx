@@ -83,15 +83,6 @@ export default function LoginScreen() {
             </View>
           </Card>
 
-          <View style={{ gap: 12, marginBottom: 24 }}>
-            <Button variant="secondary" onPress={() => console.log('Google Sign-In')}>
-              Continue with Google
-            </Button>
-            <Button variant="secondary" onPress={() => console.log('Apple Sign-In')}>
-              Continue with Apple
-            </Button>
-          </View>
-
           <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
             <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 15, color: colors.text }}>
               Don't have an account?{' '}

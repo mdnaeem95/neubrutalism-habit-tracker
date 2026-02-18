@@ -201,11 +201,11 @@ export default function SettingsScreen() {
   };
 
   const openPrivacyPolicy = () => {
-    Linking.openURL('https://blockapp.co/privacy');
+    Linking.openURL('https://mdnaeem95.github.io/neubrutalism-habit-tracker/privacy.html');
   };
 
   const openTermsOfService = () => {
-    Linking.openURL('https://blockapp.co/terms');
+    Linking.openURL('https://mdnaeem95.github.io/neubrutalism-habit-tracker/terms.html');
   };
 
   const openSupport = () => {

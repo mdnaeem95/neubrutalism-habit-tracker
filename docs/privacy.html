@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Block</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Space Mono', monospace;
+      background-color: #FFF8E7;
+      color: #1A1A2E;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    .header {
+      background-color: #4D96FF;
+      border-bottom: 3px solid #1A1A2E;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1A1A2E;
+      letter-spacing: -0.5px;
+    }
+
+    .header .badge {
+      display: inline-block;
+      background-color: #FFD93D;
+      border: 2.5px solid #1A1A2E;
+      border-radius: 9999px;
+      padding: 4px 16px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      box-shadow: 2px 2px 0 #1A1A2E;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+
+    .card {
+      background-color: #FFFFFF;
+      border: 2.5px solid #1A1A2E;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 4px 4px 0 #1A1A2E;
+    }
+
+    .updated {
+      text-align: center;
+      font-size: 12px;
+      color: #6B7280;
+      margin-bottom: 24px;
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #1A1A2E;
+      padding-bottom: 8px;
+      border-bottom: 2.5px solid #1A1A2E;
+    }
+
+    h3 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-top: 16px;
+      margin-bottom: 8px;
+      color: #1A1A2E;
+    }
+
+    p {
+      font-size: 13px;
+      margin-bottom: 12px;
+      color: #1A1A2E;
+    }
+
+    ul, ol {
+      font-size: 13px;
+      margin-bottom: 12px;
+      padding-left: 24px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    .highlight {
+      background-color: #6BCB77;
+      border: 2.5px solid #1A1A2E;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 2px 2px 0 #1A1A2E;
+    }
+
+    .highlight p {
+      margin-bottom: 0;
+      font-weight: 700;
+    }
+
+    .data-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .data-box {
+      border: 2.5px solid #1A1A2E;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 13px;
+    }
+
+    .data-box.provided { background-color: #E0F2FE; }
+    .data-box.auto { background-color: #FEF3C7; }
+
+    .data-box strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    a {
+      color: #FF6B9D;
+      font-weight: 700;
+      text-decoration: underline;
+    }
+
+    .service-item {
+      border: 2.5px solid #1A1A2E;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 8px;
+      background-color: #FFF8E7;
+    }
+
+    .service-item strong {
+      font-size: 14px;
+    }
+
+    .service-item p {
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+
+    .nav-links {
+      text-align: center;
+      margin-top: 32px;
+      font-size: 13px;
+    }
+
+    .nav-links a {
+      margin: 0 12px;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 11px;
+      color: #6B7280;
+      border-top: 2.5px solid #1A1A2E;
+      margin-top: 32px;
+    }
+
+    @media (max-width: 480px) {
+      .data-grid { grid-template-columns: 1fr; }
+      .container { padding: 20px 16px 48px; }
+      .card { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="badge">BLOCK</div>
+    <h1>Privacy Policy</h1>
+  </div>
+
+  <div class="container">
+    <p class="updated">Last Updated: February 5, 2026</p>
+
+    <div class="card">
+      <h2>Introduction</h2>
+      <p>Welcome to Block ("we," "our," or "us"). We respect your privacy and are committed to protecting your personal data. This privacy policy explains how we collect, use, and safeguard your information when you use our mobile application.</p>
+    </div>
+
+    <div class="card">
+      <h2>Information We Collect</h2>
+
+      <h3>Information You Provide</h3>
+      <div class="data-grid">
+        <div class="data-box provided">
+          <strong>Account Info</strong>
+          Email address, display name (optional), password (encrypted)
+        </div>
+        <div class="data-box provided">
+          <strong>Habit Data</strong>
+          Habit names, categories, colors, check-ins, streaks, notes
+        </div>
+      </div>
+
+      <h3>Automatically Collected</h3>
+      <div class="data-grid">
+        <div class="data-box auto">
+          <strong>Usage Data</strong>
+          App interactions, screen views, device info, app version
+        </div>
+        <div class="data-box auto">
+          <strong>Technical Data</strong>
+          IP address (anonymized), device identifiers, error logs, performance metrics
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>How We Use Your Information</h2>
+      <ol>
+        <li><strong>Provide Services</strong> — Create and manage your account, store and sync your habit data, track streaks and calculate statistics, send notifications and reminders.</li>
+        <li><strong>Improve the App</strong> — Analyze usage patterns, fix bugs and crashes, develop new features, optimize performance.</li>
+        <li><strong>Communications</strong> — Send transactional emails (password reset, etc.), provide customer support, send important updates (with your consent).</li>
+        <li><strong>Business Operations</strong> — Process payments for Premium subscriptions, prevent fraud and abuse, comply with legal obligations.</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2>Data Storage and Security</h2>
+
+      <h3>Storage</h3>
+      <p>Your data is stored using Firebase/Firestore (Google Cloud infrastructure), with encryption at rest and in transit. Data is stored in the United States (Google Cloud regions).</p>
+
+      <h3>Security Measures</h3>
+      <ul>
+        <li>HTTPS/TLS for all data transmission</li>
+        <li>Secure password hashing</li>
+        <li>Role-based access control</li>
+        <li>Automated security scanning and regular backups</li>
+      </ul>
+
+      <h3>Data Retention</h3>
+      <ul>
+        <li><strong>Active Accounts:</strong> Data stored while account is active</li>
+        <li><strong>Deleted Accounts:</strong> Data permanently deleted within 30 days</li>
+        <li><strong>Inactive Accounts:</strong> Deleted after 2 years of inactivity (with email notice)</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Third-Party Services</h2>
+
+      <div class="service-item">
+        <strong>Firebase (Google)</strong>
+        <p>Purpose: Authentication, database, analytics</p>
+        <p>Data shared: Email, usage data, device info</p>
+        <p><a href="https://policies.google.com/privacy">Google Privacy Policy</a></p>
+      </div>
+
+      <div class="service-item">
+        <strong>Sentry</strong>
+        <p>Purpose: Error tracking and monitoring</p>
+        <p>Data shared: Error logs, device info, user ID</p>
+        <p><a href="https://sentry.io/privacy/">Sentry Privacy Policy</a></p>
+      </div>
+
+      <div class="service-item">
+        <strong>RevenueCat</strong>
+        <p>Purpose: Subscription management</p>
+        <p>Data shared: User ID, purchase data</p>
+        <p><a href="https://www.revenuecat.com/privacy">RevenueCat Privacy Policy</a></p>
+      </div>
+
+      <div class="service-item">
+        <strong>Apple App Store / Google Play</strong>
+        <p>Purpose: App distribution and payments</p>
+        <p>Data shared: Account info, payment info</p>
+        <p><a href="https://www.apple.com/privacy/">Apple Privacy</a> · <a href="https://policies.google.com/privacy">Google Privacy</a></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Your Rights</h2>
+      <div class="highlight">
+        <p>You own your data. We do not sell, rent, or trade your personal information to third parties.</p>
+      </div>
+      <ul>
+        <li><strong>Access</strong> — Request a copy of your personal data</li>
+        <li><strong>Rectification</strong> — Update or correct your information</li>
+        <li><strong>Deletion</strong> — Delete your account and all associated data</li>
+        <li><strong>Portability</strong> — Export your habit data (Premium feature, JSON/CSV)</li>
+        <li><strong>Objection</strong> — Opt out of marketing communications</li>
+        <li><strong>Withdraw Consent</strong> — Revoke permissions at any time</li>
+      </ul>
+      <p>To exercise your rights, email us at <a href="mailto:support@blockapp.co">support@blockapp.co</a> or use in-app settings under Profile. We will respond within 30 days.</p>
+    </div>
+
+    <div class="card">
+      <h2>Children's Privacy</h2>
+      <p>Block is not intended for children under 13 years old. We do not knowingly collect personal information from children. If you believe we have inadvertently collected data from a child, please contact us immediately.</p>
+    </div>
+
+    <div class="card">
+      <h2>International Users</h2>
+      <h3>GDPR Compliance (EU Users)</h3>
+      <p>For users in the European Union: our legal basis is consent and contract performance. You have the right to contact your local supervisory authority.</p>
+
+      <h3>CCPA Compliance (California Users)</h3>
+      <p>For users in California: you have the right to know what data we collect, request data deletion, and opt out of data sale. We do not sell your data. We do not discriminate for exercising your rights.</p>
+    </div>
+
+    <div class="card">
+      <h2>Cookies and Tracking</h2>
+      <ul>
+        <li><strong>Analytics:</strong> Firebase Analytics (anonymized)</li>
+        <li><strong>Functional:</strong> Session management and authentication</li>
+        <li><strong>No Advertising:</strong> We do not use advertising trackers</li>
+      </ul>
+      <p>You can disable analytics in app settings or clear app data to remove local storage.</p>
+    </div>
+
+    <div class="card">
+      <h2>Your Habit Data</h2>
+      <div class="highlight">
+        <p>Your habit data is private (only visible to you), encrypted, owned by you, and permanently deleted when you delete your account.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Data We Do Not Collect</h2>
+      <ul>
+        <li>Social security numbers</li>
+        <li>Financial information (handled by app stores)</li>
+        <li>Biometric data</li>
+        <li>Location data (unless you enable reminders)</li>
+        <li>Contact lists or photos</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Changes to This Policy</h2>
+      <p>We may update this privacy policy to reflect changes in our practices, new features or services, or legal requirements. We will notify you via email and in-app notification for significant changes.</p>
+    </div>
+
+    <div class="card">
+      <h2>Contact Us</h2>
+      <p>If you have questions about this privacy policy, email us at <a href="mailto:support@blockapp.co">support@blockapp.co</a>.</p>
+      <p>We aim to respond within 7 business days.</p>
+    </div>
+
+    <div class="nav-links">
+      <a href="terms.html">Terms of Use</a>
+    </div>
+
+    <div class="footer">
+      &copy; 2026 Block. All rights reserved.
+    </div>
+  </div>
+</body>
+</html>

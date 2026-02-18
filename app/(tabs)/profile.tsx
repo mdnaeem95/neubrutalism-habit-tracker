@@ -208,14 +208,14 @@ export default function ProfileScreen() {
 
             <Button
               variant="secondary"
-              onPress={() => Linking.openURL('https://blockapp.co/privacy')}
+              onPress={() => Linking.openURL('https://mdnaeem95.github.io/neubrutalism-habit-tracker/privacy.html')}
             >
               Privacy Policy
             </Button>
 
             <Button
               variant="secondary"
-              onPress={() => Linking.openURL('https://blockapp.co/terms')}
+              onPress={() => Linking.openURL('https://mdnaeem95.github.io/neubrutalism-habit-tracker/terms.html')}
             >
               Terms of Service
             </Button>

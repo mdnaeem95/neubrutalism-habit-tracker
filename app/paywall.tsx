@@ -11,8 +11,8 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { getOfferings, purchasePackage, restorePurchases, getPackagePrice, getIntroPrice } from '@services/revenuecat';
 import type { PurchasesPackage } from 'react-native-purchases';
 
-const PRIVACY_URL = 'https://blockapp.co/privacy';
-const TERMS_URL = 'https://blockapp.co/terms';
+const PRIVACY_URL = 'https://mdnaeem95.github.io/neubrutalism-habit-tracker/privacy.html';
+const TERMS_URL = 'https://mdnaeem95.github.io/neubrutalism-habit-tracker/terms.html';
 
 export default function PaywallScreen() {
   const router = useRouter();
