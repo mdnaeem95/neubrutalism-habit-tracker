@@ -1,7 +1,7 @@
 # App Store Submission Guide - Block Habit Tracker
 
-**Last Updated:** 2026-02-06
-**Status:** Preparing for Submission
+**Last Updated:** 2026-02-23
+**Status:** Version 1.1.0 — Preparing for Submission
 
 ---
 
@@ -22,7 +22,7 @@
 ### 1.1 Basic App Information
 
 **App Name:** Block - Habit Tracker
-**Subtitle (max 30 characters):** Bold habit tracking made simple
+**Subtitle (max 30 characters):** Bold habits, flexible streaks
 **Primary Language:** English (U.S.)
 **Category:**
 - **Primary Category:** Health & Fitness
@@ -39,58 +39,65 @@
 **Description (max 4000 characters):**
 
 ```
-Transform your life with Block - the bold habit tracker that makes building better habits simple and fun.
+Block is the bold habit tracker that adapts to your life — not the other way around.
 
-TRACK WHAT MATTERS
-Build better habits with our clean, distraction-free interface. Whether it's fitness, mindfulness, learning, or productivity - Block helps you stay consistent.
+FLEXIBLE SCHEDULING
+Not every habit is daily. Set habits for specific days, X times per week, or custom intervals. Block shows only what's scheduled today so you stay focused.
 
-DAILY CHECK-INS
-Simple tap to mark habits complete. Build momentum with visual feedback and satisfying animations that celebrate your progress.
+TRACK MORE THAN YES/NO
+Count glasses of water, log minutes of reading, or track any quantity. Set daily targets and watch your progress bar fill up.
 
-STREAK TRACKING
-Watch your streaks grow day by day. See your longest streak and current streak at a glance. Stay motivated by your consistency.
+STREAK FREEZES
+Life happens. Block automatically protects your streak when you miss a scheduled day — so one off day doesn't erase weeks of progress.
+
+QUICK START TEMPLATES
+Choose from 20+ habit templates to get started in seconds. Drink Water, Meditate, Deep Work, Exercise — pick a few during onboarding and you're tracking in under a minute.
 
 BEAUTIFUL STATISTICS
-Understand your progress with clean, easy-to-read statistics. View completion rates, total check-ins, and track your habits over 7 days, 30 days, or all time.
+Understand your progress with frequency-aware stats. Completion rates that actually reflect your schedule, not just calendar days.
 
 NEUBRUTALISM DESIGN
-Enjoy a unique, bold design that stands out. High contrast, vibrant colors, and smooth animations make habit tracking a joy.
+A unique, bold design that stands out. High contrast, vibrant colors, and smooth animations make habit tracking a joy.
 
 FREE FEATURES:
 • Up to 5 active habits
-• Daily check-ins with tap interaction
-• Streak tracking
-• Basic statistics (7-day, 30-day views)
-• Habit categories and colors
-• Push notifications and reminders
+• Daily & specific-day scheduling
+• Quantity tracking (counters)
+• 1 streak freeze per week
+• 6 starter templates
+• Streak tracking & statistics
+• Push notifications & reminders
 • Real-time sync across devices
 
 PREMIUM FEATURES:
-- Unlimited habits
-- Advanced statistics with detailed charts
-- Data export (CSV, JSON)
-- Custom themes and colors
-- Habit notes and journaling
-- Habit templates
-- Priority support
-- 7-day free trial
+• Unlimited habits
+• Advanced scheduling (X/week, intervals)
+• Duration tracking & daily targets
+• 3 streak freezes per week
+• 20+ habit templates
+• Habit notes & journaling
+• Per-habit custom reminders
+• Advanced statistics & insights
+• Data export (CSV, JSON)
+• Custom themes & colors
+• 7-day free trial
 
 WHY BLOCK?
 
-Simple by Design
-We believe habit tracking should be effortless. Block focuses on what matters: helping you stay consistent. No complicated features, no overwhelming dashboards - just you and your habits.
+Adapts to Your Life
+Daily, 3x/week, every other day, Mon-Wed-Fri — your habits, your schedule. Block only shows what matters today.
 
-Built for Consistency
-Our streak tracking and daily reminders keep you accountable. Miss a day? No problem - we're here to help you get back on track.
+Forgiving by Design
+Miss a day? Streak freezes have your back. Stay motivated instead of starting over.
 
-Your Data, Your Way
-Premium users can export their data anytime. Your progress belongs to you.
+Fast to Start
+Pick templates during onboarding and start tracking in under 60 seconds. No setup friction.
 
 Beautiful & Fast
-Designed with a unique neubrutalism aesthetic - bold, colorful, and unapologetically different. Smooth 60 FPS animations make every interaction delightful.
+Designed with a unique neubrutalism aesthetic — bold, colorful, and unapologetically different.
 
 Privacy First
-We respect your privacy. Your habit data is encrypted and synced securely. No tracking, no selling your data.
+Your habit data is encrypted and synced securely. No tracking, no selling your data.
 
 ---
 
@@ -101,12 +108,12 @@ Questions or feedback? Contact us at support@blockhabitapp.com
 
 **Keywords (max 100 characters, comma-separated):**
 ```
-habit,tracker,goals,streaks,productivity,routine,daily,fitness,health,mindfulness
+habit,tracker,streak,routine,goals,productivity,fitness,health,mindfulness,templates,schedule
 ```
 
 **Promotional Text (max 170 characters - appears above description):**
 ```
-Build better habits with our bold, beautiful tracker. 5 habits free, unlimited with premium. Start your streak today!
+NEW: Flexible scheduling, quantity tracking, streak freezes & 20+ templates. Build habits that fit your life — not the other way around.
 ```
 
 ---
@@ -141,31 +148,42 @@ Build better habits with our bold, beautiful tracker. 5 habits free, unlimited w
 
 ## Part 3: Version Information
 
-### 3.1 What's New in This Version (Version 1.0.0)
+### 3.1 What's New in This Version (Version 1.1.0)
 
 ```
-Welcome to Block - Your New Favorite Habit Tracker!
+Block 1.1 — Your habits, your schedule.
 
-This is our first release, and we're excited to help you build better habits.
+NEW FEATURES:
 
-FEATURES:
-- Track up to 5 habits for free (unlimited with premium)
-- Daily check-ins with satisfying animations
-- Streak tracking to keep you motivated
-- Beautiful statistics to visualize your progress
-- Push notifications and daily reminders
-- Real-time sync across all your devices
-- Unique neubrutalism design that stands out
+FLEXIBLE SCHEDULING
+• Set habits for specific days of the week
+• "3 times per week" — you choose which days (Premium)
+• Custom intervals like every other day (Premium)
+• Today screen only shows what's scheduled
 
-PREMIUM PERKS:
-- Unlimited habits
-- Advanced statistics with charts
-- Data export (CSV, JSON)
-- Custom themes
-- Habit notes & journaling
-- 7-day free trial
+QUANTITY & DURATION TRACKING
+• Count reps, glasses, pages — anything
+• Log minutes for meditation, exercise, reading
+• Set daily targets and track progress (Premium)
+• Progress bars show how close you are
 
-Start your journey today!
+STREAK FREEZES
+• Miss a day without losing your streak
+• 1 free auto-freeze per week
+• 3 freezes/week + manual freeze (Premium)
+
+HABIT TEMPLATES
+• 20+ templates to get started fast
+• Pick habits during onboarding — tracking in seconds
+• Categories: health, fitness, productivity, learning, mindfulness
+
+ALSO IN THIS UPDATE:
+• Updated onboarding with Quick Start
+• Improved habit detail screen
+• Better frequency-aware statistics
+• Auth persistence fix
+
+We'd love to hear how these features work for you!
 ```
 
 ---
@@ -210,33 +228,52 @@ Start your journey today!
 ### 5.3 Notes for Reviewer
 
 ```
-Thank you for reviewing Block!
+Thank you for reviewing Block 1.1!
 
 TESTING INSTRUCTIONS:
 
 1. Login with the provided demo account or create a new account
-2. The demo account has sample habits and streaks already configured
+2. New users see onboarding with a "Quick Start" template picker on the 4th screen
+
+NEW IN 1.1 — TESTING GUIDE:
+
+FLEXIBLE FREQUENCY (free + premium):
+• Create a habit → tap "Specific Days" → select Mon/Wed/Fri
+• Return to Today tab — habit only appears on those days
+• Premium: "X/Week" and "Interval" options unlock with subscription
+
+QUANTITY/DURATION TRACKING (free + premium):
+• Create a habit → select "Quantity" tracking type → enter a unit (e.g. "glasses")
+• On Today tab, tap the checkbox → quantity input modal appears
+• Use +/- buttons to log a value, then Save
+• Premium: "Duration" type and "Daily Target" field unlock with subscription
+
+STREAK FREEZES:
+• Free users get 1 auto-freeze per week
+• When a scheduled day is missed, the freeze auto-applies to protect the streak
+• Freeze count is visible on habit detail screen
+
+HABIT TEMPLATES:
+• On create screen, tap "Start from Template"
+• 6 free templates available (1 per category)
+• Premium templates show a lock badge
+• Templates also available during onboarding Quick Start screen
 
 FREE TIER TESTING:
 • Free users can create up to 5 habits
 • Try creating a 6th habit to see the premium paywall
+• Premium-locked features show lock badges and upsell dialogs
 
 PREMIUM SUBSCRIPTION TESTING:
 • Navigate to Profile → "Upgrade to Premium"
 • Use a sandbox tester account to test in-app purchases
-• Both monthly ($4.99) and yearly ($29.99) plans include a 7-day free trial
-
-CORE FEATURES TO TEST:
-• Create a habit with name, category, and color
-• Check-in a habit (tap the checkbox)
-• View streak counter update
-• Check statistics page for charts
-• Enable push notifications (optional)
+• Both monthly and yearly plans include a 7-day free trial
 
 KNOWN BEHAVIORS:
 • Subscriptions are managed through RevenueCat
 • Data syncs in real-time via Firebase
 • App requires internet connection for initial login
+• "Times per week" habits always show on Today (user picks which days to complete)
 
 If you have any questions, please contact: [your email]
 ```

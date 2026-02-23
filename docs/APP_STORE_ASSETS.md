@@ -67,60 +67,90 @@ You need screenshots for these device sizes:
 
 ---
 
-## 3. Recommended Screenshots
+## 3. Recommended Screenshots (v1.1.0)
 
-Create these 5 key screenshots (in order):
+Create these 6-8 key screenshots (in priority order):
 
-### Screenshot 1: Today View
+### Screenshot 1: Today View with Mixed Habits
 **What to show:**
-- Today tab with 3-4 habits
-- At least 2 habits checked off (green checkmarks)
-- Current date visible
-- Clean, organized layout
+- Today tab with 4-5 habits (mix of boolean + quantity)
+- At least 2 checked off, 1 showing progress bar (e.g. "5/8 glasses")
+- Completion counter in header (e.g. "3/5")
+- Off-day habits dimmed at bottom
 - Streak counts visible
 
 **Overlay Text:**
-"Track habits with bold design"
+"Your habits, your schedule"
 
-### Screenshot 2: Habit Detail with Calendar
+### Screenshot 2: Flexible Frequency (Create Screen)
 **What to show:**
-- Habit detail screen
-- Monthly calendar view filled with check-ins
-- Stats cards (streaks, completion rate)
-- Green squares showing completed days
+- Habit creation form with FrequencySelector visible
+- "Specific Days" selected with Mon/Wed/Fri toggled
+- Day-of-week button row (S M T W T F S)
+- Tracking type chips visible (Yes/No, Quantity, Duration)
 
 **Overlay Text:**
-"Build streaks that last"
+"Set your own schedule"
 
-### Screenshot 3: Stats Dashboard
+### Screenshot 3: Quantity Tracking in Action
 **What to show:**
-- Stats tab open
-- Bar chart with daily activity
-- Top performing habits section
-- Colorful stat cards
+- QuantityInputModal open over a habit card
+- +/- counter with current value (e.g. "5 glasses")
+- Target indicator visible
+- Behind modal: habit card with progress bar
 
 **Overlay Text:**
-"See your progress instantly"
+"Track more than yes or no"
 
-### Screenshot 4: Create/Edit Habit
+### Screenshot 4: Template Picker
 **What to show:**
-- Habit creation form
-- Icon grid with emoji options
-- Color selection
-- Category tags
+- TemplatePickerModal open
+- Category tabs across top (All, Health, Fitness...)
+- Colorful template cards with icons
+- Premium templates showing lock badges
 
 **Overlay Text:**
-"Customize your habits"
+"Start tracking in seconds"
 
-### Screenshot 5: Premium Features
+### Screenshot 5: Habit Detail with Stats
 **What to show:**
-- Paywall screen with pricing
-- List of premium features
-- "BEST VALUE" badge visible
+- Habit detail for a quantity habit
+- Stats grid: streak, best, total, rate
+- Total/Avg stats (e.g. "245 glasses", "7/day")
+- Today's progress bar
+- Last 7 days with values in boxes
+
+**Overlay Text:**
+"See every detail"
+
+### Screenshot 6: Onboarding Quick Start
+**What to show:**
+- 4th onboarding screen with template cards
+- 2 templates selected (green checkmarks)
+- "Start with 2 habits" button at bottom
+
+**Overlay Text:**
+"Pick habits, start instantly"
+
+### Screenshot 7: Streak & Calendar
+**What to show:**
+- Habit detail calendar with check-ins filled in
+- Streak freeze indicator visible
+- Current streak prominently displayed
+- "Tap to share" streak card
+
+**Overlay Text:**
+"Build streaks that forgive"
+
+### Screenshot 8: Premium Features
+**What to show:**
+- Paywall with updated feature list
+- New features: scheduling, targets, freezes, templates
+- "BEST VALUE" yearly plan badge
 - Pricing cards
 
 **Overlay Text:**
-"Upgrade for unlimited habits"
+"Unlock the full experience"
 
 ---
 
@@ -268,39 +298,44 @@ adb pull /sdcard/demo.mp4
 **Primary:** Block - Habit Tracker
 
 **Subtitle (iOS):**
-Bold habit tracking
+Bold habits, flexible streaks
 
 ### Description (Short - 80 chars)
-Build better habits with bold design and daily tracking.
+Flexible habit tracking with bold design. Schedule, count, freeze streaks.
 
 ### Description (Full)
 ```
-Block helps you build better habits through simple daily tracking and streak building.
+Block adapts to your life — not the other way around.
 
 KEY FEATURES
-• Track up to 5 habits for free
-• Check in daily with one tap
-• Build motivating streaks
-• View progress with calendar
+• Flexible scheduling: daily, specific days, X/week, intervals
+• Quantity & duration tracking with progress bars
+• Streak freezes — miss a day without losing progress
+• 20+ templates to start tracking in seconds
 • Beautiful neubrutalism design
 • Cloud sync across devices
 
+FREE FEATURES
+• Up to 5 habits
+• Daily & specific-day scheduling
+• Quantity tracking (counters)
+• 1 streak freeze per week
+• 6 starter templates
+
 PREMIUM FEATURES
 • Unlimited habits
-• Advanced statistics
+• Advanced scheduling (X/week, intervals)
+• Duration tracking & daily targets
+• 3 streak freezes per week
+• 20+ templates
+• Habit notes & journaling
+• Per-habit reminders
 • Data export (CSV, JSON)
 • Custom themes
-• Priority support
-
-SIMPLE & EFFECTIVE
-Block makes habit building simple. No complicated systems or gamification - just clean design and daily check-ins.
-
-TRACK YOUR PROGRESS
-See your streaks grow and visualize your progress with monthly calendars and detailed statistics.
 
 PREMIUM SUBSCRIPTION
-• Free: 5 habits
-• Premium: Unlimited habits + advanced features
+• Free: 5 habits with core features
+• Premium: Everything unlimited
 • 7-day free trial
 • $4.99/month or $29.99/year
 
@@ -309,20 +344,20 @@ Block combines powerful habit tracking with bold neubrutalism design. Start buil
 
 ### Keywords (iOS - comma-separated)
 ```
-habit tracker,daily habits,streak,routine,goals,productivity,habit builder,self improvement,personal growth,motivation
+habit tracker,streak,schedule,routine,goals,productivity,quantity,templates,self improvement,motivation
 ```
 
 ### What's New (Update Notes)
 ```
-Block v1.0 is here!
+Block 1.1 — Your habits, your schedule.
 
-NEW IN THIS VERSION:
-• Track up to 5 habits for free
-• Build and maintain streaks
-• View monthly calendar
-• See detailed statistics
-• Export your data (Premium)
-• Beautiful neubrutalism design
+NEW:
+• Flexible scheduling: specific days, X/week, intervals
+• Quantity & duration tracking with progress bars
+• Streak freezes — miss a day, keep your streak
+• 20+ habit templates to start fast
+• Quick Start onboarding — pick templates and go
+• Improved stats and habit detail screens
 
 We'd love to hear your feedback!
 ```
