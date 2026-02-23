@@ -1,5 +1,6 @@
 import { format, parseISO, differenceInDays, subDays, startOfDay } from 'date-fns';
-import type { CheckIn } from '@/types/habit';
+import type { CheckIn, HabitFrequency, StreakFreeze } from '@/types/habit';
+import { isHabitScheduledForDate, countScheduledDaysInRange } from './frequencyUtils';
 
 /**
  * Get today's date in ISO format (YYYY-MM-DD)
@@ -16,52 +17,68 @@ export const formatDateToISO = (date: Date): string => {
 };
 
 /**
- * Calculate current streak from check-ins
- * A streak is broken if there's a gap in consecutive days
+ * Helper: create a minimal habit-like object for frequency checks
  */
-export const calculateCurrentStreak = (checkIns: CheckIn[]): number => {
-  if (checkIns.length === 0) return 0;
+const makeHabitForFrequency = (frequency: HabitFrequency, createdAt?: any) => ({
+  frequency,
+  createdAt: createdAt || { toDate: () => new Date(2020, 0, 1) },
+} as any);
 
-  // Sort check-ins by date descending (most recent first)
-  const sortedCheckIns = [...checkIns]
-    .filter((c) => c.completed)
-    .sort((a, b) => b.date.localeCompare(a.date));
+/**
+ * Check if a date has a streak freeze
+ */
+const hasFreezeForDate = (freezes: StreakFreeze[], date: string): boolean => {
+  return freezes.some((f) => f.date === date);
+};
 
-  if (sortedCheckIns.length === 0) return 0;
+/**
+ * Calculate current streak from check-ins (frequency-aware + freeze-aware)
+ * A streak is broken if there's a gap in consecutive scheduled days
+ * Frozen days preserve the streak but don't add to the count
+ */
+export const calculateCurrentStreak = (
+  checkIns: CheckIn[],
+  frequency?: HabitFrequency,
+  createdAt?: any,
+  freezes: StreakFreeze[] = [],
+): number => {
+  if (checkIns.length === 0 && freezes.length === 0) return 0;
+
+  const completedDates = new Set(
+    checkIns.filter((c) => c.completed).map((c) => c.date)
+  );
+
+  if (completedDates.size === 0 && freezes.length === 0) return 0;
+
+  const freq = frequency || { type: 'daily' as const };
+  const habit = makeHabitForFrequency(freq, createdAt);
 
   let streak = 0;
   const today = startOfDay(new Date());
-  let currentDate = today;
+  let foundFirstCompletion = false;
 
-  // Check if today is completed
-  const todayISO = formatDateToISO(today);
-  const todayCheckIn = sortedCheckIns.find((c) => c.date === todayISO);
+  // Walk backwards from today up to 400 days
+  for (let i = 0; i < 400; i++) {
+    const checkDate = subDays(today, i);
+    const dateISO = formatDateToISO(checkDate);
+    const isScheduled = isHabitScheduledForDate(habit, dateISO);
 
-  if (todayCheckIn) {
-    streak = 1;
-    currentDate = subDays(today, 1);
-  } else {
-    // If today is not completed, check yesterday
-    const yesterdayISO = formatDateToISO(subDays(today, 1));
-    const yesterdayCheckIn = sortedCheckIns.find((c) => c.date === yesterdayISO);
+    if (!isScheduled) continue; // Skip non-scheduled days
 
-    if (!yesterdayCheckIn) {
-      return 0; // Streak is broken
-    }
+    const isCompleted = completedDates.has(dateISO);
+    const isFrozen = hasFreezeForDate(freezes, dateISO);
 
-    streak = 1;
-    currentDate = subDays(today, 2);
-  }
-
-  // Count consecutive days going backwards
-  for (let i = 0; i < sortedCheckIns.length; i++) {
-    const expectedDate = formatDateToISO(currentDate);
-
-    if (sortedCheckIns[i].date === expectedDate) {
+    if (isCompleted) {
       streak++;
-      currentDate = subDays(currentDate, 1);
-    } else if (sortedCheckIns[i].date < expectedDate) {
-      // Gap found, streak is broken
+      foundFirstCompletion = true;
+    } else if (isFrozen) {
+      // Frozen day preserves streak but doesn't increment
+      foundFirstCompletion = true;
+    } else if (!foundFirstCompletion && i <= 1) {
+      // Grace period: today (or yesterday if today isn't scheduled) can be incomplete
+      continue;
+    } else {
+      // Gap found — streak broken
       break;
     }
   }
@@ -70,31 +87,56 @@ export const calculateCurrentStreak = (checkIns: CheckIn[]): number => {
 };
 
 /**
- * Calculate longest streak from check-ins
+ * Calculate longest streak from check-ins (frequency-aware + freeze-aware)
  */
-export const calculateLongestStreak = (checkIns: CheckIn[]): number => {
+export const calculateLongestStreak = (
+  checkIns: CheckIn[],
+  frequency?: HabitFrequency,
+  createdAt?: any,
+  freezes: StreakFreeze[] = [],
+): number => {
   if (checkIns.length === 0) return 0;
 
-  const sortedCheckIns = [...checkIns]
-    .filter((c) => c.completed)
-    .sort((a, b) => a.date.localeCompare(b.date));
+  const completedCheckIns = checkIns.filter((c) => c.completed);
+  if (completedCheckIns.length === 0) return 0;
 
-  if (sortedCheckIns.length === 0) return 0;
+  const freq = frequency || { type: 'daily' as const };
+  const habit = makeHabitForFrequency(freq, createdAt);
 
-  let longestStreak = 1;
-  let currentStreak = 1;
+  // Get all dates from first check-in to today
+  const sortedDates = completedCheckIns
+    .map((c) => c.date)
+    .sort();
 
-  for (let i = 1; i < sortedCheckIns.length; i++) {
-    const prevDate = parseISO(sortedCheckIns[i - 1].date);
-    const currentDate = parseISO(sortedCheckIns[i].date);
-    const dayDiff = differenceInDays(currentDate, prevDate);
+  const firstDate = parseISO(sortedDates[0]);
+  const today = startOfDay(new Date());
+  const totalDays = differenceInDays(today, firstDate) + 1;
 
-    if (dayDiff === 1) {
-      currentStreak++;
-      longestStreak = Math.max(longestStreak, currentStreak);
-    } else {
-      currentStreak = 1;
+  const completedDates = new Set(sortedDates);
+  let longestStreak = 0;
+  let currentStreak = 0;
+
+  let checkDate = firstDate;
+  for (let i = 0; i < totalDays; i++) {
+    const dateISO = formatDateToISO(checkDate);
+    const isScheduled = isHabitScheduledForDate(habit, dateISO);
+
+    if (isScheduled) {
+      const isCompleted = completedDates.has(dateISO);
+      const isFrozen = hasFreezeForDate(freezes, dateISO);
+
+      if (isCompleted) {
+        currentStreak++;
+        longestStreak = Math.max(longestStreak, currentStreak);
+      } else if (isFrozen) {
+        // Frozen — streak preserved but not incremented
+      } else {
+        currentStreak = 0;
+      }
     }
+
+    checkDate = new Date(checkDate);
+    checkDate.setDate(checkDate.getDate() + 1);
   }
 
   return longestStreak;
@@ -108,17 +150,34 @@ export const calculateTotalCompletions = (checkIns: CheckIn[]): number => {
 };
 
 /**
- * Calculate completion rate for a given period (last N days)
+ * Calculate completion rate for a given period (frequency-aware)
  */
-export const calculateCompletionRate = (checkIns: CheckIn[], days: number = 30): number => {
+export const calculateCompletionRate = (
+  checkIns: CheckIn[],
+  days: number = 30,
+  frequency?: HabitFrequency,
+  createdAt?: any,
+): number => {
   const today = new Date();
   const startDate = subDays(today, days - 1);
   const startDateISO = formatDateToISO(startDate);
+  const endDateISO = formatDateToISO(today);
 
-  const recentCheckIns = checkIns.filter((c) => c.date >= startDateISO);
-  const completedDays = recentCheckIns.filter((c) => c.completed).length;
+  const completedDays = checkIns.filter(
+    (c) => c.completed && c.date >= startDateISO && c.date <= endDateISO
+  ).length;
 
-  return Math.round((completedDays / days) * 100);
+  // Calculate scheduled days in the period
+  let scheduledDays: number;
+  if (frequency && frequency.type !== 'daily') {
+    const habit = makeHabitForFrequency(frequency, createdAt);
+    scheduledDays = countScheduledDaysInRange(habit, startDateISO, endDateISO);
+  } else {
+    scheduledDays = days;
+  }
+
+  if (scheduledDays === 0) return 0;
+  return Math.round((completedDays / scheduledDays) * 100);
 };
 
 /**
@@ -131,6 +190,15 @@ export const isTodayCheckedIn = (checkIns: CheckIn[]): boolean => {
 };
 
 /**
+ * Get today's check-in value (for quantity/duration habits)
+ */
+export const getTodayValue = (checkIns: CheckIn[]): number | undefined => {
+  const todayISO = getTodayDate();
+  const todayCheckIn = checkIns.find((c) => c.date === todayISO);
+  return todayCheckIn?.value;
+};
+
+/**
  * Get check-in for a specific date
  */
 export const getCheckInForDate = (checkIns: CheckIn[], date: string): CheckIn | undefined => {
@@ -138,11 +206,17 @@ export const getCheckInForDate = (checkIns: CheckIn[], date: string): CheckIn | 
 };
 
 /**
- * Get last 7 days of check-ins for calendar view
+ * Get last 7 days of check-ins with scheduling info
  */
-export const getLast7DaysCheckIns = (checkIns: CheckIn[]): { date: string; completed: boolean }[] => {
+export const getLast7DaysCheckIns = (
+  checkIns: CheckIn[],
+  frequency?: HabitFrequency,
+  createdAt?: any,
+): { date: string; completed: boolean; isScheduled: boolean; value?: number }[] => {
   const today = new Date();
   const last7Days = [];
+  const freq = frequency || { type: 'daily' as const };
+  const habit = makeHabitForFrequency(freq, createdAt);
 
   for (let i = 6; i >= 0; i--) {
     const date = subDays(today, i);
@@ -152,6 +226,8 @@ export const getLast7DaysCheckIns = (checkIns: CheckIn[]): { date: string; compl
     last7Days.push({
       date: dateISO,
       completed: checkIn ? checkIn.completed : false,
+      isScheduled: isHabitScheduledForDate(habit, dateISO),
+      value: checkIn?.value,
     });
   }
 

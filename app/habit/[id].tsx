@@ -7,12 +7,15 @@ import { Button, Card, Badge } from '@components/ui';
 import { HabitCalendar } from '@components';
 import { NoteInputModal } from '@components/habits/NoteInputModal';
 import { NoteCard } from '@components/habits/NoteCard';
+import { QuantityInputModal } from '@components/habits/QuantityInputModal';
+import { ProgressBar } from '@components/habits/ProgressBar';
 import { ShareCardModal, StreakShareCard } from '@components/share';
 import { useAuthStore } from '@store/useAuthStore';
 import { useHabitsStore } from '@store/useHabitsStore';
 import { useDialog } from '@/contexts/DialogContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getLast7DaysCheckIns } from '@utils/habitCalculations';
+import { getFrequencyLabel } from '@utils/frequencyUtils';
 import type { CheckIn } from '@/types/habit';
 
 export default function HabitDetailScreen() {
@@ -24,6 +27,8 @@ export default function HabitDetailScreen() {
   const dialog = useDialog();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [noteModalVisible, setNoteModalVisible] = useState(false);
+  const [quantityModalVisible, setQuantityModalVisible] = useState(false);
+  const [quantityModalDate, setQuantityModalDate] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [currentNote, setCurrentNote] = useState<string>('');
   const [showShareModal, setShowShareModal] = useState(false);
@@ -32,7 +37,23 @@ export default function HabitDetailScreen() {
 
   const habit = id ? getHabitById(id) : null;
   const habitCheckIns = id && checkIns[id] ? checkIns[id] : [];
-  const last7Days = getLast7DaysCheckIns(habitCheckIns);
+  const last7Days = getLast7DaysCheckIns(
+    habitCheckIns,
+    habit?.frequency,
+    habit?.createdAt?.toDate?.() ? habit.createdAt.toDate().toISOString() : undefined
+  );
+
+  const trackingType = habit?.trackingType || 'boolean';
+
+  const formatValue = (value: number): string => {
+    if (trackingType === 'duration') {
+      const hours = Math.floor(value / 60);
+      const mins = value % 60;
+      if (hours > 0) return `${hours}h ${mins}m`;
+      return `${mins}m`;
+    }
+    return `${value}`;
+  };
 
   const handleDelete = () => {
     dialog.alert(
@@ -72,12 +93,19 @@ export default function HabitDetailScreen() {
   };
 
   const handleCheckIn = async (date: string) => {
-    if (!user || !id) return;
+    if (!user || !id || !habit) return;
 
-    const isPremium = user.subscription?.plan === 'premium' || user.subscription?.plan === 'trial';
     const existingCheckIn = habitCheckIns.find((c) => c.date === date);
     const isCheckingIn = !existingCheckIn?.completed;
 
+    // For quantity/duration habits, open the quantity modal
+    if (trackingType !== 'boolean' && isCheckingIn) {
+      setQuantityModalDate(date);
+      setQuantityModalVisible(true);
+      return;
+    }
+
+    // For boolean habits, premium users get note input
     if (isPremium && isCheckingIn) {
       setSelectedDate(date);
       setCurrentNote(existingCheckIn?.note || '');
@@ -88,6 +116,18 @@ export default function HabitDetailScreen() {
       } catch (error: any) {
         dialog.alert('Error', error.message || 'Failed to update check-in');
       }
+    }
+  };
+
+  const handleQuantitySave = async (value: number) => {
+    if (!user || !id) return;
+
+    try {
+      await toggleCheckIn(user.id, id, quantityModalDate, undefined, value);
+      setQuantityModalVisible(false);
+      setQuantityModalDate('');
+    } catch (error: any) {
+      dialog.alert('Error', error.message || 'Failed to save check-in');
     }
   };
 
@@ -133,6 +173,8 @@ export default function HabitDetailScreen() {
     }
   };
 
+  const frequencyLabel = getFrequencyLabel(habit.frequency);
+
   const iconContainerStyle: ViewStyle = {
     width: 80,
     height: 80,
@@ -177,7 +219,7 @@ export default function HabitDetailScreen() {
     color: colors.textMuted,
   };
 
-  const dayBoxStyle = (completed: boolean): ViewStyle => ({
+  const dayBoxStyle = (completed: boolean, isScheduled: boolean): ViewStyle => ({
     width: 40,
     height: 40,
     borderWidth: 2.5,
@@ -186,6 +228,7 @@ export default function HabitDetailScreen() {
     backgroundColor: completed ? colors.accent : colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
+    opacity: isScheduled ? 1 : 0.4,
   });
 
   const sectionTitleStyle: TextStyle = {
@@ -194,6 +237,14 @@ export default function HabitDetailScreen() {
     color: colors.text,
     marginBottom: 12,
   };
+
+  // Calculate total value for quantity/duration habits
+  const totalValue = trackingType !== 'boolean'
+    ? habitCheckIns.reduce((sum, c) => sum + (c.value || 0), 0)
+    : 0;
+  const avgValue = trackingType !== 'boolean' && habitCheckIns.length > 0
+    ? Math.round(totalValue / habitCheckIns.filter(c => c.completed).length) || 0
+    : 0;
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: colors.background }}>
@@ -214,13 +265,23 @@ export default function HabitDetailScreen() {
           </Text>
         )}
 
-        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
+        <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
           <Badge variant="default">
             {habit.category.charAt(0).toUpperCase() + habit.category.slice(1)}
           </Badge>
           <Badge variant="info">
-            {habit.frequency.type.charAt(0).toUpperCase() + habit.frequency.type.slice(1)}
+            {frequencyLabel}
           </Badge>
+          {trackingType !== 'boolean' && (
+            <Badge variant="warning">
+              {trackingType === 'duration' ? 'Duration' : 'Quantity'}
+            </Badge>
+          )}
+          {habit.freezesUsedThisWeek > 0 && (
+            <Badge variant="default">
+              {habit.freezesUsedThisWeek}/{habit.freezesAvailable} freezes
+            </Badge>
+          )}
         </View>
       </View>
 
@@ -268,26 +329,66 @@ export default function HabitDetailScreen() {
           </View>
         </View>
 
+        {/* Quantity/Duration specific stats */}
+        {trackingType !== 'boolean' && totalValue > 0 && (
+          <View style={{ flexDirection: 'row', gap: 12, marginBottom: 24 }}>
+            <View style={{ flex: 1 }}>
+              <View style={statCardStyle}>
+                <Text style={statValueStyle}>{formatValue(totalValue)}</Text>
+                <Text style={statLabelStyle}>Total {habit.unit || (trackingType === 'duration' ? 'Time' : 'Logged')}</Text>
+              </View>
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={statCardStyle}>
+                <Text style={statValueStyle}>{formatValue(avgValue)}</Text>
+                <Text style={statLabelStyle}>Avg/Day</Text>
+              </View>
+            </View>
+          </View>
+        )}
+
+        {/* Today's Progress (for quantity/duration) */}
+        {trackingType !== 'boolean' && habit.todayValue !== undefined && habit.todayValue > 0 && (
+          <Card style={{ marginBottom: 24 }}>
+            <Text style={sectionTitleStyle}>Today's Progress</Text>
+            <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 24, color: colors.text, marginBottom: 8 }}>
+              {formatValue(habit.todayValue)}
+              {habit.targetValue ? ` / ${formatValue(habit.targetValue)}` : ''}
+              {habit.unit && trackingType !== 'duration' ? ` ${habit.unit}` : ''}
+            </Text>
+            {habit.targetValue && habit.targetValue > 0 && (
+              <ProgressBar progress={Math.min(habit.todayValue / habit.targetValue, 1)} />
+            )}
+          </Card>
+        )}
+
         {/* Last 7 Days */}
         <Card style={{ marginBottom: 24 }}>
           <Text style={sectionTitleStyle}>Last 7 Days</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            {last7Days.map((day, _) => {
+            {last7Days.map((day) => {
               const date = new Date(day.date);
               const dayName = date.toLocaleDateString('en-US', { weekday: 'narrow' });
               const checkIn = habitCheckIns.find((c) => c.date === day.date);
               const hasNote = checkIn?.note && checkIn.note.trim().length > 0;
+              const isScheduled = day.isScheduled !== undefined ? day.isScheduled : true;
 
               return (
                 <View key={day.date} style={{ alignItems: 'center' }}>
                   <TouchableOpacity
-                    style={dayBoxStyle(day.completed)}
+                    style={dayBoxStyle(day.completed, isScheduled)}
                     onPress={() => handleCheckIn(day.date)}
                     activeOpacity={0.7}
                   >
-                    <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 12, color: colors.text }}>
-                      {dayName}
-                    </Text>
+                    {day.completed && checkIn?.value ? (
+                      <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 10, color: colors.text }}>
+                        {trackingType === 'duration' ? `${checkIn.value}m` : checkIn.value}
+                      </Text>
+                    ) : (
+                      <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 12, color: colors.text }}>
+                        {dayName}
+                      </Text>
+                    )}
                   </TouchableOpacity>
                   {hasNote && (
                     <View style={{ marginTop: 4 }}>
@@ -367,6 +468,20 @@ export default function HabitDetailScreen() {
         initialNote={currentNote}
         onSave={handleSaveNote}
         onCancel={handleCancelNote}
+      />
+
+      {/* Quantity Input Modal */}
+      <QuantityInputModal
+        visible={quantityModalVisible}
+        habitName={habit?.name || ''}
+        unit={habit?.unit || (trackingType === 'duration' ? 'minutes' : '')}
+        targetValue={habit?.targetValue}
+        mode={trackingType === 'duration' ? 'duration' : 'quantity'}
+        onSave={handleQuantitySave}
+        onCancel={() => {
+          setQuantityModalVisible(false);
+          setQuantityModalDate('');
+        }}
       />
 
       {/* Share Streak Modal */}

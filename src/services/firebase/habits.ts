@@ -148,10 +148,11 @@ export const createCheckIn = async (
   habitId: string,
   date: string,
   completed: boolean,
-  note?: string
+  note?: string,
+  value?: number,
 ): Promise<CheckIn> => {
   try {
-    const checkInData = {
+    const checkInData: Record<string, any> = {
       userId,
       habitId,
       date,
@@ -159,6 +160,9 @@ export const createCheckIn = async (
       note: note || null,
       createdAt: serverTimestamp(),
     };
+    if (value !== undefined) {
+      checkInData.value = value;
+    }
 
     const docRef = await addDoc(checkInsCollection, checkInData);
     const checkInDoc = await getDoc(docRef);
@@ -242,14 +246,19 @@ export const getCheckInForDate = async (
 export const updateCheckIn = async (
   checkInId: string,
   completed: boolean,
-  note?: string
+  note?: string,
+  value?: number,
 ): Promise<void> => {
   try {
     const checkInRef = doc(checkInsCollection, checkInId);
-    await updateDoc(checkInRef, {
+    const updateData: Record<string, any> = {
       completed,
       note: note || null,
-    });
+    };
+    if (value !== undefined) {
+      updateData.value = value;
+    }
+    await updateDoc(checkInRef, updateData);
   } catch (error: any) {
     console.error('Error updating check-in:', error);
     throw new Error(error.message || 'Failed to update check-in');

@@ -139,7 +139,7 @@ export default function PaywallScreen() {
           Upgrade to Premium
         </Text>
         <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 15, color: colors.textMuted, textAlign: 'center', marginBottom: 24 }}>
-          Unlock unlimited habits and premium features
+          Unlock the full power of Block
         </Text>
       </View>
 
@@ -156,8 +156,38 @@ export default function PaywallScreen() {
           </View>
 
           <View style={featureItemStyle}>
+            <MaterialCommunityIcons name="calendar-clock" size={24} color={colors.text} />
+            <Text style={featureTextStyle}>Advanced scheduling (X/week, intervals)</Text>
+          </View>
+
+          <View style={featureItemStyle}>
+            <MaterialCommunityIcons name="counter" size={24} color={colors.text} />
+            <Text style={featureTextStyle}>Duration tracking & daily targets</Text>
+          </View>
+
+          <View style={featureItemStyle}>
+            <MaterialCommunityIcons name="shield-check" size={24} color={colors.text} />
+            <Text style={featureTextStyle}>3 streak freezes/week (vs 1 free)</Text>
+          </View>
+
+          <View style={featureItemStyle}>
+            <MaterialCommunityIcons name="lightning-bolt" size={24} color={colors.text} />
+            <Text style={featureTextStyle}>20+ habit templates</Text>
+          </View>
+
+          <View style={featureItemStyle}>
             <MaterialCommunityIcons name="chart-line" size={24} color={colors.text} />
             <Text style={featureTextStyle}>Advanced statistics & insights</Text>
+          </View>
+
+          <View style={featureItemStyle}>
+            <MaterialCommunityIcons name="text-box" size={24} color={colors.text} />
+            <Text style={featureTextStyle}>Habit notes & journaling</Text>
+          </View>
+
+          <View style={featureItemStyle}>
+            <MaterialCommunityIcons name="bell-ring" size={24} color={colors.text} />
+            <Text style={featureTextStyle}>Per-habit custom reminders</Text>
           </View>
 
           <View style={featureItemStyle}>
@@ -168,16 +198,6 @@ export default function PaywallScreen() {
           <View style={featureItemStyle}>
             <MaterialCommunityIcons name="palette" size={24} color={colors.text} />
             <Text style={featureTextStyle}>Custom themes & colors</Text>
-          </View>
-
-          <View style={featureItemStyle}>
-            <MaterialCommunityIcons name="text-box" size={24} color={colors.text} />
-            <Text style={featureTextStyle}>Habit notes & journaling</Text>
-          </View>
-
-          <View style={featureItemStyle}>
-            <MaterialCommunityIcons name="shield-check" size={24} color={colors.text} />
-            <Text style={featureTextStyle}>Priority support</Text>
           </View>
         </Card>
 
@@ -279,7 +299,7 @@ export default function PaywallScreen() {
           <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 11, color: colors.textMuted, textAlign: 'center', lineHeight: 18 }}>
             {annualPackage && `Yearly: ${getPackagePrice(annualPackage)}/year. `}
             {monthlyPackage && `Monthly: ${getPackagePrice(monthlyPackage)}/month. `}
-            {'\n'}Includes unlimited habits, advanced stats, custom themes, data export, habit notes, and priority support for the duration of your subscription.
+            {'\n'}Includes unlimited habits, advanced scheduling, quantity & duration tracking, streak freezes, 20+ templates, habit notes, custom themes, data export, and custom reminders for the duration of your subscription.
           </Text>
 
           <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 10, color: colors.textMuted, textAlign: 'center', marginTop: 12, lineHeight: 16 }}>

@@ -6,6 +6,7 @@ import { Card } from '@components/ui';
 import { useHabitsStore } from '@store/useHabitsStore';
 import { useTheme } from '@/contexts/ThemeContext';
 import { trackScreenView } from '@services/firebase/analytics';
+import { isHabitScheduledForDate } from '@utils/frequencyUtils';
 import { format, subDays } from 'date-fns';
 
 export default function StatsScreen() {
@@ -35,7 +36,12 @@ export default function StatsScreen() {
     ).length;
   }, 0);
 
-  const possibleCheckIns = activeHabits.length * 7;
+  // Calculate frequency-aware possible check-ins
+  const possibleCheckIns = activeHabits.reduce((total, habit) => {
+    return total + last7Days.filter((dateStr) =>
+      isHabitScheduledForDate(habit as any, dateStr)
+    ).length;
+  }, 0);
   const weekCompletionRate = possibleCheckIns > 0
     ? Math.round((thisWeekCheckIns / possibleCheckIns) * 100)
     : 0;

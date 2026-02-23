@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { View, Text, FlatList, RefreshControl } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
@@ -6,6 +6,7 @@ import { Button } from '@components/ui';
 import { NotificationPermissionBanner } from '@components/ui/NotificationPermissionBanner';
 import { HabitCard } from '@components/habits/HabitCard';
 import { NoteInputModal } from '@components/habits/NoteInputModal';
+import { QuantityInputModal } from '@components/habits/QuantityInputModal';
 import { AchievementUnlockedModal } from '@components/achievements';
 import { useAuthStore } from '@store/useAuthStore';
 import { useHabitsStore } from '@store/useHabitsStore';
@@ -14,6 +15,8 @@ import { useDialog } from '@/contexts/DialogContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { trackScreenView } from '@services/firebase/analytics';
 import { checkAchievements } from '@utils/achievementChecker';
+import { isHabitScheduledForDate } from '@utils/frequencyUtils';
+import { getTodayDate } from '@utils/habitCalculations';
 import { format } from 'date-fns';
 import type { HabitWithStats, CheckIn } from '@/types/habit';
 
@@ -32,7 +35,19 @@ export default function HomeScreen() {
   const dialog = useDialog();
   const [refreshing, setRefreshing] = useState(false);
   const [noteModalVisible, setNoteModalVisible] = useState(false);
+  const [quantityModalVisible, setQuantityModalVisible] = useState(false);
   const [selectedHabit, setSelectedHabit] = useState<HabitWithStats | null>(null);
+
+  const todayISO = getTodayDate();
+
+  // Filter habits scheduled for today
+  const todayHabits = useMemo(() => {
+    return habits.filter((habit) => isHabitScheduledForDate(habit as any, todayISO));
+  }, [habits, todayISO]);
+
+  const offDayHabits = useMemo(() => {
+    return habits.filter((habit) => !isHabitScheduledForDate(habit as any, todayISO));
+  }, [habits, todayISO]);
 
   useEffect(() => {
     if (user) {
@@ -106,6 +121,14 @@ export default function HomeScreen() {
     const isPremium = user.subscription?.plan === 'premium' || user.subscription?.plan === 'trial';
     const isCheckingIn = !habit.todayCheckedIn;
 
+    // For quantity/duration habits, show the appropriate modal
+    if (isCheckingIn && habit.trackingType && habit.trackingType !== 'boolean') {
+      setSelectedHabit(habit);
+      setQuantityModalVisible(true);
+      return;
+    }
+
+    // For boolean habits with premium notes
     if (isPremium && isCheckingIn) {
       setSelectedHabit(habit);
       setNoteModalVisible(true);
@@ -132,8 +155,26 @@ export default function HomeScreen() {
     }
   };
 
+  const handleSaveQuantity = async (value: number) => {
+    if (!user || !selectedHabit) return;
+
+    try {
+      await toggleCheckIn(user.id, selectedHabit.id, undefined, undefined, value);
+      setQuantityModalVisible(false);
+      setSelectedHabit(null);
+      await checkForAchievements();
+    } catch (error: any) {
+      dialog.alert('Error', error.message || 'Failed to save check-in');
+    }
+  };
+
   const handleCancelNote = () => {
     setNoteModalVisible(false);
+    setSelectedHabit(null);
+  };
+
+  const handleCancelQuantity = () => {
+    setQuantityModalVisible(false);
     setSelectedHabit(null);
   };
 
@@ -147,6 +188,9 @@ export default function HomeScreen() {
 
   const todayDate = format(new Date(), 'EEEE, MMMM d');
 
+  const completedCount = todayHabits.filter((h) => h.todayCheckedIn).length;
+  const totalScheduled = todayHabits.length;
+
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
@@ -156,9 +200,16 @@ export default function HomeScreen() {
         <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 28, color: colors.text, marginBottom: 4 }}>
           Today
         </Text>
-        <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 15, color: colors.textMuted, marginBottom: 16 }}>
-          {todayDate}
-        </Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 15, color: colors.textMuted }}>
+            {todayDate}
+          </Text>
+          {totalScheduled > 0 && (
+            <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 14, color: completedCount === totalScheduled ? colors.accent : colors.text }}>
+              {completedCount}/{totalScheduled}
+            </Text>
+          )}
+        </View>
 
         <Button variant="primary" onPress={handleCreateHabit}>
           + Add Habit
@@ -184,9 +235,18 @@ export default function HomeScreen() {
             Create your first habit to start building better routines
           </Text>
         </View>
+      ) : todayHabits.length === 0 ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
+          <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 22, color: colors.text, marginBottom: 16, textAlign: 'center' }}>
+            Rest day!
+          </Text>
+          <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 15, color: colors.textMuted, marginBottom: 24, textAlign: 'center' }}>
+            No habits scheduled for today. Enjoy your break!
+          </Text>
+        </View>
       ) : (
         <FlatList
-          data={habits}
+          data={todayHabits}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <HabitCard
@@ -199,6 +259,23 @@ export default function HomeScreen() {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
           }
+          ListFooterComponent={
+            offDayHabits.length > 0 ? (
+              <View style={{ marginTop: 8 }}>
+                <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 13, color: colors.textMuted, marginBottom: 12 }}>
+                  Not scheduled today ({offDayHabits.length})
+                </Text>
+                {offDayHabits.map((habit) => (
+                  <View key={habit.id} style={{ opacity: 0.5 }}>
+                    <HabitCard
+                      habit={habit}
+                      onPress={() => handleHabitPress(habit.id)}
+                    />
+                  </View>
+                ))}
+              </View>
+            ) : null
+          }
         />
       )}
 
@@ -208,6 +285,18 @@ export default function HomeScreen() {
         habitName={selectedHabit?.name || ''}
         onSave={handleSaveNote}
         onCancel={handleCancelNote}
+      />
+
+      {/* Quantity/Duration Input Modal */}
+      <QuantityInputModal
+        visible={quantityModalVisible}
+        habitName={selectedHabit?.name || ''}
+        unit={selectedHabit?.unit || ''}
+        targetValue={selectedHabit?.targetValue}
+        initialValue={selectedHabit?.todayValue}
+        mode={selectedHabit?.trackingType === 'duration' ? 'duration' : 'quantity'}
+        onSave={handleSaveQuantity}
+        onCancel={handleCancelQuantity}
       />
 
       {/* Achievement Unlocked Modal */}

@@ -4,11 +4,13 @@ import { StatusBar } from 'expo-status-bar';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button, Input, Card, TimePicker } from '@components/ui';
+import { PremiumLockBadge } from '@components/ui/PremiumLockBadge';
+import { FrequencySelector } from '@components/habits/FrequencySelector';
 import { useHabitsStore } from '@store/useHabitsStore';
 import { useAuthStore } from '@store/useAuthStore';
 import { useDialog } from '@/contexts/DialogContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import type { HabitCategory, HabitColor, FrequencyType } from '@/types/habit';
+import type { HabitCategory, HabitColor, HabitFrequency, HabitTrackingType } from '@/types/habit';
 
 const HABIT_ICONS: string[] = [
   'run',
@@ -42,7 +44,10 @@ export default function EditHabitScreen() {
   const [selectedIcon, setSelectedIcon] = useState(HABIT_ICONS[0]);
   const [selectedColor, setSelectedColor] = useState<HabitColor>('yellow');
   const [selectedCategory, setSelectedCategory] = useState<HabitCategory>('health');
-  const [frequencyType, setFrequencyType] = useState<FrequencyType>('daily');
+  const [frequency, setFrequency] = useState<HabitFrequency>({ type: 'daily' });
+  const [trackingType, setTrackingType] = useState<HabitTrackingType>('boolean');
+  const [unit, setUnit] = useState('');
+  const [targetValue, setTargetValue] = useState('');
   const [reminderTime, setReminderTime] = useState<string | null>(null);
 
   const isPremium = user?.subscription?.plan === 'premium' || user?.subscription?.plan === 'trial';
@@ -54,7 +59,10 @@ export default function EditHabitScreen() {
       setSelectedIcon(habit.icon);
       setSelectedColor(habit.color);
       setSelectedCategory(habit.category);
-      setFrequencyType(habit.frequency.type);
+      setFrequency(habit.frequency);
+      setTrackingType(habit.trackingType || 'boolean');
+      setUnit(habit.unit || '');
+      setTargetValue(habit.targetValue ? String(habit.targetValue) : '');
       setReminderTime(habit.reminderTime || null);
     }
   }, [habit]);
@@ -70,6 +78,34 @@ export default function EditHabitScreen() {
     ]);
   };
 
+  const handlePremiumFrequencyPress = () => {
+    dialog.alert('Premium Feature', 'Advanced scheduling like "X times per week" and custom intervals are available with Premium!', [
+      { text: 'Maybe Later', style: 'cancel' },
+      { text: 'Upgrade', onPress: () => router.push('/paywall') },
+    ]);
+  };
+
+  const handlePremiumTrackingPress = () => {
+    dialog.alert('Premium Feature', 'Duration tracking and goal targets are available with Premium!', [
+      { text: 'Maybe Later', style: 'cancel' },
+      { text: 'Upgrade', onPress: () => router.push('/paywall') },
+    ]);
+  };
+
+  const handleTrackingTypeChange = (type: HabitTrackingType) => {
+    if (type === 'duration' && !isPremium) {
+      handlePremiumTrackingPress();
+      return;
+    }
+    setTrackingType(type);
+    if (type === 'boolean') {
+      setUnit('');
+      setTargetValue('');
+    } else if (type === 'duration') {
+      setUnit('minutes');
+    }
+  };
+
   const handleUpdate = async () => {
     if (!id) return;
 
@@ -79,15 +115,18 @@ export default function EditHabitScreen() {
     }
 
     try {
+      const parsedTarget = targetValue ? parseFloat(targetValue) : undefined;
+
       await updateHabit(id, {
         name: name.trim(),
         description: description.trim(),
         icon: selectedIcon,
         color: selectedColor,
         category: selectedCategory,
-        frequency: {
-          type: frequencyType,
-        },
+        frequency,
+        trackingType,
+        unit: trackingType !== 'boolean' ? unit.trim() || undefined : undefined,
+        targetValue: isPremium && parsedTarget && parsedTarget > 0 ? parsedTarget : undefined,
         reminderTime: isPremium ? reminderTime : null,
       });
 
@@ -178,6 +217,23 @@ export default function EditHabitScreen() {
     color: colors.text,
   };
 
+  const trackingChipStyle = (isSelected: boolean): ViewStyle => ({
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderWidth: 2.5,
+    borderColor: colors.border,
+    borderRadius: 9999,
+    backgroundColor: isSelected ? colors.secondary : colors.surface,
+    shadowColor: colors.border,
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  });
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -260,6 +316,75 @@ export default function EditHabitScreen() {
                 </TouchableOpacity>
               ))}
             </View>
+
+            {/* Frequency Selection */}
+            <Text style={sectionTitleStyle}>Frequency</Text>
+            <View style={{ marginBottom: 24 }}>
+              <FrequencySelector
+                value={frequency}
+                onChange={setFrequency}
+                isPremium={isPremium}
+                onPremiumPress={handlePremiumFrequencyPress}
+              />
+            </View>
+
+            {/* Tracking Type */}
+            <Text style={sectionTitleStyle}>Tracking Type</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+              <TouchableOpacity
+                style={trackingChipStyle(trackingType === 'boolean')}
+                onPress={() => handleTrackingTypeChange('boolean')}
+                activeOpacity={0.7}
+              >
+                <Text style={categoryTextStyle}>Yes/No</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={trackingChipStyle(trackingType === 'quantity')}
+                onPress={() => handleTrackingTypeChange('quantity')}
+                activeOpacity={0.7}
+              >
+                <Text style={categoryTextStyle}>Quantity</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={trackingChipStyle(trackingType === 'duration')}
+                onPress={() => handleTrackingTypeChange('duration')}
+                activeOpacity={0.7}
+              >
+                <Text style={categoryTextStyle}>Duration</Text>
+                {!isPremium && <PremiumLockBadge size="sm" variant="inline" />}
+              </TouchableOpacity>
+            </View>
+
+            {/* Unit input for quantity */}
+            {trackingType === 'quantity' && (
+              <View style={{ marginBottom: 12 }}>
+                <Input
+                  label="Unit"
+                  placeholder="e.g., glasses, pages, reps"
+                  value={unit}
+                  onChangeText={setUnit}
+                />
+              </View>
+            )}
+
+            {/* Target value (premium) */}
+            {trackingType !== 'boolean' && (
+              <View style={{ marginBottom: 24 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                  <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 13, color: colors.text }}>
+                    Daily Target
+                  </Text>
+                  {!isPremium && <PremiumLockBadge size="sm" onPress={handlePremiumTrackingPress} />}
+                </View>
+                <Input
+                  placeholder={trackingType === 'duration' ? 'e.g., 30 (minutes)' : `e.g., 8 (${unit || 'units'})`}
+                  value={targetValue}
+                  onChangeText={setTargetValue}
+                  keyboardType="numeric"
+                  editable={isPremium}
+                />
+              </View>
+            )}
 
             {/* Reminder Time (Premium Feature) */}
             <Text style={sectionTitleStyle}>Daily Reminder</Text>

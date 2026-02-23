@@ -3,7 +3,9 @@ import { View, Text, TouchableOpacity, ViewStyle, TextStyle } from 'react-native
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { HabitWithStats } from '@/types/habit';
 import { Badge } from '@components/ui';
+import { ProgressBar } from '@components/habits/ProgressBar';
 import { useTheme } from '@/contexts/ThemeContext';
+import { getFrequencyLabel } from '@utils/frequencyUtils';
 
 interface HabitCardProps {
   habit: HabitWithStats;
@@ -29,6 +31,22 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit, onPress, onCheckIn 
       default:
         return colors.warning;
     }
+  };
+
+  const trackingType = habit.trackingType || 'boolean';
+  const hasValue = trackingType !== 'boolean' && habit.todayValue !== undefined && habit.todayValue > 0;
+  const progress = habit.targetValue && habit.todayValue
+    ? Math.min(habit.todayValue / habit.targetValue, 1)
+    : 0;
+
+  const formatValue = (value: number): string => {
+    if (trackingType === 'duration') {
+      const hours = Math.floor(value / 60);
+      const mins = value % 60;
+      if (hours > 0) return `${hours}h ${mins}m`;
+      return `${mins}m`;
+    }
+    return `${value}`;
   };
 
   const cardStyle: ViewStyle = {
@@ -113,6 +131,8 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit, onPress, onCheckIn 
     gap: 8,
   };
 
+  const frequencyLabel = getFrequencyLabel(habit.frequency);
+
   return (
     <TouchableOpacity style={cardStyle} onPress={onPress} activeOpacity={0.8}>
       {/* Header with title and checkbox */}
@@ -123,18 +143,20 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit, onPress, onCheckIn 
             {habit.name}
           </Text>
         </View>
-        <TouchableOpacity
-          style={checkboxStyle}
-          onPress={(e) => {
-            e.stopPropagation();
-            onCheckIn?.();
-          }}
-          activeOpacity={0.7}
-        >
-          {habit.todayCheckedIn && (
-            <MaterialCommunityIcons name="check" size={20} color={colors.text} />
-          )}
-        </TouchableOpacity>
+        {onCheckIn && (
+          <TouchableOpacity
+            style={checkboxStyle}
+            onPress={(e) => {
+              e.stopPropagation();
+              onCheckIn?.();
+            }}
+            activeOpacity={0.7}
+          >
+            {habit.todayCheckedIn && (
+              <MaterialCommunityIcons name="check" size={20} color={colors.text} />
+            )}
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Description */}
@@ -142,6 +164,22 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit, onPress, onCheckIn 
         <Text style={descriptionStyle} numberOfLines={2}>
           {habit.description}
         </Text>
+      )}
+
+      {/* Quantity/Duration progress */}
+      {trackingType !== 'boolean' && (
+        <View style={{ marginBottom: 12 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+            <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 13, color: colors.text }}>
+              {hasValue ? formatValue(habit.todayValue!) : '0'}
+              {habit.targetValue ? ` / ${formatValue(habit.targetValue)}` : ''}
+              {habit.unit && trackingType !== 'duration' ? ` ${habit.unit}` : ''}
+            </Text>
+          </View>
+          {habit.targetValue && habit.targetValue > 0 && (
+            <ProgressBar progress={progress} />
+          )}
+        </View>
       )}
 
       {/* Stats */}
@@ -165,9 +203,14 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit, onPress, onCheckIn 
         <Badge variant="default">
           {habit.category.charAt(0).toUpperCase() + habit.category.slice(1)}
         </Badge>
-        {habit.frequency.type !== 'daily' && (
+        {frequencyLabel !== 'Daily' && (
           <Badge variant="info">
-            {habit.frequency.type.charAt(0).toUpperCase() + habit.frequency.type.slice(1)}
+            {frequencyLabel}
+          </Badge>
+        )}
+        {trackingType !== 'boolean' && (
+          <Badge variant="warning">
+            {trackingType === 'duration' ? 'Duration' : 'Quantity'}
           </Badge>
         )}
       </View>

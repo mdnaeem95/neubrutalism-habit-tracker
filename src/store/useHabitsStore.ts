@@ -18,7 +18,9 @@ import {
   calculateCompletionRate,
   isTodayCheckedIn,
   getTodayDate,
+  getTodayValue,
 } from '@utils/habitCalculations';
+import { normalizeFrequency } from '@utils/frequencyUtils';
 import {
   trackHabitCreated,
   trackHabitCheckIn,
@@ -49,7 +51,7 @@ interface HabitsActions {
 
   // Check-ins
   fetchCheckIns: (habitId: string) => Promise<void>;
-  toggleCheckIn: (userId: string, habitId: string, date?: string, note?: string) => Promise<void>;
+  toggleCheckIn: (userId: string, habitId: string, date?: string, note?: string, value?: number) => Promise<void>;
   updateCheckInNote: (checkInId: string, note: string) => Promise<void>;
 
   // Computed data
@@ -72,23 +74,30 @@ export const useHabitsStore = create<HabitsStore>((set, get) => ({
   loading: false,
   error: null,
 
-  // Enrich habit with stats
+  // Enrich habit with stats (frequency-aware)
   enrichHabitWithStats: (habit: Habit, checkIns: CheckIn[]): HabitWithStats => {
-    const currentStreak = calculateCurrentStreak(checkIns);
-    const longestStreak = calculateLongestStreak(checkIns);
+    const frequency = normalizeFrequency(habit.frequency);
+    const currentStreak = calculateCurrentStreak(checkIns, frequency, habit.createdAt);
+    const longestStreak = calculateLongestStreak(checkIns, frequency, habit.createdAt);
     const totalCompletions = calculateTotalCompletions(checkIns);
-    const completionRate = calculateCompletionRate(checkIns, 30);
+    const completionRate = calculateCompletionRate(checkIns, 30, frequency, habit.createdAt);
     const todayCheckedIn = isTodayCheckedIn(checkIns);
+    const todayValue = getTodayValue(checkIns);
     const lastCheckIn = checkIns[0]; // Assuming sorted by date desc
 
     return {
       ...habit,
+      frequency, // Use normalized frequency
       currentStreak,
       longestStreak,
       totalCompletions,
       completionRate,
       lastCheckIn,
       todayCheckedIn,
+      todayValue,
+      trackingType: habit.trackingType || 'boolean',
+      freezesUsedThisWeek: 0,
+      freezesAvailable: 1,
     };
   },
 
@@ -220,12 +229,18 @@ export const useHabitsStore = create<HabitsStore>((set, get) => ({
 
       await updateHabitApi(habitId, updateData as any);
 
-      set((state) => ({
-        habits: state.habits.map((h) =>
-          h.id === habitId ? { ...h, ...updateData } as HabitWithStats : h
-        ),
-        loading: false,
-      }));
+      // Re-enrich with stats if frequency changed
+      set((state) => {
+        const habitCheckIns = state.checkIns[habitId] || [];
+        return {
+          habits: state.habits.map((h) => {
+            if (h.id !== habitId) return h;
+            const updated = { ...h, ...updateData } as Habit;
+            return get().enrichHabitWithStats(updated, habitCheckIns);
+          }),
+          loading: false,
+        };
+      });
     } catch (error: any) {
       set({ error: error.message, loading: false });
       throw error;
@@ -320,18 +335,19 @@ export const useHabitsStore = create<HabitsStore>((set, get) => ({
     }
   },
 
-  // Toggle check-in for a habit
-  toggleCheckIn: async (userId: string, habitId: string, date?: string, note?: string) => {
+  // Toggle check-in for a habit (supports value for quantity/duration)
+  toggleCheckIn: async (userId: string, habitId: string, date?: string, note?: string, value?: number) => {
     try {
       const checkInDate = date || getTodayDate();
       const existingCheckIn = await getCheckInForDateApi(habitId, checkInDate);
 
       if (existingCheckIn) {
-        // Toggle the completion status (and update note if provided)
+        // Toggle the completion status (and update note/value if provided)
         await updateCheckInApi(
           existingCheckIn.id,
           !existingCheckIn.completed,
-          note !== undefined ? note : existingCheckIn.note
+          note !== undefined ? note : existingCheckIn.note,
+          value,
         );
 
         // Update local state
@@ -339,7 +355,7 @@ export const useHabitsStore = create<HabitsStore>((set, get) => ({
           const habitCheckIns = state.checkIns[habitId] || [];
           const updatedCheckIns = habitCheckIns.map((c) =>
             c.id === existingCheckIn.id
-              ? { ...c, completed: !c.completed }
+              ? { ...c, completed: !c.completed, ...(value !== undefined && { value }) }
               : c
           );
 
@@ -356,13 +372,14 @@ export const useHabitsStore = create<HabitsStore>((set, get) => ({
           };
         });
       } else {
-        // Create new check-in (with optional note)
+        // Create new check-in (with optional note and value)
         const newCheckIn = await createCheckInApi(
           userId,
           habitId,
           checkInDate,
           true,
-          note
+          note,
+          value,
         );
 
         // Update local state
