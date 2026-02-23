@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, initializeAuth } from 'firebase/auth';
+// @ts-ignore — getReactNativePersistence exists in the RN bundle but not in TS types
+import { initializeAuth, getAuth, getReactNativePersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getAnalytics, isSupported } from 'firebase/analytics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -28,16 +29,14 @@ const firebaseConfig = {
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 
-// Initialize auth with React Native persistence when available
+// Initialize auth with AsyncStorage persistence for session survival across restarts
 let auth: ReturnType<typeof getAuth>;
 try {
-  // getReactNativePersistence exists at runtime in Firebase v10+ but may not be in types
-  const { getReactNativePersistence } = require('firebase/auth');
   auth = initializeAuth(app, {
     persistence: getReactNativePersistence(AsyncStorage),
   });
 } catch {
-  // Fall back to default auth (in-memory persistence)
+  // Falls here on hot reload (auth already initialized)
   auth = getAuth(app);
 }
 export { auth };

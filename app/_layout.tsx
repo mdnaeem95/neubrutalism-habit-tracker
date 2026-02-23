@@ -86,15 +86,10 @@ export default function RootLayout() {
 
     if (!user && !inAuthGroup) {
       router.replace('/(auth)/login');
-    } else if (user && inAuthGroup) {
-      const completedOnboarding = hasCompletedOnboardingSync();
-      if (!completedOnboarding) {
-        router.replace('/onboarding');
-      } else {
-        router.replace('/(tabs)');
-      }
-    } else if (user && !inOnboarding && !hasCompletedOnboardingSync()) {
+    } else if (user && !hasCompletedOnboardingSync() && !inOnboarding) {
       router.replace('/onboarding');
+    } else if (user && hasCompletedOnboardingSync() && (inAuthGroup || segments.length === 0)) {
+      router.replace('/(tabs)');
     }
   }, [user, segments, loading, showSplash, fontsLoaded]);
 

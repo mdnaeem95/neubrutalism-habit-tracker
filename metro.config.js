@@ -4,6 +4,10 @@ const path = require('path');
 
 const config = getDefaultConfig(__dirname);
 
+// Disable package exports to fix Firebase dual-package hazard (Expo SDK 53+)
+// See: https://github.com/expo/expo/issues/36496
+config.resolver.unstable_enablePackageExports = false;
+
 // Add path aliases
 config.resolver.extraNodeModules = {
   '@': path.resolve(__dirname, 'src'),
