@@ -169,11 +169,17 @@ export default function CreateHabitScreen() {
       await checkForAchievements(currentHabitCount + 1);
 
       // Show interstitial ad for free users (max 1 per session)
-      showAd();
+      // Wait for the ad to close before showing the success dialog
+      const adShown = await showAd();
 
-      dialog.alert('Success', 'Habit created successfully!', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      if (adShown) {
+        // Ad was shown and closed — just navigate back
+        router.back();
+      } else {
+        dialog.alert('Success', 'Habit created successfully!', [
+          { text: 'OK', onPress: () => router.back() },
+        ]);
+      }
     } catch (error: any) {
       dialog.alert('Error', error.message || 'Failed to create habit');
     }

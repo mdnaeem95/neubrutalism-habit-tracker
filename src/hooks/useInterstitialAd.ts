@@ -12,11 +12,13 @@ const interstitial = InterstitialAd.createForAdRequest(AdUnitIds.interstitialCre
  * Hook to manage interstitial ads with a session-level frequency cap.
  * - Skips loading entirely for premium/trial users.
  * - Shows at most 1 interstitial per app session.
+ * - showAd() returns a Promise that resolves when the ad closes (or immediately if no ad shown).
  */
 export function useInterstitialAd() {
   const { user } = useAuthStore();
   const shownThisSession = useRef(false);
   const adLoaded = useRef(false);
+  const closeResolverRef = useRef<(() => void) | null>(null);
 
   const isPremium = (() => {
     const plan = user?.subscription?.plan || 'free';
@@ -32,12 +34,21 @@ export function useInterstitialAd() {
 
     const onClosed = interstitial.addAdEventListener(AdEventType.CLOSED, () => {
       adLoaded.current = false;
-      // Pre-load next ad for this session (won't be shown due to cap, but keeps it warm)
+      // Resolve the pending promise so the caller can continue
+      if (closeResolverRef.current) {
+        closeResolverRef.current();
+        closeResolverRef.current = null;
+      }
       interstitial.load();
     });
 
     const onError = interstitial.addAdEventListener(AdEventType.ERROR, () => {
       adLoaded.current = false;
+      // Resolve on error too so the caller isn't stuck
+      if (closeResolverRef.current) {
+        closeResolverRef.current();
+        closeResolverRef.current = null;
+      }
     });
 
     interstitial.load();
@@ -49,13 +60,21 @@ export function useInterstitialAd() {
     };
   }, [isPremium]);
 
-  const showAd = useCallback((): boolean => {
+  /**
+   * Show an interstitial ad. Returns a Promise<boolean>:
+   * - Resolves `true` after the ad is closed by the user
+   * - Resolves `false` immediately if no ad was shown (premium, cap reached, not loaded)
+   */
+  const showAd = useCallback((): Promise<boolean> => {
     if (isPremium || shownThisSession.current || !adLoaded.current) {
-      return false;
+      return Promise.resolve(false);
     }
     shownThisSession.current = true;
-    interstitial.show();
-    return true;
+
+    return new Promise<boolean>((resolve) => {
+      closeResolverRef.current = () => resolve(true);
+      interstitial.show();
+    });
   }, [isPremium]);
 
   return { showAd };
