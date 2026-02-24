@@ -32,6 +32,7 @@ export default function HabitDetailScreen() {
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [currentNote, setCurrentNote] = useState<string>('');
   const [showShareModal, setShowShareModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const isPremium = user?.subscription?.plan === 'premium' || user?.subscription?.plan === 'trial';
 
@@ -66,11 +67,16 @@ export default function HabitDetailScreen() {
           style: 'destructive',
           onPress: async () => {
             if (!id) return;
+            setDeleting(true);
             try {
               await deleteHabit(id);
-              router.back();
+              dialog.alert('Deleted', 'Habit deleted successfully.', [
+                { text: 'OK', onPress: () => router.back() },
+              ]);
             } catch (error: any) {
               dialog.alert('Error', error.message || 'Failed to delete habit');
+            } finally {
+              setDeleting(false);
             }
           },
         },
@@ -185,6 +191,7 @@ export default function HabitDetailScreen() {
   };
 
   const statCardStyle: ViewStyle = {
+    flex: 1,
     padding: 16,
     borderWidth: 2.5,
     borderColor: colors.border,
@@ -444,7 +451,7 @@ export default function HabitDetailScreen() {
           <Button variant="secondary" onPress={handleArchive}>
             Archive Habit
           </Button>
-          <Button variant="danger" onPress={handleDelete}>
+          <Button variant="danger" onPress={handleDelete} disabled={deleting} isLoading={deleting}>
             Delete Habit
           </Button>
           <Button variant="secondary" onPress={() => router.back()}>

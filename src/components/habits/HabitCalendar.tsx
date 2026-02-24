@@ -93,7 +93,6 @@ export function HabitCalendar({
 
   const weekdaysContainerStyle: ViewStyle = {
     flexDirection: 'row',
-    justifyContent: 'space-around',
     marginBottom: 8,
   };
 
@@ -101,17 +100,16 @@ export function HabitCalendar({
     fontFamily: 'SpaceMono_700Bold',
     fontSize: 12,
     color: colors.text,
-    width: 40,
+    flex: 1,
     textAlign: 'center',
   };
 
-  const gridStyle: ViewStyle = {
+  const rowStyle: ViewStyle = {
     flexDirection: 'row',
-    flexWrap: 'wrap',
   };
 
   const dayContainerStyle: ViewStyle = {
-    width: `${100 / 7}%`,
+    flex: 1,
     aspectRatio: 1,
     padding: 2,
   };
@@ -145,6 +143,17 @@ export function HabitCalendar({
   };
 
   const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+  // Chunk allDays into rows of 7 to avoid flexWrap subpixel rounding issues
+  const rows: (Date | null)[][] = [];
+  for (let i = 0; i < allDays.length; i += 7) {
+    const row = allDays.slice(i, i + 7);
+    // Pad the last row with nulls to always have 7 columns
+    while (row.length < 7) {
+      row.push(null);
+    }
+    rows.push(row);
+  }
 
   return (
     <View style={containerStyle}>
@@ -181,33 +190,37 @@ export function HabitCalendar({
       </View>
 
       {/* Calendar grid */}
-      <View style={gridStyle}>
-        {allDays.map((day, index) => {
-          if (!day) {
-            return (
-              <View key={`padding-${index}`} style={dayContainerStyle}>
-                <View style={getDayBoxStyle(null, false, false, false)} />
-              </View>
-            );
-          }
+      <View>
+        {rows.map((row, rowIndex) => (
+          <View key={rowIndex} style={rowStyle}>
+            {row.map((day, colIndex) => {
+              if (!day) {
+                return (
+                  <View key={`empty-${rowIndex}-${colIndex}`} style={dayContainerStyle}>
+                    <View style={getDayBoxStyle(null, false, false, false)} />
+                  </View>
+                );
+              }
 
-          const checked = isCheckedIn(day);
-          const todayDate = isTodayDate(day);
-          const isFuture = isFutureDate(day);
+              const checked = isCheckedIn(day);
+              const todayDate = isTodayDate(day);
+              const isFuture = isFutureDate(day);
 
-          return (
-            <View key={format(day, 'yyyy-MM-dd')} style={dayContainerStyle}>
-              <TouchableOpacity
-                style={getDayBoxStyle(day, checked, todayDate, isFuture)}
-                onPress={() => handleDayPress(day)}
-                activeOpacity={0.7}
-                disabled={!onDayPress || isFuture}
-              >
-                <Text style={dayTextStyle}>{format(day, 'd')}</Text>
-              </TouchableOpacity>
-            </View>
-          );
-        })}
+              return (
+                <View key={format(day, 'yyyy-MM-dd')} style={dayContainerStyle}>
+                  <TouchableOpacity
+                    style={getDayBoxStyle(day, checked, todayDate, isFuture)}
+                    onPress={() => handleDayPress(day)}
+                    activeOpacity={0.7}
+                    disabled={!onDayPress || isFuture}
+                  >
+                    <Text style={dayTextStyle}>{format(day, 'd')}</Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            })}
+          </View>
+        ))}
       </View>
 
       {/* Legend */}

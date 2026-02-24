@@ -64,7 +64,10 @@ export function ShareCardModal({
           break;
         case 'save':
           await saveToPhotos(imageUri);
-          dialog.alert('Saved!', 'Image saved to your photo library.');
+          onClose();
+          setTimeout(() => {
+            dialog.alert('Saved!', 'Image saved to your photo library.');
+          }, 300);
           break;
       }
     } catch (error: any) {

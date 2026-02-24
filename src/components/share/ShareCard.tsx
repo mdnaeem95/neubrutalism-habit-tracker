@@ -45,7 +45,9 @@ export const ShareCard = forwardRef<View, ShareCardProps>(
 
     const contentStyle: ViewStyle = {
       flex: 1,
-      padding: 24,
+      paddingTop: 24,
+      paddingHorizontal: 24,
+      paddingBottom: showWatermark ? 52 : 24,
       justifyContent: 'center',
       alignItems: 'center',
     };

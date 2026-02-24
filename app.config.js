@@ -18,6 +18,7 @@ module.exports = {
       infoPlist: {
         UIBackgroundModes: ['remote-notification'],
         ITSAppUsesNonExemptEncryption: false,
+        LSApplicationQueriesSchemes: ['instagram-stories', 'instagram'],
       },
     },
     android: {
