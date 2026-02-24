@@ -151,7 +151,7 @@ export default function PaywallScreen() {
           </Text>
 
           <View style={featureItemStyle}>
-            <MaterialCommunityIcons name="ads" size={24} color={colors.text} />
+            <MaterialCommunityIcons name="advertisements-off" size={24} color={colors.text} />
             <Text style={featureTextStyle}>Ad-free experience</Text>
           </View>
 
