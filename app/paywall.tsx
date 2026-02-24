@@ -151,6 +151,11 @@ export default function PaywallScreen() {
           </Text>
 
           <View style={featureItemStyle}>
+            <MaterialCommunityIcons name="ads" size={24} color={colors.text} />
+            <Text style={featureTextStyle}>Ad-free experience</Text>
+          </View>
+
+          <View style={featureItemStyle}>
             <MaterialCommunityIcons name="infinity" size={24} color={colors.text} />
             <Text style={featureTextStyle}>Unlimited habits (vs 5 free)</Text>
           </View>
@@ -299,7 +304,7 @@ export default function PaywallScreen() {
           <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 11, color: colors.textMuted, textAlign: 'center', lineHeight: 18 }}>
             {annualPackage && `Yearly: ${getPackagePrice(annualPackage)}/year. `}
             {monthlyPackage && `Monthly: ${getPackagePrice(monthlyPackage)}/month. `}
-            {'\n'}Includes unlimited habits, advanced scheduling, quantity & duration tracking, streak freezes, 20+ templates, habit notes, custom themes, data export, and custom reminders for the duration of your subscription.
+            {'\n'}Includes ad-free experience, unlimited habits, advanced scheduling, quantity & duration tracking, streak freezes, 20+ templates, habit notes, custom themes, data export, and custom reminders for the duration of your subscription.
           </Text>
 
           <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 10, color: colors.textMuted, textAlign: 'center', marginTop: 12, lineHeight: 16 }}>
