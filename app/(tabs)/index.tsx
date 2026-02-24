@@ -8,6 +8,7 @@ import { HabitCard } from '@components/habits/HabitCard';
 import { NoteInputModal } from '@components/habits/NoteInputModal';
 import { QuantityInputModal } from '@components/habits/QuantityInputModal';
 import { AchievementUnlockedModal } from '@components/achievements';
+import { AdBanner } from '@components/ui/AdBanner';
 import { useAuthStore } from '@store/useAuthStore';
 import { useHabitsStore } from '@store/useHabitsStore';
 import { useAchievementsStore } from '@store/useAchievementsStore';
@@ -218,6 +219,11 @@ export default function HomeScreen() {
 
       {/* Notification Permission Banner */}
       <NotificationPermissionBanner />
+
+      {/* Ad Banner */}
+      <View style={{ paddingHorizontal: 24, marginBottom: 12 }}>
+        <AdBanner unitKey="bannerHome" />
+      </View>
 
       {/* Habits List */}
       {loading && habits.length === 0 ? (

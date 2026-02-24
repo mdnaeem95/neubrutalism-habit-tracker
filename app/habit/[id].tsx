@@ -68,9 +68,7 @@ export default function HabitDetailScreen() {
             if (!id) return;
             try {
               await deleteHabit(id);
-              dialog.alert('Success', 'Habit deleted successfully', [
-                { text: 'OK', onPress: () => router.back() },
-              ]);
+              router.back();
             } catch (error: any) {
               dialog.alert('Error', error.message || 'Failed to delete habit');
             }
@@ -152,13 +150,7 @@ export default function HabitDetailScreen() {
 
   if (!habit) {
     return (
-      <View style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center', alignItems: 'center' }}>
-        <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-        <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 15, color: colors.text }}>Habit not found</Text>
-        <Button variant="secondary" onPress={() => router.back()} style={{ marginTop: 16 }}>
-          Go Back
-        </Button>
-      </View>
+      <View style={{ flex: 1, backgroundColor: colors.background }} />
     );
   }
 

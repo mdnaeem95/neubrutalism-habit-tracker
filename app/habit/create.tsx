@@ -12,6 +12,7 @@ import { useHabitsStore } from '@store/useHabitsStore';
 import { useAchievementsStore } from '@store/useAchievementsStore';
 import { useDialog } from '@/contexts/DialogContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useInterstitialAd } from '@/hooks/useInterstitialAd';
 import { checkAchievements } from '@utils/achievementChecker';
 import type { HabitCategory, HabitColor, HabitFrequency, HabitTrackingType, CheckIn } from '@/types/habit';
 
@@ -39,6 +40,7 @@ export default function CreateHabitScreen() {
   const { createHabit, loading, habits, checkIns } = useHabitsStore();
   const { unlockMultipleAchievements, unlockedIds } = useAchievementsStore();
   const dialog = useDialog();
+  const { showAd } = useInterstitialAd();
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -165,6 +167,9 @@ export default function CreateHabitScreen() {
       );
 
       await checkForAchievements(currentHabitCount + 1);
+
+      // Show interstitial ad for free users (max 1 per session)
+      showAd();
 
       dialog.alert('Success', 'Habit created successfully!', [
         { text: 'OK', onPress: () => router.back() },

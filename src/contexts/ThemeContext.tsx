@@ -3,7 +3,7 @@
  * Manages theme selection, dark mode, and color resolution
  */
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
 import { themes, ThemePreset, ThemeId } from '@constants/themes';
 import { lightColors, darkColors, ColorScheme } from '@constants/colors';
@@ -73,6 +73,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     }
   }, [user]);
 
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const canUseTheme = (themeId: string): boolean => {
     const theme = themes[themeId as ThemeId];
     if (!theme) return false;
@@ -81,26 +83,14 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     return userPlan === 'premium' || userPlan === 'trial';
   };
 
-  const setTheme = async (themeId: string): Promise<void> => {
-    const theme = themes[themeId as ThemeId];
-    if (!theme) {
-      throw new Error('Invalid theme ID');
+  // Debounced Firestore persistence
+  const persistTheme = useCallback((themeId: string, isNewTheme: boolean) => {
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
     }
 
-    if (!canUseTheme(themeId)) {
-      throw new Error('This theme requires a premium subscription');
-    }
-
-    setCurrentTheme(theme);
-
-    const isPremiumTheme = theme.isPremium;
-    const isNewTheme = isPremiumTheme && !usedThemes.includes(themeId);
-
-    if (isNewTheme) {
-      setUsedThemes((prev) => [...prev, themeId]);
-    }
-
-    if (user) {
+    saveTimerRef.current = setTimeout(async () => {
+      if (!user) return;
       try {
         const userRef = doc(db, 'users', user.id);
         const updateData: Record<string, any> = {
@@ -120,7 +110,31 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
       } catch (error) {
         console.error('Failed to save theme preference:', error);
       }
+    }, 500);
+  }, [user, usedThemes, unlockedIds, unlockAchievement]);
+
+  const setTheme = async (themeId: string): Promise<void> => {
+    const theme = themes[themeId as ThemeId];
+    if (!theme) {
+      throw new Error('Invalid theme ID');
     }
+
+    if (!canUseTheme(themeId)) {
+      throw new Error('This theme requires a premium subscription');
+    }
+
+    // Update UI immediately
+    setCurrentTheme(theme);
+
+    const isPremiumTheme = theme.isPremium;
+    const isNewTheme = isPremiumTheme && !usedThemes.includes(themeId);
+
+    if (isNewTheme) {
+      setUsedThemes((prev) => [...prev, themeId]);
+    }
+
+    // Debounce the Firestore write
+    persistTheme(themeId, isNewTheme);
   };
 
   const value: ThemeContextValue = {

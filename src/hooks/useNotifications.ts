@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { AppState } from 'react-native';
 import * as Notifications from 'expo-notifications';
+import { useRouter } from 'expo-router';
 import { requestNotificationPermissions, clearBadge } from '@services/notifications';
 
 interface UseNotificationsReturn {
@@ -14,6 +15,7 @@ interface UseNotificationsReturn {
  * Hook for managing notification permissions and listeners
  */
 export function useNotifications(): UseNotificationsReturn {
+  const router = useRouter();
   const [hasPermission, setHasPermission] = useState(false);
   const [notification, setNotification] = useState<Notifications.Notification | null>(null);
   const [notificationResponse, setNotificationResponse] = useState<Notifications.NotificationResponse | null>(null);
@@ -74,19 +76,20 @@ export function useNotifications(): UseNotificationsReturn {
     // Handle different notification types
     switch (data?.type) {
       case 'daily_reminder':
-        // Navigate to today screen
-        console.log('Daily reminder tapped');
+        router.push('/(tabs)');
         break;
       case 'habit_reminder':
-        // Navigate to specific habit
-        console.log('Habit reminder tapped:', data.habitId);
+        if (data.habitId) {
+          router.push(`/habit/${data.habitId}`);
+        } else {
+          router.push('/(tabs)');
+        }
         break;
       case 'streak_milestone':
-        // Show celebration screen
-        console.log('Streak milestone tapped');
+        router.push('/(tabs)');
         break;
       default:
-        console.log('Unknown notification type');
+        router.push('/(tabs)');
     }
   };
 

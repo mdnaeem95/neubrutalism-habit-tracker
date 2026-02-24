@@ -8,7 +8,6 @@ import {
   archiveHabit as archiveHabitApi,
   createCheckIn as createCheckInApi,
   getHabitCheckIns,
-  getCheckInForDate as getCheckInForDateApi,
   updateCheckIn as updateCheckInApi,
 } from '@services/firebase/habits';
 import {
@@ -108,15 +107,19 @@ export const useHabitsStore = create<HabitsStore>((set, get) => ({
 
       const habits = await getUserHabits(userId, false);
 
-      // Fetch check-ins for all habits
+      // Fetch check-ins for all habits in parallel
+      const checkInsResults = await Promise.all(
+        habits.map((habit) => getHabitCheckIns(habit.id))
+      );
+
       const checkInsMap: Record<string, CheckIn[]> = {};
       const enrichedHabits: HabitWithStats[] = [];
 
-      for (const habit of habits) {
-        const checkIns = await getHabitCheckIns(habit.id);
-        checkInsMap[habit.id] = checkIns;
-        enrichedHabits.push(get().enrichHabitWithStats(habit, checkIns));
-      }
+      habits.forEach((habit, index) => {
+        const habitCheckIns = checkInsResults[index];
+        checkInsMap[habit.id] = habitCheckIns;
+        enrichedHabits.push(get().enrichHabitWithStats(habit, habitCheckIns));
+      });
 
       set({
         habits: enrichedHabits,
@@ -339,7 +342,9 @@ export const useHabitsStore = create<HabitsStore>((set, get) => ({
   toggleCheckIn: async (userId: string, habitId: string, date?: string, note?: string, value?: number) => {
     try {
       const checkInDate = date || getTodayDate();
-      const existingCheckIn = await getCheckInForDateApi(habitId, checkInDate);
+      // Look up existing check-in from local state instead of Firestore
+      const localCheckIns = get().checkIns[habitId] || [];
+      const existingCheckIn = localCheckIns.find((c) => c.date === checkInDate) || null;
 
       if (existingCheckIn) {
         // Toggle the completion status (and update note/value if provided)

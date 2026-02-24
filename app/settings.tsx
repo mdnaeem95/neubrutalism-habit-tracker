@@ -10,7 +10,7 @@ import { getUserPreferences, saveUserPreferences, clearStorage, resetOnboarding 
 import { exportData } from '@utils/export';
 import { useDialog } from '@/contexts/DialogContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { scheduleDailyNotification, cancelAllNotifications } from '@services/notifications';
+import { scheduleDailyNotification, cancelNotification } from '@services/notifications';
 import { useNotifications } from '@/hooks/useNotifications';
 import Constants from 'expo-constants';
 
@@ -53,7 +53,9 @@ export default function SettingsScreen() {
     if (value && notificationTime) {
       await scheduleGlobalReminder(notificationTime);
     } else {
-      await cancelAllNotifications();
+      if (globalNotificationId) {
+        await cancelNotification(globalNotificationId).catch(() => {});
+      }
       setGlobalNotificationId(null);
       await saveUserPreferences({ ...preferences, notificationsEnabled: value, globalNotificationId: null });
     }
@@ -66,7 +68,9 @@ export default function SettingsScreen() {
     if (notificationsEnabled && time) {
       await scheduleGlobalReminder(time);
     } else if (!time) {
-      await cancelAllNotifications();
+      if (globalNotificationId) {
+        await cancelNotification(globalNotificationId).catch(() => {});
+      }
       setGlobalNotificationId(null);
       await saveUserPreferences({ ...preferences, notificationTime: null, globalNotificationId: null });
     }
@@ -82,7 +86,10 @@ export default function SettingsScreen() {
         }
       }
 
-      await cancelAllNotifications();
+      // Cancel only the existing global reminder, not per-habit reminders
+      if (globalNotificationId) {
+        await cancelNotification(globalNotificationId).catch(() => {});
+      }
 
       const [hours, minutes] = time.split(':').map(Number);
 
@@ -177,39 +184,24 @@ export default function SettingsScreen() {
   const handleDeleteAccount = () => {
     dialog.alert(
       'Delete Account',
-      'This will permanently delete your account and all data. This action cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => {
-            dialog.alert('Are you absolutely sure?', 'This action cannot be undone.', [
-              { text: 'Cancel', style: 'cancel' },
-              {
-                text: 'DELETE',
-                style: 'destructive',
-                onPress: async () => {
-                  dialog.alert('Error', 'Account deletion not yet implemented');
-                },
-              },
-            ]);
-          },
-        },
-      ]
+      'To delete your account and all associated data, please contact support@blockapp.co and we will process your request.',
+      [{ text: 'OK' }]
     );
   };
 
   const openPrivacyPolicy = () => {
-    Linking.openURL('https://mdnaeem95.github.io/neubrutalism-habit-tracker/privacy.html');
+    Linking.openURL('https://mdnaeem95.github.io/neubrutalism-habit-tracker/privacy.html')
+      .catch(() => dialog.alert('Error', 'Could not open link'));
   };
 
   const openTermsOfService = () => {
-    Linking.openURL('https://mdnaeem95.github.io/neubrutalism-habit-tracker/terms.html');
+    Linking.openURL('https://mdnaeem95.github.io/neubrutalism-habit-tracker/terms.html')
+      .catch(() => dialog.alert('Error', 'Could not open link'));
   };
 
   const openSupport = () => {
-    Linking.openURL('mailto:support@blockapp.co');
+    Linking.openURL('mailto:support@blockapp.co')
+      .catch(() => dialog.alert('Error', 'Could not open email client'));
   };
 
   const settingItemStyle: ViewStyle = {

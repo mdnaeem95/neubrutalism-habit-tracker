@@ -3,6 +3,7 @@ import { View, Text, ScrollView, ViewStyle, TextStyle } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Card } from '@components/ui';
+import { AdBanner } from '@components/ui/AdBanner';
 import { useHabitsStore } from '@store/useHabitsStore';
 import { useTheme } from '@/contexts/ThemeContext';
 import { trackScreenView } from '@services/firebase/analytics';
@@ -142,6 +143,11 @@ export default function StatsScreen() {
       </View>
 
       <View style={{ paddingHorizontal: 24 }}>
+        {/* Ad Banner */}
+        <View style={{ marginBottom: 16 }}>
+          <AdBanner unitKey="bannerStats" />
+        </View>
+
         {/* Overall Stats Grid */}
         <View style={{ flexDirection: 'row', gap: 12, marginBottom: 12 }}>
           <View style={{ flex: 1 }}>

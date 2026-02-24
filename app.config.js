@@ -2,7 +2,7 @@ module.exports = {
   expo: {
     name: 'Block',
     slug: 'block-habit-tracker',
-    version: '1.2.0',
+    version: '1.3.0',
     orientation: 'portrait',
     icon: './assets/icon.png',
     userInterfaceStyle: 'light',
@@ -37,6 +37,13 @@ module.exports = {
       'expo-router',
       'expo-web-browser',
       '@react-native-community/datetimepicker',
+      [
+        'react-native-google-mobile-ads',
+        {
+          androidAppId: process.env.EXPO_PUBLIC_ADMOB_ANDROID_APP_ID || 'ca-app-pub-3940256099942544~3347511713',
+          iosAppId: 'ca-app-pub-3113906121142395~8449539187',
+        },
+      ],
     ],
     extra: {
       router: {},

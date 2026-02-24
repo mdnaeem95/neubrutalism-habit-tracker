@@ -5,6 +5,7 @@ import { useFonts, SpaceMono_400Regular, SpaceMono_700Bold } from '@expo-google-
 import { useAuthStore } from '@store/useAuthStore';
 import { initSentry, setUserContext, clearUserContext } from '@services/sentry/config';
 import { initializeRevenueCat } from '@services/revenuecat';
+import { initializeAdMob } from '@services/admob';
 import { AnimatedSplash } from '@components';
 import { hasCompletedOnboardingSync, initializeStorage } from '@utils/storage';
 import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
@@ -29,6 +30,7 @@ function RootNavigator() {
 
 export default function RootLayout() {
   const [showSplash, setShowSplash] = useState(true);
+  const [storageReady, setStorageReady] = useState(false);
   const initialize = useAuthStore((state) => state.initialize);
   const user = useAuthStore((state) => state.user);
   const loading = useAuthStore((state) => state.loading);
@@ -48,13 +50,16 @@ export default function RootLayout() {
   };
 
   useEffect(() => {
-    // Initialize storage cache
-    initializeStorage();
+    // Initialize storage cache (must complete before routing)
+    initializeStorage().then(() => setStorageReady(true));
 
     // Initialize RevenueCat SDK
     initializeRevenueCat().catch((error) => {
       console.error('Failed to initialize RevenueCat:', error);
     });
+
+    // Initialize Google Mobile Ads SDK
+    initializeAdMob();
 
     // Initialize auth listener
     const unsubscribe = initialize();
@@ -75,8 +80,8 @@ export default function RootLayout() {
   }, [user]);
 
   useEffect(() => {
-    // Wait for splash and fonts before routing
-    if (showSplash || !fontsLoaded) return;
+    // Wait for splash, fonts, and storage before routing
+    if (showSplash || !fontsLoaded || !storageReady) return;
 
     // Wait for auth to initialize
     if (loading) return;
@@ -91,7 +96,7 @@ export default function RootLayout() {
     } else if (user && hasCompletedOnboardingSync() && (inAuthGroup || segments.length === 0)) {
       router.replace('/(tabs)');
     }
-  }, [user, segments, loading, showSplash, fontsLoaded]);
+  }, [user, segments, loading, showSplash, fontsLoaded, storageReady]);
 
   // Show animated splash screen on first load (also waits for fonts)
   if (showSplash || !fontsLoaded) {

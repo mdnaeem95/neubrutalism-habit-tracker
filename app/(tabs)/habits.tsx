@@ -4,11 +4,14 @@ import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { Button } from '@components/ui';
 import { HabitCard } from '@components/habits/HabitCard';
+import { QuantityInputModal } from '@components/habits/QuantityInputModal';
+import { AdBanner } from '@components/ui/AdBanner';
 import { useAuthStore } from '@store/useAuthStore';
 import { useHabitsStore } from '@store/useHabitsStore';
 import { useDialog } from '@/contexts/DialogContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { trackScreenView } from '@services/firebase/analytics';
+import type { HabitWithStats } from '@/types/habit';
 
 export default function HabitsScreen() {
   const router = useRouter();
@@ -17,6 +20,8 @@ export default function HabitsScreen() {
   const { habits, loading, fetchHabits, toggleCheckIn } = useHabitsStore();
   const dialog = useDialog();
   const [refreshing, setRefreshing] = useState(false);
+  const [quantityModalVisible, setQuantityModalVisible] = useState(false);
+  const [selectedHabit, setSelectedHabit] = useState<HabitWithStats | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -45,11 +50,41 @@ export default function HabitsScreen() {
 
   const handleCheckIn = async (habitId: string) => {
     if (!user) return;
+
+    const habit = habits.find((h) => h.id === habitId);
+    if (!habit) return;
+
+    const isCheckingIn = !habit.todayCheckedIn;
+
+    // For quantity/duration habits, show the input modal
+    if (isCheckingIn && habit.trackingType && habit.trackingType !== 'boolean') {
+      setSelectedHabit(habit);
+      setQuantityModalVisible(true);
+      return;
+    }
+
     try {
       await toggleCheckIn(user.id, habitId);
     } catch (error: any) {
       dialog.alert('Error', error.message || 'Failed to update check-in');
     }
+  };
+
+  const handleSaveQuantity = async (value: number) => {
+    if (!user || !selectedHabit) return;
+
+    try {
+      await toggleCheckIn(user.id, selectedHabit.id, undefined, undefined, value);
+      setQuantityModalVisible(false);
+      setSelectedHabit(null);
+    } catch (error: any) {
+      dialog.alert('Error', error.message || 'Failed to save check-in');
+    }
+  };
+
+  const handleCancelQuantity = () => {
+    setQuantityModalVisible(false);
+    setSelectedHabit(null);
   };
 
   const handleCreateHabit = () => {
@@ -79,6 +114,11 @@ export default function HabitsScreen() {
         <Button variant="primary" onPress={handleCreateHabit}>
           + Add Habit
         </Button>
+      </View>
+
+      {/* Ad Banner */}
+      <View style={{ paddingHorizontal: 24, marginBottom: 12 }}>
+        <AdBanner unitKey="bannerHabits" />
       </View>
 
       {/* Habits List */}
@@ -114,6 +154,18 @@ export default function HabitsScreen() {
           }
         />
       )}
+
+      {/* Quantity/Duration Input Modal */}
+      <QuantityInputModal
+        visible={quantityModalVisible}
+        habitName={selectedHabit?.name || ''}
+        unit={selectedHabit?.unit || ''}
+        targetValue={selectedHabit?.targetValue}
+        initialValue={selectedHabit?.todayValue}
+        mode={selectedHabit?.trackingType === 'duration' ? 'duration' : 'quantity'}
+        onSave={handleSaveQuantity}
+        onCancel={handleCancelQuantity}
+      />
     </View>
   );
 }

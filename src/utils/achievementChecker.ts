@@ -1,6 +1,7 @@
-import type { Habit, CheckIn, HabitWithStats } from '@/types/habit';
+import type { CheckIn, HabitWithStats } from '@/types/habit';
 import type { AchievementId } from '@/types/achievement';
 import { format } from 'date-fns';
+import { isHabitScheduledForDate } from '@utils/frequencyUtils';
 
 interface AchievementCheckContext {
   habits: HabitWithStats[];
@@ -170,9 +171,11 @@ const checkPerfectWeek = (habits: HabitWithStats[], checkIns: CheckIn[]): boolea
     last7Days.push(format(date, 'yyyy-MM-dd'));
   }
 
-  // Check if all habits have check-ins for all 7 days
+  // Check if all scheduled habits have check-ins for all 7 days
   return last7Days.every((date) => {
     return habits.every((habit) => {
+      // Skip if habit isn't scheduled for this date
+      if (!isHabitScheduledForDate(habit as any, date)) return true;
       return checkIns.some(
         (c) => c.habitId === habit.id && c.date === date && c.completed
       );
@@ -197,6 +200,8 @@ const checkPerfectMonth = (habits: HabitWithStats[], checkIns: CheckIn[]): boole
 
   return last30Days.every((date) => {
     return habits.every((habit) => {
+      // Skip if habit isn't scheduled for this date
+      if (!isHabitScheduledForDate(habit as any, date)) return true;
       return checkIns.some(
         (c) => c.habitId === habit.id && c.date === date && c.completed
       );
@@ -223,6 +228,7 @@ const checkEarlyBird = (checkIns: CheckIn[]): boolean => {
 
     // Check if any check-in was created before 8 AM
     return dayCheckIns.some((c) => {
+      if (!c.createdAt || typeof c.createdAt.toDate !== 'function') return false;
       const hour = c.createdAt.toDate().getHours();
       return hour < 8;
     });
@@ -247,6 +253,7 @@ const checkNightOwl = (checkIns: CheckIn[]): boolean => {
     if (dayCheckIns.length === 0) return false;
 
     return dayCheckIns.some((c) => {
+      if (!c.createdAt || typeof c.createdAt.toDate !== 'function') return false;
       const hour = c.createdAt.toDate().getHours();
       return hour >= 20;
     });

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, useColorScheme } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedProps,
@@ -22,6 +22,9 @@ interface AnimatedSplashProps {
 }
 
 export function AnimatedSplash({ onAnimationComplete }: AnimatedSplashProps) {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
   // Animation values
   const squareScale = useSharedValue(0.8);
   const squareOpacity = useSharedValue(0);
@@ -110,7 +113,7 @@ export function AnimatedSplash({ onAnimationComplete }: AnimatedSplashProps) {
   }));
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: isDark ? '#1A1A2E' : '#FFF8E7' }]}>
       <Svg width="300" height="300" viewBox="0 0 1024 1024">
         {/* Main Square with Border */}
         <AnimatedG animatedProps={squareAnimatedProps}>
@@ -141,7 +144,7 @@ export function AnimatedSplash({ onAnimationComplete }: AnimatedSplashProps) {
       </Svg>
 
       {/* App Name */}
-      <AnimatedText style={[styles.appName, textAnimatedStyle]}>
+      <AnimatedText style={[styles.appName, { color: isDark ? '#FFF8E7' : '#1A1A2E' }, textAnimatedStyle]}>
         Block
       </AnimatedText>
     </View>

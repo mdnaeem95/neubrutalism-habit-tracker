@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, ViewStyle, TextStyle } from 'react-native';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameDay, addMonths, subMonths } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isSameDay, isAfter, addMonths, subMonths } from 'date-fns';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -116,7 +116,9 @@ export function HabitCalendar({
     padding: 2,
   };
 
-  const getDayBoxStyle = (date: Date | null, checked: boolean, isToday: boolean): ViewStyle => {
+  const isFutureDate = (date: Date): boolean => isAfter(date, today);
+
+  const getDayBoxStyle = (date: Date | null, checked: boolean, isToday: boolean, isFuture: boolean): ViewStyle => {
     let bgColor = colors.surface;
     if (checked) {
       bgColor = colors.accent;
@@ -132,7 +134,7 @@ export function HabitCalendar({
       backgroundColor: bgColor,
       justifyContent: 'center',
       alignItems: 'center',
-      opacity: date ? 1 : 0,
+      opacity: date ? (isFuture ? 0.3 : 1) : 0,
     };
   };
 
@@ -184,21 +186,22 @@ export function HabitCalendar({
           if (!day) {
             return (
               <View key={`padding-${index}`} style={dayContainerStyle}>
-                <View style={getDayBoxStyle(null, false, false)} />
+                <View style={getDayBoxStyle(null, false, false, false)} />
               </View>
             );
           }
 
           const checked = isCheckedIn(day);
           const todayDate = isTodayDate(day);
+          const isFuture = isFutureDate(day);
 
           return (
             <View key={format(day, 'yyyy-MM-dd')} style={dayContainerStyle}>
               <TouchableOpacity
-                style={getDayBoxStyle(day, checked, todayDate)}
+                style={getDayBoxStyle(day, checked, todayDate, isFuture)}
                 onPress={() => handleDayPress(day)}
                 activeOpacity={0.7}
-                disabled={!onDayPress}
+                disabled={!onDayPress || isFuture}
               >
                 <Text style={dayTextStyle}>{format(day, 'd')}</Text>
               </TouchableOpacity>

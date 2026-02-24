@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Modal, TouchableOpacity, ViewStyle } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Button } from '@components/ui';
@@ -27,6 +27,13 @@ export const QuantityInputModal: React.FC<QuantityInputModalProps> = ({
 }) => {
   const { colors } = useTheme();
   const [value, setValue] = useState(initialValue || 0);
+
+  // Reset value when modal opens with a new initialValue
+  useEffect(() => {
+    if (visible) {
+      setValue(initialValue || 0);
+    }
+  }, [visible, initialValue]);
 
   const increment = mode === 'duration' ? 5 : 1;
   const maxValue = mode === 'duration' ? 600 : 9999;

@@ -10,6 +10,7 @@ import {
   where,
   orderBy,
   serverTimestamp,
+  writeBatch,
 } from 'firebase/firestore';
 import { db } from './config';
 import type { Habit, CheckIn, CreateHabitInput, UpdateHabitInput } from '@/types/habit';
@@ -23,9 +24,14 @@ const checkInsCollection = collection(db, 'checkIns');
  */
 export const createHabit = async (userId: string, input: CreateHabitInput): Promise<Habit> => {
   try {
+    // Remove undefined values — Firestore rejects them
+    const cleanInput = Object.fromEntries(
+      Object.entries(input).filter(([_, v]) => v !== undefined)
+    );
+
     const habitData = {
       userId,
-      ...input,
+      ...cleanInput,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       archived: false,
@@ -121,6 +127,18 @@ export const updateHabit = async (habitId: string, input: UpdateHabitInput): Pro
  */
 export const deleteHabit = async (habitId: string): Promise<void> => {
   try {
+    // Delete all associated check-ins first
+    const checkInsQuery = query(checkInsCollection, where('habitId', '==', habitId));
+    const checkInsSnapshot = await getDocs(checkInsQuery);
+
+    if (!checkInsSnapshot.empty) {
+      const batch = writeBatch(db);
+      checkInsSnapshot.docs.forEach((checkInDoc) => {
+        batch.delete(checkInDoc.ref);
+      });
+      await batch.commit();
+    }
+
     await deleteDoc(doc(habitsCollection, habitId));
   } catch (error: any) {
     console.error('Error deleting habit:', error);

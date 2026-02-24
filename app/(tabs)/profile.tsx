@@ -8,6 +8,7 @@ import { useHabitsStore } from '@store/useHabitsStore';
 import { useDialog } from '@/contexts/DialogContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { trackScreenView } from '@services/firebase/analytics';
+import Constants from 'expo-constants';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -111,7 +112,11 @@ export default function ProfileScreen() {
 
           <View>
             <Text style={labelStyle}>Account Type</Text>
-            <Text style={valueStyle}>Free</Text>
+            <Text style={valueStyle}>
+              {user?.subscription?.plan
+                ? user.subscription.plan.charAt(0).toUpperCase() + user.subscription.plan.slice(1)
+                : 'Free'}
+            </Text>
           </View>
         </Card>
 
@@ -208,21 +213,23 @@ export default function ProfileScreen() {
 
             <Button
               variant="secondary"
-              onPress={() => Linking.openURL('https://mdnaeem95.github.io/neubrutalism-habit-tracker/privacy.html')}
+              onPress={() => Linking.openURL('https://mdnaeem95.github.io/neubrutalism-habit-tracker/privacy.html')
+                .catch(() => dialog.alert('Error', 'Could not open link'))}
             >
               Privacy Policy
             </Button>
 
             <Button
               variant="secondary"
-              onPress={() => Linking.openURL('https://mdnaeem95.github.io/neubrutalism-habit-tracker/terms.html')}
+              onPress={() => Linking.openURL('https://mdnaeem95.github.io/neubrutalism-habit-tracker/terms.html')
+                .catch(() => dialog.alert('Error', 'Could not open link'))}
             >
               Terms of Service
             </Button>
 
             <View style={{ marginTop: 8 }}>
               <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 12, color: colors.textMuted, textAlign: 'center' }}>
-                Version 1.0.0
+                Version {Constants.expoConfig?.version || '1.0.0'}
               </Text>
               <Text style={{ fontFamily: 'SpaceMono_400Regular', fontSize: 10, color: colors.textMuted, textAlign: 'center', marginTop: 4 }}>
                 Made with Claude Code
