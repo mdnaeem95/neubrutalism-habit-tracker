@@ -40,20 +40,24 @@ export const AchievementUnlockedModal: React.FC<AchievementUnlockedModalProps> =
   const isPremium = user?.subscription?.plan === 'premium' || user?.subscription?.plan === 'trial';
 
   useEffect(() => {
+    let scaleAnimation: Animated.CompositeAnimation | null = null;
+    let rotateAnimation: Animated.CompositeAnimation | null = null;
+
     if (visible && achievement) {
       // Haptic feedback
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
       // Scale animation
-      Animated.spring(scaleAnim, {
+      scaleAnimation = Animated.spring(scaleAnim, {
         toValue: 1,
         tension: 50,
         friction: 7,
         useNativeDriver: true,
-      }).start();
+      });
+      scaleAnimation.start();
 
       // Rotate animation for icon
-      Animated.sequence([
+      rotateAnimation = Animated.sequence([
         Animated.timing(rotateAnim, {
           toValue: 1,
           duration: 300,
@@ -69,11 +73,17 @@ export const AchievementUnlockedModal: React.FC<AchievementUnlockedModalProps> =
           duration: 300,
           useNativeDriver: true,
         }),
-      ]).start();
+      ]);
+      rotateAnimation.start();
     } else {
       scaleAnim.setValue(0);
       rotateAnim.setValue(0);
     }
+
+    return () => {
+      scaleAnimation?.stop();
+      rotateAnimation?.stop();
+    };
   }, [visible, achievement]);
 
   if (!achievement) return null;

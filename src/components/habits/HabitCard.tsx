@@ -13,7 +13,7 @@ interface HabitCardProps {
   onCheckIn?: () => void;
 }
 
-export const HabitCard: React.FC<HabitCardProps> = ({ habit, onPress, onCheckIn }) => {
+export const HabitCard: React.FC<HabitCardProps> = React.memo(({ habit, onPress, onCheckIn }) => {
   const { colors } = useTheme();
 
   const getColorValue = (color: string): string => {
@@ -216,4 +216,4 @@ export const HabitCard: React.FC<HabitCardProps> = ({ habit, onPress, onCheckIn 
       </View>
     </TouchableOpacity>
   );
-};
+});

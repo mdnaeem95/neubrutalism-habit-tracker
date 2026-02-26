@@ -3,7 +3,7 @@
  * Manages theme selection, dark mode, and color resolution
  */
 
-import React, { createContext, useContext, useState, useEffect, useRef, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo, ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
 import { themes, ThemePreset, ThemeId } from '@constants/themes';
 import { lightColors, darkColors, ColorScheme } from '@constants/colors';
@@ -75,13 +75,22 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const canUseTheme = (themeId: string): boolean => {
+  // Clean up debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+      }
+    };
+  }, []);
+
+  const canUseTheme = useCallback((themeId: string): boolean => {
     const theme = themes[themeId as ThemeId];
     if (!theme) return false;
     if (!theme.isPremium) return true;
     const userPlan = user?.subscription?.plan || 'free';
     return userPlan === 'premium' || userPlan === 'trial';
-  };
+  }, [user?.subscription?.plan]);
 
   // Debounced Firestore persistence
   const persistTheme = useCallback((themeId: string, isNewTheme: boolean) => {
@@ -137,15 +146,17 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     persistTheme(themeId, isNewTheme);
   };
 
-  const value: ThemeContextValue = {
+  const availableThemes = useMemo(() => Object.values(themes), []);
+
+  const value = useMemo<ThemeContextValue>(() => ({
     currentTheme,
     setTheme,
-    availableThemes: Object.values(themes),
+    availableThemes,
     canUseTheme,
     usedThemesCount: usedThemes.length,
     colors,
     colorScheme,
-  };
+  }), [currentTheme, setTheme, availableThemes, canUseTheme, usedThemes.length, colors, colorScheme]);
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };

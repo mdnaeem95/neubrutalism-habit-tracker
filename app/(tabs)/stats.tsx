@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { View, Text, ScrollView, ViewStyle, TextStyle } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -18,64 +18,77 @@ export default function StatsScreen() {
     trackScreenView('Stats');
   }, []);
 
-  // Calculate overall stats
-  const activeHabits = habits.filter((h) => !h.archived);
-  const totalCheckIns = Object.values(checkIns).flat().filter((c) => c.completed).length;
-  const totalStreaks = habits.reduce((sum, h) => sum + h.currentStreak, 0);
-  const longestStreak = Math.max(...habits.map((h) => h.longestStreak), 0);
-  const averageCompletion = activeHabits.length > 0
-    ? Math.round(activeHabits.reduce((sum, h) => sum + h.completionRate, 0) / activeHabits.length)
-    : 0;
+  // Memoize all stat calculations to avoid recomputing on every render
+  const activeHabits = useMemo(() => habits.filter((h) => !h.archived), [habits]);
 
-  // Calculate this week's stats
-  const today = new Date();
-  const last7Days = Array.from({ length: 7 }, (_, i) => format(subDays(today, 6 - i), 'yyyy-MM-dd'));
+  const { totalCheckIns, totalStreaks, longestStreak, averageCompletion } = useMemo(() => {
+    const totalCheckIns = Object.values(checkIns).flat().filter((c) => c.completed).length;
+    const totalStreaks = habits.reduce((sum, h) => sum + h.currentStreak, 0);
+    const longestStreak = Math.max(...habits.map((h) => h.longestStreak), 0);
+    const averageCompletion = activeHabits.length > 0
+      ? Math.round(activeHabits.reduce((sum, h) => sum + h.completionRate, 0) / activeHabits.length)
+      : 0;
+    return { totalCheckIns, totalStreaks, longestStreak, averageCompletion };
+  }, [habits, checkIns, activeHabits]);
 
-  const thisWeekCheckIns = Object.entries(checkIns).reduce((count, [_, habitCheckIns]) => {
-    return count + habitCheckIns.filter(c =>
-      c.completed && last7Days.includes(c.date)
-    ).length;
-  }, 0);
+  const last7Days = useMemo(() => {
+    const today = new Date();
+    return Array.from({ length: 7 }, (_, i) => format(subDays(today, 6 - i), 'yyyy-MM-dd'));
+  }, []);
 
-  // Calculate frequency-aware possible check-ins
-  const possibleCheckIns = activeHabits.reduce((total, habit) => {
-    return total + last7Days.filter((dateStr) =>
-      isHabitScheduledForDate(habit as any, dateStr)
-    ).length;
-  }, 0);
-  const weekCompletionRate = possibleCheckIns > 0
-    ? Math.round((thisWeekCheckIns / possibleCheckIns) * 100)
-    : 0;
-
-  // Get top 3 performing habits
-  const topHabits = [...activeHabits]
-    .sort((a, b) => b.completionRate - a.completionRate)
-    .slice(0, 3);
-
-  // Calculate category breakdown
-  const categoryStats = activeHabits.reduce((acc, habit) => {
-    const category = habit.category;
-    if (!acc[category]) {
-      acc[category] = { count: 0, completions: 0 };
-    }
-    acc[category].count++;
-    acc[category].completions += habit.totalCompletions;
-    return acc;
-  }, {} as Record<string, { count: number; completions: number }>);
-
-  // Get daily activity for the week
-  const dailyActivity = last7Days.map(date => {
-    const dayCheckIns = Object.entries(checkIns).reduce((count, [_, habitCheckIns]) => {
-      return count + habitCheckIns.filter(c => c.completed && c.date === date).length;
+  const { thisWeekCheckIns, possibleCheckIns, weekCompletionRate } = useMemo(() => {
+    const thisWeekCheckIns = Object.entries(checkIns).reduce((count, [_, habitCheckIns]) => {
+      return count + habitCheckIns.filter(c =>
+        c.completed && last7Days.includes(c.date)
+      ).length;
     }, 0);
-    return {
-      date,
-      count: dayCheckIns,
-      dayName: format(new Date(date), 'EEE'),
-    };
-  });
 
-  const maxDailyActivity = Math.max(...dailyActivity.map(d => d.count), 1);
+    const possibleCheckIns = activeHabits.reduce((total, habit) => {
+      return total + last7Days.filter((dateStr) =>
+        isHabitScheduledForDate(habit as any, dateStr)
+      ).length;
+    }, 0);
+
+    const weekCompletionRate = possibleCheckIns > 0
+      ? Math.round((thisWeekCheckIns / possibleCheckIns) * 100)
+      : 0;
+
+    return { thisWeekCheckIns, possibleCheckIns, weekCompletionRate };
+  }, [checkIns, activeHabits, last7Days]);
+
+  const topHabits = useMemo(() =>
+    [...activeHabits].sort((a, b) => b.completionRate - a.completionRate).slice(0, 3),
+    [activeHabits]
+  );
+
+  const categoryStats = useMemo(() =>
+    activeHabits.reduce((acc, habit) => {
+      const category = habit.category;
+      if (!acc[category]) {
+        acc[category] = { count: 0, completions: 0 };
+      }
+      acc[category].count++;
+      acc[category].completions += habit.totalCompletions;
+      return acc;
+    }, {} as Record<string, { count: number; completions: number }>),
+    [activeHabits]
+  );
+
+  const dailyActivity = useMemo(() =>
+    last7Days.map(date => {
+      const dayCheckIns = Object.entries(checkIns).reduce((count, [_, habitCheckIns]) => {
+        return count + habitCheckIns.filter(c => c.completed && c.date === date).length;
+      }, 0);
+      return {
+        date,
+        count: dayCheckIns,
+        dayName: format(new Date(date), 'EEE'),
+      };
+    }),
+    [checkIns, last7Days]
+  );
+
+  const maxDailyActivity = useMemo(() => Math.max(...dailyActivity.map(d => d.count), 1), [dailyActivity]);
 
   const getColorValue = (color: string): string => {
     switch (color) {

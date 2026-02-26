@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { View, Text, FlatList, RefreshControl } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
@@ -79,13 +79,13 @@ export default function HomeScreen() {
     }
   };
 
-  const handleRefresh = async () => {
+  const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     await loadHabits();
     setRefreshing(false);
-  };
+  }, [user]);
 
-  const checkForAchievements = async () => {
+  const checkForAchievements = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -111,9 +111,9 @@ export default function HomeScreen() {
     } catch (error) {
       console.error('Failed to check achievements:', error);
     }
-  };
+  }, [user, checkIns, habits, unlockedIds, unlockMultipleAchievements]);
 
-  const handleCheckIn = async (habitId: string) => {
+  const handleCheckIn = useCallback(async (habitId: string) => {
     if (!user) return;
 
     const habit = habits.find((h) => h.id === habitId);
@@ -141,9 +141,9 @@ export default function HomeScreen() {
         dialog.alert('Error', error.message || 'Failed to update check-in');
       }
     }
-  };
+  }, [user, habits, toggleCheckIn, checkForAchievements, dialog]);
 
-  const handleSaveNote = async (note: string) => {
+  const handleSaveNote = useCallback(async (note: string) => {
     if (!user || !selectedHabit) return;
 
     try {
@@ -154,9 +154,9 @@ export default function HomeScreen() {
     } catch (error: any) {
       dialog.alert('Error', error.message || 'Failed to save check-in with note');
     }
-  };
+  }, [user, selectedHabit, toggleCheckIn, checkForAchievements, dialog]);
 
-  const handleSaveQuantity = async (value: number) => {
+  const handleSaveQuantity = useCallback(async (value: number) => {
     if (!user || !selectedHabit) return;
 
     try {
@@ -167,30 +167,49 @@ export default function HomeScreen() {
     } catch (error: any) {
       dialog.alert('Error', error.message || 'Failed to save check-in');
     }
-  };
+  }, [user, selectedHabit, toggleCheckIn, checkForAchievements, dialog]);
 
-  const handleCancelNote = () => {
+  const handleCancelNote = useCallback(() => {
     setNoteModalVisible(false);
     setSelectedHabit(null);
-  };
+  }, []);
 
-  const handleCancelQuantity = () => {
+  const handleCancelQuantity = useCallback(() => {
     setQuantityModalVisible(false);
     setSelectedHabit(null);
-  };
+  }, []);
 
-  const handleCreateHabit = () => {
+  const handleCreateHabit = useCallback(() => {
     router.push('/habit/create');
-  };
+  }, [router]);
 
-  const handleHabitPress = (habitId: string) => {
+  const handleHabitPress = useCallback((habitId: string) => {
     router.push(`/habit/${habitId}`);
-  };
+  }, [router]);
 
   const todayDate = format(new Date(), 'EEEE, MMMM d');
 
   const completedCount = todayHabits.filter((h) => h.todayCheckedIn).length;
   const totalScheduled = todayHabits.length;
+
+  const listFooter = useMemo(() => {
+    if (offDayHabits.length === 0) return null;
+    return (
+      <View style={{ marginTop: 8 }}>
+        <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 13, color: colors.textMuted, marginBottom: 12 }}>
+          Not scheduled today ({offDayHabits.length})
+        </Text>
+        {offDayHabits.map((habit) => (
+          <View key={habit.id} style={{ opacity: 0.5 }}>
+            <HabitCard
+              habit={habit}
+              onPress={() => handleHabitPress(habit.id)}
+            />
+          </View>
+        ))}
+      </View>
+    );
+  }, [offDayHabits, colors.textMuted, handleHabitPress]);
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -265,23 +284,7 @@ export default function HomeScreen() {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
           }
-          ListFooterComponent={
-            offDayHabits.length > 0 ? (
-              <View style={{ marginTop: 8 }}>
-                <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 13, color: colors.textMuted, marginBottom: 12 }}>
-                  Not scheduled today ({offDayHabits.length})
-                </Text>
-                {offDayHabits.map((habit) => (
-                  <View key={habit.id} style={{ opacity: 0.5 }}>
-                    <HabitCard
-                      habit={habit}
-                      onPress={() => handleHabitPress(habit.id)}
-                    />
-                  </View>
-                ))}
-              </View>
-            ) : null
-          }
+          ListFooterComponent={listFooter}
         />
       )}
 

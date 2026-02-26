@@ -6,6 +6,7 @@ import Purchases, {
   PurchasesOffering,
   LOG_LEVEL,
   PURCHASES_ERROR_CODE,
+  CustomerInfoUpdateListener,
 } from 'react-native-purchases';
 
 // RevenueCat API Keys (configure in your RevenueCat dashboard)
@@ -217,4 +218,25 @@ export function getPackagePrice(pkg: PurchasesPackage): string {
 export function getIntroPrice(pkg: PurchasesPackage): string | null {
   const introPrice = pkg.product.introPrice;
   return introPrice ? introPrice.priceString : null;
+}
+
+/**
+ * Listen for subscription status changes (renewals, expirations, etc.)
+ * Returns an unsubscribe function.
+ */
+export function addSubscriptionListener(
+  onUpdate: (info: { isPremium: boolean; expirationDate: Date | null }) => void
+): () => void {
+  const listener: CustomerInfoUpdateListener = (customerInfo: CustomerInfo) => {
+    const entitlement = customerInfo.entitlements.active[ENTITLEMENT_ID];
+    onUpdate({
+      isPremium: entitlement !== undefined,
+      expirationDate: entitlement?.expirationDate
+        ? new Date(entitlement.expirationDate)
+        : null,
+    });
+  };
+
+  Purchases.addCustomerInfoUpdateListener(listener);
+  return () => Purchases.removeCustomerInfoUpdateListener(listener);
 }

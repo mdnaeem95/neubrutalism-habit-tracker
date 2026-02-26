@@ -3,7 +3,7 @@
  * Global dialog management for neubrutalism-styled dialogs
  */
 
-import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback, useMemo } from 'react';
 import { Dialog, DialogButton } from '@components/ui/Dialog';
 
 interface DialogState {
@@ -90,11 +90,11 @@ export const DialogProvider: React.FC<DialogProviderProps> = ({ children }) => {
     []
   );
 
-  const value: DialogContextValue = {
+  const value = useMemo<DialogContextValue>(() => ({
     alert,
     confirm,
     hide,
-  };
+  }), [alert, confirm, hide]);
 
   return (
     <DialogContext.Provider value={value}>

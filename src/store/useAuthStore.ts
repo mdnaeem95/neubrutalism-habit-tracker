@@ -21,6 +21,7 @@ interface AuthStore extends AuthState {
   setError: (error: string | null) => void;
   clearError: () => void;
   initialize: () => () => void;
+  updateSubscription: (plan: 'free' | 'premium' | 'trial', expiresAt?: Date) => void;
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
@@ -112,4 +113,12 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
   // Clear error
   clearError: () => set({ error: null }),
+
+  // Update subscription status
+  updateSubscription: (plan, expiresAt) =>
+    set((state) => ({
+      user: state.user
+        ? { ...state.user, subscription: { plan, expiresAt } }
+        : null,
+    })),
 }));

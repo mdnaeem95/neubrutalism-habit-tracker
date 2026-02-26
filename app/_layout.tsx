@@ -4,7 +4,7 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { useFonts, SpaceMono_400Regular, SpaceMono_700Bold } from '@expo-google-fonts/space-mono';
 import { useAuthStore } from '@store/useAuthStore';
 import { initSentry, setUserContext, clearUserContext } from '@services/sentry/config';
-import { initializeRevenueCat } from '@services/revenuecat';
+import { initializeRevenueCat, identifyUser, getSubscriptionStatus, addSubscriptionListener } from '@services/revenuecat';
 import { initializeAdMob } from '@services/admob';
 import { AnimatedSplash } from '@components';
 import { hasCompletedOnboardingSync, initializeStorage } from '@utils/storage';
@@ -34,6 +34,7 @@ export default function RootLayout() {
   const initialize = useAuthStore((state) => state.initialize);
   const user = useAuthStore((state) => state.user);
   const loading = useAuthStore((state) => state.loading);
+  const updateSubscription = useAuthStore((state) => state.updateSubscription);
   const segments = useSegments();
   const router = useRouter();
 
@@ -66,18 +67,41 @@ export default function RootLayout() {
     return () => unsubscribe();
   }, [initialize]);
 
-  // Update Sentry user context when auth state changes
+  // Update Sentry user context and sync subscription when auth state changes
   useEffect(() => {
-    if (user) {
-      setUserContext({
-        id: user.id,
-        email: user.email || undefined,
-        username: user.displayName || undefined,
-      });
-    } else {
+    if (!user) {
       clearUserContext();
+      return;
     }
-  }, [user]);
+
+    setUserContext({
+      id: user.id,
+      email: user.email || undefined,
+      username: user.displayName || undefined,
+    });
+
+    // Identify user in RevenueCat and sync subscription status
+    identifyUser(user.id).then(() =>
+      getSubscriptionStatus().then((status) => {
+        updateSubscription(
+          status.isPremium ? 'premium' : 'free',
+          status.expirationDate ?? undefined
+        );
+      })
+    ).catch((error) => {
+      console.error('Failed to sync subscription:', error);
+    });
+
+    // Listen for subscription changes (renewal, expiry, etc.)
+    const unsubscribe = addSubscriptionListener(({ isPremium, expirationDate }) => {
+      updateSubscription(
+        isPremium ? 'premium' : 'free',
+        expirationDate ?? undefined
+      );
+    });
+
+    return () => unsubscribe();
+  }, [user?.id]);
 
   useEffect(() => {
     // Wait for splash, fonts, and storage before routing

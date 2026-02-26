@@ -6,6 +6,7 @@ import { Button, Card } from '@components/ui';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useDialog } from '@/contexts/DialogContext';
 import { useAuthStore } from '@store/useAuthStore';
+import { getSubscriptionStatus } from '@services/revenuecat';
 import { useAchievementsStore } from '@store/useAchievementsStore';
 import { useTheme } from '@/contexts/ThemeContext';
 import { getOfferings, purchasePackage, restorePurchases, getPackagePrice, getIntroPrice } from '@services/revenuecat';
@@ -18,7 +19,7 @@ export default function PaywallScreen() {
   const router = useRouter();
   const dialog = useDialog();
   const { colors, colorScheme } = useTheme();
-  const { user } = useAuthStore();
+  const { user, updateSubscription } = useAuthStore();
   const { unlockAchievement, unlockedIds } = useAchievementsStore();
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
@@ -65,6 +66,13 @@ export default function PaywallScreen() {
       const result = await purchasePackage(pkg);
 
       if (result.success) {
+        // Sync subscription status from RevenueCat into the store
+        const status = await getSubscriptionStatus();
+        updateSubscription(
+          status.isPremium ? 'premium' : 'free',
+          status.expirationDate ?? undefined
+        );
+
         if (user && !unlockedIds.includes('premium_member')) {
           try {
             await unlockAchievement(user.id, 'premium_member');
@@ -95,6 +103,13 @@ export default function PaywallScreen() {
       const result = await restorePurchases();
 
       if (result.success && result.isPremium) {
+        // Sync subscription status from RevenueCat into the store
+        const status = await getSubscriptionStatus();
+        updateSubscription(
+          status.isPremium ? 'premium' : 'free',
+          status.expirationDate ?? undefined
+        );
+
         if (user && !unlockedIds.includes('premium_member')) {
           try {
             await unlockAchievement(user.id, 'premium_member');
