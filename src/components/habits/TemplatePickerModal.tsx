@@ -52,8 +52,8 @@ export const TemplatePickerModal: React.FC<TemplatePickerModalProps> = ({
   };
 
   const categoryChipStyle = (isSelected: boolean): ViewStyle => ({
-    paddingHorizontal: 14,
-    paddingVertical: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderWidth: 2.5,
     borderColor: colors.border,
     borderRadius: 9999,
@@ -63,6 +63,7 @@ export const TemplatePickerModal: React.FC<TemplatePickerModalProps> = ({
     shadowOpacity: 1,
     shadowRadius: 0,
     elevation: 0,
+    flexShrink: 0,
   });
 
   const templateCardStyle = (color: string): ViewStyle => ({
@@ -110,7 +111,7 @@ export const TemplatePickerModal: React.FC<TemplatePickerModalProps> = ({
               onPress={() => setSelectedCategory(cat)}
               activeOpacity={0.7}
             >
-              <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 12, color: colors.text }}>
+              <Text style={{ fontFamily: 'SpaceMono_700Bold', fontSize: 12, color: colors.text }} numberOfLines={1}>
                 {cat === 'all' ? 'All' : cat.charAt(0).toUpperCase() + cat.slice(1)}
               </Text>
             </TouchableOpacity>
