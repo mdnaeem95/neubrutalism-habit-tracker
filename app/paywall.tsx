@@ -12,8 +12,8 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { getOfferings, purchasePackage, restorePurchases, getPackagePrice, getIntroPrice } from '@services/revenuecat';
 import type { PurchasesPackage } from 'react-native-purchases';
 
-const PRIVACY_URL = 'https://mdnaeem95.github.io/neubrutalism-habit-tracker/privacy.html';
-const TERMS_URL = 'https://mdnaeem95.github.io/neubrutalism-habit-tracker/terms.html';
+const PRIVACY_URL = 'https://neubrut-website.vercel.app/legal/privacy-block';
+const TERMS_URL = 'https://neubrut-website.vercel.app/legal/terms-block';
 
 export default function PaywallScreen() {
   const router = useRouter();

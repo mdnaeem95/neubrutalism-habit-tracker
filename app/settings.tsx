@@ -190,12 +190,12 @@ export default function SettingsScreen() {
   };
 
   const openPrivacyPolicy = () => {
-    Linking.openURL('https://mdnaeem95.github.io/neubrutalism-habit-tracker/privacy.html')
+    Linking.openURL('https://neubrut-website.vercel.app/legal/privacy-block')
       .catch(() => dialog.alert('Error', 'Could not open link'));
   };
 
   const openTermsOfService = () => {
-    Linking.openURL('https://mdnaeem95.github.io/neubrutalism-habit-tracker/terms.html')
+    Linking.openURL('https://neubrut-website.vercel.app/legal/terms-block')
       .catch(() => dialog.alert('Error', 'Could not open link'));
   };
 

@@ -213,7 +213,7 @@ export default function ProfileScreen() {
 
             <Button
               variant="secondary"
-              onPress={() => Linking.openURL('https://mdnaeem95.github.io/neubrutalism-habit-tracker/privacy.html')
+              onPress={() => Linking.openURL('https://neubrut-website.vercel.app/legal/privacy-block')
                 .catch(() => dialog.alert('Error', 'Could not open link'))}
             >
               Privacy Policy
@@ -221,7 +221,7 @@ export default function ProfileScreen() {
 
             <Button
               variant="secondary"
-              onPress={() => Linking.openURL('https://mdnaeem95.github.io/neubrutalism-habit-tracker/terms.html')
+              onPress={() => Linking.openURL('https://neubrut-website.vercel.app/legal/terms-block')
                 .catch(() => dialog.alert('Error', 'Could not open link'))}
             >
               Terms of Service
